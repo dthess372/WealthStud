@@ -162,7 +162,7 @@ const BudgetPlanner = () => {
   const netIncome = taxDetails.net - (k401ContributionNum + iraContributionNum - traditionalRetirementContributions);
   
   // Calculate effective rates
-  const effectiveFederalRate = taxDetails.effectiveRate;
+  const _effectiveFederalRate = taxDetails.effectiveRate;
   const effectiveTotalRate = grossIncomeNum > 0 ? taxDetails.total / grossIncomeNum : 0;
 
   const calculateTotalExpenses = () => {
@@ -193,7 +193,7 @@ const BudgetPlanner = () => {
     let totalWeightedScore = 0;
     let totalWeight = 0;
 
-    Object.entries(categories).forEach(([key, category]) => {
+    Object.entries(categories).forEach(([_key, category]) => {
       // Skip savings from penalty calculation
       if (category.label.includes('Savings')) return;
       
@@ -828,10 +828,10 @@ const BudgetPlanner = () => {
           <div className="budget-tips">
             <h4>💡 Budget Improvement Tips</h4>
             <p>
-              {budgetHealth < 60 && "Consider reviewing your largest expense categories to identify areas for reduction. "}
-              {savingsRate < 15 && "Aim for a savings rate of at least 15-20% of your income for healthy financial growth. "}
-              {availableAfterExpenses < 0 && "Your expenses exceed your income - consider reducing spending or increasing income. "}
-              {savingsRate >= 15 && budgetHealth < 80 && "Good savings rate! Try optimizing spending categories to match recommended percentages."}
+              {budgetHealth < 60 && 'Consider reviewing your largest expense categories to identify areas for reduction. '}
+              {savingsRate < 15 && 'Aim for a savings rate of at least 15-20% of your income for healthy financial growth. '}
+              {availableAfterExpenses < 0 && 'Your expenses exceed your income - consider reducing spending or increasing income. '}
+              {savingsRate >= 15 && budgetHealth < 80 && 'Good savings rate! Try optimizing spending categories to match recommended percentages.'}
             </p>
           </div>
         )}
@@ -885,7 +885,7 @@ const BudgetPlanner = () => {
                     arcLabel: (item) => `${item.value.toFixed(1)}%`,
                     arcLabelMinAngle: 25,
                     outerRadius: 180,
-                    highlightScope: { fade: 'global', highlight: 'item' },
+                    highlightScope: { fade: 'global', highlight: 'item' }
                   },
                   {
                     cornerRadius: 5,
@@ -894,7 +894,7 @@ const BudgetPlanner = () => {
                     arcLabelMinAngle: 40,
                     innerRadius: 180,
                     outerRadius: 240,
-                    highlightScope: { fade: 'global', highlight: 'item' },
+                    highlightScope: { fade: 'global', highlight: 'item' }
                   },
                 ]}
                 width={800}
@@ -903,7 +903,7 @@ const BudgetPlanner = () => {
                   [`& .${pieArcLabelClasses.root}`]: {
                     fill: '#f1faee',
                     fontSize: '12px',
-                    fontWeight: 'bold',
+                    fontWeight: 'bold'
                   }
                 }}
                 margin={{ top: 50, bottom: 50, left: 100, right: 100 }}

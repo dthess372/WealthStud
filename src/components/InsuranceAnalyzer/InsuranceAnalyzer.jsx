@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
   Shield, 
@@ -6,36 +6,23 @@ import {
   Car, 
   Heart, 
   Calculator,
-  AlertCircle,
-  CheckCircle,
-  TrendingUp,
   Users,
   DollarSign,
-  FileText,
   Zap,
-  Umbrella,
   Activity,
-  Lock,
-  Target,
-  Info,
-  ChevronDown,
-  ChevronUp,
-  Download,
-  Upload
+  Target
 } from 'lucide-react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './InsuranceAnalyzer.css';
 import '../../styles/shared-page-styles.css';
 import SuggestionBox from '../SuggestionBox/SuggestionBox';
 
 // Import shared utilities and configurations
 import { 
-  parseNumber, 
-  parseInteger,
   formatCurrency
 } from '../../lib/utils';
 import { STORAGE_KEYS } from '../../lib/constants';
-import { useLocalStorage, useCSV } from '../../hooks';
+import { useLocalStorage } from '../../hooks';
 
 // Insurance type configurations
 const INSURANCE_TYPES = {
@@ -127,8 +114,7 @@ const InsuranceAnalyzer = () => {
     }
   });
   
-  // CSV functionality
-  const { exportCSV, createFileInputHandler } = useCSV('insurance');
+  // CSV functionality would go here if needed
   
   // Destructure data for easier access
   const { activeTab, generalInfo, lifeInsurance, autoInsurance, homeInsurance, healthInsurance } = insuranceData;
@@ -226,7 +212,7 @@ const InsuranceAnalyzer = () => {
   // });
 
   const [recommendations, setRecommendations] = useState([]);
-  const [collapsedSections, setCollapsedSections] = useState({});
+  const [_collapsedSections, setCollapsedSections] = useState({});
 
   // Calculate life insurance needs
   const calculateLifeInsuranceNeeds = () => {
