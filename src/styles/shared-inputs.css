@@ -1,0 +1,327 @@
+/* Shared Input Field Styles for WealthStud */
+/* Import this file in components that need standardized input styling */
+
+:root {
+  --input-bg: #0a0a0a;
+  --input-border: #333;
+  --input-border-focus: #af953e;
+  --input-text: #f1faee;
+  --input-prefix: #6b7280;
+  --input-placeholder: #6b7280;
+  --input-radius: 6px;
+  
+  /* Compact spacing system */
+  --spacing-xs: 0.25rem;  /* 4px */
+  --spacing-sm: 0.5rem;   /* 8px */
+  --spacing-md: 0.75rem;  /* 12px */
+  --spacing-lg: 1rem;     /* 16px */
+  --spacing-xl: 1.25rem;  /* 20px */
+  --spacing-2xl: 1.5rem;  /* 24px */
+}
+
+/* Base input field styles */
+.input-field {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  color: var(--input-text);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  transition: all 0.2s ease;
+  min-height: 2.25rem; /* 36px total height */
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 1px var(--input-border-focus);
+  transform: translateY(-1px);
+}
+
+.input-field::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* Input fields with prefix (like $ symbol) */
+.input-field.with-prefix {
+  padding-left: 2rem; /* Extra space to prevent prefix overlap */
+}
+
+/* Input fields with suffix (like % symbol) */
+.input-field.with-suffix {
+  padding-right: 1.75rem; /* Extra space to prevent suffix overlap */
+}
+
+.input-field.no-prefix {
+  padding-left: var(--spacing-md);
+}
+
+/* Compact variant for tighter spaces */
+.input-field.compact {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.8125rem;
+  min-height: 2rem; /* 32px total height */
+}
+
+.input-field.compact.with-prefix {
+  padding-left: 1.75rem;
+}
+
+/* Large variant for important fields */
+.input-field.large {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1rem;
+  min-height: 2.5rem; /* 40px total height */
+}
+
+.input-field.large.with-prefix {
+  padding-left: 2.25rem;
+}
+
+/* Input wrapper for positioning prefix/suffix */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Input prefix styling ($ symbols, etc.) */
+.input-prefix {
+  position: absolute;
+  left: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--input-prefix);
+  font-size: 0.875rem;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+}
+
+.input-prefix.compact {
+  left: var(--spacing-sm);
+  font-size: 0.8125rem;
+}
+
+.input-prefix.large {
+  left: var(--spacing-lg);
+  font-size: 1rem;
+}
+
+/* Input suffix styling (%, etc.) */
+.input-suffix {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--input-prefix);
+  font-size: 0.875rem;
+  font-weight: 500;
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+}
+
+/* Specific input field types */
+.input-field.number {
+  text-align: right;
+}
+
+/* Minimum width constraints for different input types */
+.input-field.width-xs {
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.input-field.width-sm {
+  min-width: 80px;
+  max-width: 120px;
+}
+
+.input-field.width-md {
+  min-width: 120px;
+  max-width: 160px;
+}
+
+.input-field.width-lg {
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.input-field.width-xl {
+  min-width: 180px;
+  max-width: 250px;
+}
+
+/* Input group styling */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+.input-group.compact {
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #a8dadc;
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.25;
+}
+
+.input-group.compact label {
+  font-size: 0.8125rem;
+}
+
+/* Input grid layouts */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.input-grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.input-grid.tight {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+/* Table input fields */
+.table-input {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.8125rem;
+  color: var(--input-text);
+  min-height: 1.75rem; /* 28px */
+  transition: all 0.2s ease;
+}
+
+.table-input:focus {
+  background: var(--input-bg);
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 1px var(--input-border-focus);
+}
+
+.table-input.currency {
+  text-align: right;
+  min-width: 90px;
+  max-width: 130px;
+}
+
+.table-input.number {
+  text-align: right;
+  min-width: 60px;
+  max-width: 80px;
+}
+
+.table-input.text {
+  min-width: 100px;
+  max-width: 150px;
+}
+
+/* Section styling for more compact layouts */
+.section-compact {
+  padding: var(--spacing-lg);
+}
+
+.section-tight {
+  padding: var(--spacing-md);
+}
+
+/* Card/Panel styling for compactness */
+.card-compact {
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.card-tight {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Form layout improvements */
+.form-section {
+  background: #1f1f1f;
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  border: 1px solid #2a2a2a;
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-section.compact {
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.form-section h3 {
+  color: #af953e;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.form-section.compact h3 {
+  font-size: 0.9375rem;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .input-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .input-grid.compact {
+    gap: var(--spacing-sm);
+  }
+  
+  .input-field {
+    font-size: 0.875rem;
+  }
+  
+  .input-field.compact {
+    font-size: 0.8125rem;
+  }
+  
+  .form-section {
+    padding: var(--spacing-md);
+  }
+  
+  .form-section.compact {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .input-wrapper {
+    width: 100%;
+  }
+  
+  .input-field.width-lg,
+  .input-field.width-xl {
+    min-width: auto;
+    max-width: none;
+    width: 100%;
+  }
+}

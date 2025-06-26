@@ -1,0 +1,45 @@
+.chartHolder{
+  margin: auto;
+  width: 99vw;
+  height: calc(100vh - 90px);
+}
+  
+.ResponsiveContainer{
+  margin: auto;
+}
+
+.chart{
+  background-color: var(--primary-color); 
+  border-radius: 20px;
+  margin-top: 50px;
+}
+
+.slider{
+  padding-right: 25px;
+  padding-left: 110px;
+  width: stretch;
+  transform: translatey(-50px);
+}
+
+.rc-slider-rail {
+  height: 10px; 
+  background-color: var(--darkGray); 
+  border: 1px solid var(--gray);
+}
+
+.rc-slider-track {
+  height: 20px;
+  background-color: var(--lightGray); 
+  margin-top: -5px;
+  opacity: 50%;
+}
+
+.rc-slider-handle {
+  border: solid 2px var(--tertiary-color); 
+  border-radius: 5px;
+  margin-top: -15px;
+  height: 40px; 
+  width: 10px; 
+  background-color: var(--white); 
+  cursor: pointer; 
+}

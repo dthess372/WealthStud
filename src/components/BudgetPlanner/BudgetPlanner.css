@@ -1,0 +1,802 @@
+/* Main container */
+.budget-creator {
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--primary-text-color);
+  padding: 0;
+  margin: 0;
+  padding-top: var(--header-height);
+}
+
+.budget-content {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+/* Compact header */
+.budget-header {
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+  border-bottom: 1px solid var(--primary-color);
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.budget-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.budget-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0;
+  background: linear-gradient(135deg, var(--primary-color), #d4af37);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.budget-subtitle {
+  color: var(--secondary-text-color);
+  font-size: 1rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.budget-intro-section {
+  background-color: #2b2b2b;
+  border-radius: 1rem;
+  color: var(--secondary-text-color);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  max-width: 1000px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
+}
+
+.intro-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+.intro-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #1f1f1f;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  color: var(--background);
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.intro-note {
+  text-align: center;
+  font-style: italic;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #1f1f1f;
+  border-radius: 6px;
+  border: 1px solid #2a2a2a;
+}
+
+/* Main content */
+.budget-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Dashboard summary */
+.budget-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-card {
+  background: #1f1f1f;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--primary-color);
+}
+
+.dashboard-card.danger::before {
+  background: var(--secondary-color);
+}
+
+.dashboard-card.success::before {
+  background: #22c55e;
+}
+
+.dashboard-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-text-color);
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-label {
+  font-size: 0.875rem;
+  color: var(--secondary-text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Enhanced section styling */
+.budget-section {
+  background: #1f1f1f;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  border: 1px solid #2a2a2a;
+  overflow: hidden;
+}
+
+.section-header {
+  background: linear-gradient(135deg, #252525, #1f1f1f);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #2a2a2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-icon {
+  padding: 0.5rem;
+  background: var(--primary-color);
+  border-radius: 6px;
+  color: var(--background);
+}
+
+.section-content {
+  padding: 1.5rem;
+}
+
+/* Income layout - improved grid */
+.income-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.income-inputs-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-section-wide {
+  background: #0f0f0f;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.retirement-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.retirement-section {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 1rem;
+  border: 1px solid #2a2a2a;
+}
+
+.retirement-title {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tax-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Category controls */
+.category-controls,
+.category-controls-bottom {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-controls-bottom {
+  justify-content: center;
+  padding: 1rem;
+  border-top: 1px solid #2a2a2a;
+  background: #1a1a1a;
+}
+
+.control-btn {
+  background: #2a2a2a;
+  color: var(--primary-text-color);
+  border: 1px solid #3a3a3a;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  background: var(--primary-color);
+  color: var(--background);
+  border-color: var(--primary-color);
+}
+
+/* Tax breakdown section */
+.tax-breakdown-container {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+}
+
+/* Input section with consistent styling */
+.input-section {
+  background: #0f0f0f;
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--secondary-text-color);
+  text-align: center;
+}
+
+/* Use shared input styles - override only when necessary */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Override for select fields */
+select.input-field {
+  cursor: pointer;
+  padding-left: 0.75rem;
+}
+
+/* Compact input group styling */
+.input-group {
+  margin-bottom: 0.875rem;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-field:hover {
+  border-color: #444;
+}
+
+/* Checkbox styling */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.checkbox-wrapper label {
+  font-size: 0.875rem;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+}
+
+/* Table styling */
+.table-container {
+  background: #0f0f0f;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+}
+
+.income-table,
+.tax-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.income-table th,
+.tax-table th {
+  background: #1a1a1a;
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-text-color);
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 0.875rem;
+}
+
+.income-table td,
+.tax-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #1a1a1a;
+  color: var(--primary-text-color);
+}
+
+.income-table tr:last-child td,
+.tax-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Income row styling */
+.income-row.positive {
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 3px solid #22c55e;
+}
+
+.income-row.negative {
+  background: rgba(230, 57, 70, 0.1);
+  border-left: 3px solid var(--secondary-color);
+}
+
+.income-row.net {
+  background: rgba(175, 149, 62, 0.1);
+  border-left: 3px solid var(--primary-color);
+  font-weight: 600;
+}
+
+/* Tax row styling */
+.tax-row {
+  font-size: 0.875rem;
+}
+
+.tax-total {
+  background: rgba(230, 57, 70, 0.1);
+  font-weight: 600;
+}
+
+/* Enhanced table for expenses */
+.expenses-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0f0f0f;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+}
+
+.expenses-table th {
+  background: #1a1a1a;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-text-color);
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 0.875rem;
+}
+
+.expenses-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #1a1a1a;
+  color: var(--primary-text-color);
+}
+
+/* Category rows */
+.category-row {
+  background: #1a1a1a !important;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.category-row:hover {
+  background: rgba(175, 149, 62, 0.1) !important;
+}
+
+.subcategory-row {
+  background: #141414 !important;
+  transition: all 0.2s ease;
+}
+
+.subcategory-row:hover {
+  background: rgba(175, 149, 62, 0.05) !important;
+}
+
+.unallocated-row {
+  background: rgba(156, 163, 175, 0.2) !important;
+  border-left: 4px solid #9ca3af;
+  font-weight: 600;
+}
+
+/* Progress bar for budget goals */
+.budget-progress {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--secondary-text-color);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.progress-fill.under {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.progress-fill.over {
+  background: linear-gradient(90deg, var(--secondary-color), #dc2626);
+}
+
+.progress-target {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--primary-color);
+  z-index: 2;
+  border-radius: 1px;
+  box-shadow: 0 0 3px rgba(175, 149, 62, 0.6);
+}
+
+/* Collapse button */
+.collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--primary-text-color);
+  font-weight: 600;
+  width: 100%;
+  padding: 0.25rem 0;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.collapse-btn:hover {
+  color: var(--primary-color);
+}
+
+/* Subcategory styling */
+.subcategory-name {
+  padding-left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Icons */
+.action-icon {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.action-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.trashIcon {
+  color: var(--secondary-color);
+}
+
+.pencilIcon {
+  color: #60a5fa;
+}
+
+.plusIcon {
+  color: #22c55e;
+}
+
+/* Table inputs */
+.expenses-table input[type="number"],
+.expenses-table input[type="text"] {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: var(--primary-text-color);
+  font-size: 0.875rem;
+  width: 80px;
+  transition: all 0.2s ease;
+}
+
+.expenses-table input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(175, 149, 62, 0.2);
+}
+
+/* Chart section */
+.chart-section {
+  margin-top: 1rem;
+}
+
+.chart-container-large {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f0f0f;
+  border-radius: 8px;
+  padding: 2rem;
+  border: 1px solid #2a2a2a;
+  min-height: 500px;
+}
+
+/* Custom chart styling to fix text colors */
+.chart-container-large .recharts-legend-item-text,
+.chart-container-large .recharts-label {
+  fill: var(--primary-text-color) !important;
+}
+
+/* Actions section */
+.actions-section {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), #d4af37);
+  color: var(--background);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(175, 149, 62, 0.3);
+}
+
+.hidden-input {
+  display: none;
+}
+
+/* Note styling */
+.income-note {
+  text-align: center;
+  color: var(--secondary-text-color);
+  font-size: 0.875rem;
+  font-style: italic;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #0f0f0f;
+  border-radius: 6px;
+  border: 1px solid #2a2a2a;
+}
+
+/* Budget tips */
+.budget-tips {
+  background: #1f1f1f;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.budget-tips h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--primary-color);
+}
+
+/* Column alignment */
+.centeredCol {
+  text-align: center;
+}
+
+.rightCol {
+  text-align: right;
+}
+
+.firstCol {
+  text-align: left;
+  min-width: 180px;
+}
+
+/* Health indicator styles */
+.financial-health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.health-excellent {
+  color: #22c55e;
+}
+
+.health-good {
+  color: #60a5fa;
+}
+
+.health-fair {
+  color: #f59e0b;
+}
+
+.health-poor {
+  color: var(--secondary-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .budget-content {
+    padding: 1rem;
+  }
+  
+  .section-content {
+    padding: 1rem;
+  }
+  
+  .expenses-table th,
+  .expenses-table td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .firstCol {
+    min-width: 120px;
+  }
+  
+  .expenses-table input {
+    width: 60px;
+  }
+  
+  .dashboard-card {
+    padding: 1rem;
+  }
+  
+  .budget-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .income-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .retirement-inputs-grid,
+  .tax-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .intro-steps {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .budget-title {
+    font-size: 1.75rem;
+  }
+  
+  .expenses-table {
+    font-size: 0.75rem;
+  }
+  
+  .chart-container-large {
+    padding: 0.5rem;
+  }
+  
+  .budget-dashboard {
+    grid-template-columns: 1fr;
+  }
+  
+  .retirement-inputs-grid,
+  .tax-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+}

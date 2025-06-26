@@ -1,0 +1,254 @@
+/* Use shared page styles - only component-specific overrides below */
+
+/* Header styles handled by shared page styles */
+
+/* Intro section styles handled by shared page styles */
+
+/* Dashboard cards handled by shared page styles */
+
+/* Panel styles handled by shared page styles */
+
+.projection-select {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #f1faee;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.tabs-container {
+  padding: 1.25rem;
+}
+
+.tabs-nav {
+  display: flex;
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 0.25rem;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #a8dadc;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tab-button.active {
+  background: #af953e;
+  color: #181818;
+}
+
+.tab-button:hover:not(.active) {
+  background: #2a2a2a;
+  color: #f1faee;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.875rem;
+}
+
+.input-section {
+  background: #0f0f0f;
+  border-radius: 8px;
+  padding: 0.875rem;
+  border: 1px solid #2a2a2a;
+}
+
+.input-group {
+  margin-bottom: 0.875rem;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #a8dadc;
+  margin-bottom: 0.375rem;
+}
+
+/* Use shared input styles from shared-inputs.css */
+.input-wrapper {
+  position: relative;
+}
+
+/* Override for FinancialDashboard specific styling */
+.input-field {
+  font-size: 0.875rem;
+}
+
+.input-field.with-prefix {
+  padding-left: 2rem;
+}
+
+.input-prefix {
+  font-size: 0.875rem;
+}
+
+/* Chart container handled by shared page styles */
+
+.detail-toggle {
+  background: #2a2a2a;
+  color: #f1faee;
+  border: 1px solid #3a3a3a;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-toggle:hover {
+  background: #af953e;
+  color: #181818;
+  border-color: #af953e;
+}
+
+/* Section styles handled by shared page styles */
+
+.table-container {
+  overflow-x: auto;
+  max-height: 600px;
+  background: #0f0f0f;
+}
+
+.projections-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.projections-table th {
+  background: #1a1a1a;
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #f1faee;
+  border-bottom: 1px solid #2a2a2a;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.projections-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #1a1a1a;
+  color: #f1faee;
+  white-space: nowrap;
+}
+
+.projections-table tr:hover {
+  background: rgba(175, 149, 62, 0.05);
+}
+
+.milestone-row {
+  background: rgba(175, 149, 62, 0.1) !important;
+  font-weight: 600;
+}
+
+.net-worth-cell {
+  font-weight: bold;
+  color: #22c55e;
+}
+
+.actions-section {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #af953e, #d4af37);
+  color: #181818;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(175, 149, 62, 0.3);
+}
+
+.btn-secondary {
+  background: #2a2a2a;
+  color: #f1faee;
+  border: 1px solid #3a3a3a;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background: #3a3a3a;
+  border-color: #af953e;
+}
+
+@media (max-width: 1024px) {
+  .main-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .input-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .summary-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 1rem;
+  }
+
+  .tabs-nav {
+    flex-direction: column;
+  }
+
+  .summary-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .projections-table {
+    font-size: 0.75rem;
+  }
+}
