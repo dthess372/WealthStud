@@ -1,55 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
   Calendar,
-  Clock,
-  TrendingUp,
-  AlertTriangle,
   CheckCircle,
   Download,
   Upload,
   Plus,
-  BarChart3,
-  Shield
+  BarChart3
 } from 'lucide-react';
+import { parseNumber } from '../../lib/utils';
+import { STORAGE_KEYS } from '../../lib/constants';
+import { useLocalStorage, useCSV } from '../../hooks';
 import './VacationPlanner.css';
 import '../../styles/shared-page-styles.css';
 import SuggestionBox from '../SuggestionBox/SuggestionBox';
 
 const VacationPlanner = () => {
-  const [settings, setSettings] = useState({
-    ptoDaysPerYear: 20,
-    payFrequency: 14,
-    mostRecentPayDate: new Date().toISOString().split('T')[0],
-    ptoAccrual: 'accrual',
-    currentPtoBalance: 15,
-    ptoRolloverLimit: 5,
-    enableCompTime: false,
-    currentCompBalance: 0,
-    compRolloverLimit: null,
-    allowHolidayBanking: false,
-    currentHolidayBalance: 0,
-    holidayRolloverLimit: null,
-    policyType: 'standard'
+  // Use localStorage for data persistence
+  const [vacationData, setVacationData] = useLocalStorage(STORAGE_KEYS.VACATION_DATA, {
+    settings: {
+      ptoDaysPerYear: 20,
+      payFrequency: 14,
+      mostRecentPayDate: new Date().toISOString().split('T')[0],
+      ptoAccrual: 'accrual',
+      currentPtoBalance: 15,
+      ptoRolloverLimit: 5,
+      enableCompTime: false,
+      currentCompBalance: 0,
+      compRolloverLimit: null,
+      allowHolidayBanking: false,
+      currentHolidayBalance: 0,
+      holidayRolloverLimit: null,
+      policyType: 'standard'
+    },
+    tableData: [],
+    dashboardData: {
+      currentBalance: 0,
+      projectedBalance: 0,
+      usageRate: 0,
+      burnoutRisk: 'Low',
+      healthScore: 100
+    }
   });
 
-  const [tableData, setTableData] = useState([]);
+  // CSV functionality
+  const { exportCSV, createFileInputHandler } = useCSV('vacation');
+
+  // Extract data for easier access
+  const { settings, tableData, dashboardData } = vacationData;
+
+  // Helper function to update vacation data
+  const updateVacationData = (updates) => {
+    setVacationData(prev => ({ ...prev, ...updates }));
+  };
+
   const [displayedRows, setDisplayedRows] = useState(10);
-  const [dashboardData, setDashboardData] = useState({
-    currentBalance: 0,
-    projectedBalance: 0,
-    usageRate: 0,
-    burnoutRisk: 'Low',
-    healthScore: 100
-  });
 
-  useEffect(() => {
-    updateTable();
-  }, [settings, displayedRows]);
-
-  const updateTable = () => {
+  const updateTable = useCallback(() => {
     const newTableData = [];
-    let paydate = new Date(settings.mostRecentPayDate);
+    let paydate = new Date(settings.mostRecentPayDate); // eslint-disable-line prefer-const
 
     const totalPtoPerYear = settings.ptoDaysPerYear;
     const payPeriodsPerYear = Math.ceil(365 / settings.payFrequency);
@@ -125,9 +134,13 @@ const VacationPlanner = () => {
       paydate.setDate(paydate.getDate() + settings.payFrequency);
     }
 
-    setTableData(newTableData);
+    updateVacationData({ tableData: newTableData });
     updateDashboard(newTableData);
-  };
+  }, [settings, displayedRows]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    updateTable();
+  }, [updateTable]);
 
   const updateDashboard = (data) => {
     const currentBalance = settings.currentPtoBalance;
@@ -151,30 +164,34 @@ const VacationPlanner = () => {
     
     healthScore = Math.max(0, Math.min(100, healthScore));
 
-    setDashboardData({
-      currentBalance,
-      projectedBalance,
-      usageRate,
-      burnoutRisk,
-      healthScore
+    updateVacationData({ 
+      dashboardData: {
+        currentBalance,
+        projectedBalance,
+        usageRate,
+        burnoutRisk,
+        healthScore
+      }
     });
   };
 
   const handleSettingsChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setSettings(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'number' ? parseFloat(value) || 0 : value)
-    }));
+    updateVacationData({
+      settings: {
+        ...settings,
+        [name]: type === 'checkbox' ? checked : (type === 'number' ? parseNumber(value) : value)
+      }
+    });
   };
 
   const handleRowChange = (index, field, value) => {
     const updatedData = [...tableData];
     updatedData[index] = {
       ...updatedData[index],
-      [field]: parseFloat(value) || 0
+      [field]: parseNumber(value)
     };
-    setTableData(updatedData);
+    updateVacationData({ tableData: updatedData });
     updateTable();
   };
 
@@ -208,83 +225,11 @@ const VacationPlanner = () => {
         ptoUsed: (updatedData[closestIndex].ptoUsed || 0) + vacationDays
       };
       
-      setTableData(updatedData);
+      updateVacationData({ tableData: updatedData });
       alert(`Added ${vacationDays} vacation days starting around ${startDate}!`);
     }
   };
 
-  const exportToCSV = () => {
-    const headers = ['Pay Date', 'PTO Earned', 'PTO Used', 'PTO Balance'];
-    
-    if (settings.enableCompTime) {
-      headers.push('Comp Earned', 'Comp Used', 'Comp Balance');
-    }
-    if (settings.allowHolidayBanking) {
-      headers.push('Holiday Earned', 'Holiday Used', 'Holiday Balance');
-    }
-    headers.push('Total Balance', 'Usage Rate');
-    
-    const csvContent = [
-      headers.join(','),
-      ...tableData.map(row => {
-        let rowData = [
-          row.paydate,
-          row.ptoGained,
-          row.ptoUsed,
-          row.ptoBalance
-        ];
-        
-        if (settings.enableCompTime) {
-          rowData.push(row.compGained || 0, row.compUsed, row.compBalance || 0);
-        }
-        if (settings.allowHolidayBanking) {
-          rowData.push(row.holidayGained || 0, row.holidayUsed, row.holidayBalance || 0);
-        }
-        rowData.push(row.totalBalance, row.usageRate.toFixed(1));
-        
-        return rowData.join(',');
-      })
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'pto-projections.csv';
-    link.click();
-  };
-
-  const importCSV = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target.result;
-        const [headers, ...rows] = text.split('\n');
-        
-        const updatedData = [...tableData];
-        rows.forEach((row, index) => {
-          if (row.trim() && index < updatedData.length) {
-            const values = row.split(',');
-            if (values.length >= 4) {
-              updatedData[index] = {
-                ...updatedData[index],
-                ptoUsed: parseFloat(values[2]) || 0
-              };
-            }
-          }
-        });
-        
-        setTableData(updatedData);
-        alert('PTO data imported successfully!');
-      } catch (error) {
-        alert('Error importing CSV file. Please check the format.');
-      }
-    };
-    reader.readAsText(file);
-  };
 
   const getUsageProgressClass = (usageRate) => {
     if (usageRate > 80) return 'danger';
@@ -310,7 +255,7 @@ const VacationPlanner = () => {
     const usageRate = settings.ptoDaysPerYear > 0 ? (totalUsed / settings.ptoDaysPerYear * 100) : 0;
     
     if (usageRate < 40) {
-      recommendations.push("🚨 High burnout risk detected! Consider planning a vacation soon to maintain work-life balance.");
+      recommendations.push('🚨 High burnout risk detected! Consider planning a vacation soon to maintain work-life balance.');
     }
     
     if (dashboardData.currentBalance > settings.ptoRolloverLimit && settings.ptoRolloverLimit > 0) {
@@ -318,22 +263,22 @@ const VacationPlanner = () => {
     }
     
     if (usageRate > 80) {
-      recommendations.push("✅ Great job using your PTO! You're maintaining a healthy work-life balance.");
+      recommendations.push('✅ Great job using your PTO! You\'re maintaining a healthy work-life balance.');
     }
     
     if (dashboardData.currentBalance < 5) {
-      recommendations.push("📈 Your PTO balance is running low. Consider saving some upcoming accrued time for emergencies.");
+      recommendations.push('📈 Your PTO balance is running low. Consider saving some upcoming accrued time for emergencies.');
     }
     
     const currentMonth = new Date().getMonth();
     if (currentMonth >= 10 || currentMonth <= 1) {
-      recommendations.push("❄️ Winter season: Great time for year-end vacation or holiday time off!");
+      recommendations.push('❄️ Winter season: Great time for year-end vacation or holiday time off!');
     } else if (currentMonth >= 5 && currentMonth <= 7) {
-      recommendations.push("☀️ Summer season: Peak vacation time! Book popular destinations early.");
+      recommendations.push('☀️ Summer season: Peak vacation time! Book popular destinations early.');
     }
     
     if (recommendations.length === 0) {
-      recommendations.push("✨ Your PTO usage looks healthy! Keep maintaining a good work-life balance.");
+      recommendations.push('✨ Your PTO usage looks healthy! Keep maintaining a good work-life balance.');
     }
     
     return recommendations;
@@ -357,9 +302,125 @@ const VacationPlanner = () => {
     );
   };
 
+  // CSV Export functionality
+  const exportVacationData = () => {
+    const exportData = [{
+      // Settings
+      'PTO Days Per Year': settings.ptoDaysPerYear,
+      'Pay Frequency': settings.payFrequency,
+      'Most Recent Pay Date': settings.mostRecentPayDate,
+      'PTO Accrual Type': settings.ptoAccrual,
+      'Current PTO Balance': settings.currentPtoBalance,
+      'PTO Rollover Limit': settings.ptoRolloverLimit,
+      'Enable Comp Time': settings.enableCompTime,
+      'Current Comp Balance': settings.currentCompBalance,
+      'Comp Rollover Limit': settings.compRolloverLimit,
+      'Allow Holiday Banking': settings.allowHolidayBanking,
+      'Current Holiday Balance': settings.currentHolidayBalance,
+      'Holiday Rollover Limit': settings.holidayRolloverLimit,
+      'Policy Type': settings.policyType,
+      
+      // Dashboard Data
+      'Current Balance': dashboardData.currentBalance,
+      'Projected Balance': dashboardData.projectedBalance,
+      'Usage Rate': dashboardData.usageRate,
+      'Burnout Risk': dashboardData.burnoutRisk,
+      'Health Score': dashboardData.healthScore
+    }];
+    
+    exportCSV(exportData, 'vacation_planner_data');
+  };
+
+  const exportScheduleData = () => {
+    const scheduleData = tableData.map((row, index) => ({
+      'Pay Period': index + 1,
+      'Pay Date': row.payDate,
+      'PTO Gained': row.ptoGained,
+      'PTO Used': row.ptoUsed || 0,
+      'PTO Balance': row.ptoBalance,
+      'Comp Gained': row.compGained || 0,
+      'Comp Used': row.compUsed || 0,
+      'Comp Balance': row.compBalance || 0,
+      'Holiday Gained': row.holidayGained || 0,
+      'Holiday Used': row.holidayUsed || 0,
+      'Holiday Balance': row.holidayBalance || 0
+    }));
+    
+    exportCSV(scheduleData, 'vacation_schedule_data');
+  };
+
+  const handleCSVImport = createFileInputHandler(
+    (result) => {
+      const data = result.data[0];
+      if (data && data['PTO Days Per Year']) {
+        updateVacationData({
+          settings: {
+            ptoDaysPerYear: parseNumber(data['PTO Days Per Year']),
+            payFrequency: parseNumber(data['Pay Frequency']),
+            mostRecentPayDate: data['Most Recent Pay Date'] || new Date().toISOString().split('T')[0],
+            ptoAccrual: data['PTO Accrual Type'] || 'accrual',
+            currentPtoBalance: parseNumber(data['Current PTO Balance']),
+            ptoRolloverLimit: parseNumber(data['PTO Rollover Limit']),
+            enableCompTime: data['Enable Comp Time'] === 'true',
+            currentCompBalance: parseNumber(data['Current Comp Balance']),
+            compRolloverLimit: parseNumber(data['Comp Rollover Limit']),
+            allowHolidayBanking: data['Allow Holiday Banking'] === 'true',
+            currentHolidayBalance: parseNumber(data['Current Holiday Balance']),
+            holidayRolloverLimit: parseNumber(data['Holiday Rollover Limit']),
+            policyType: data['Policy Type'] || 'standard'
+          },
+          dashboardData: {
+            currentBalance: parseNumber(data['Current Balance']),
+            projectedBalance: parseNumber(data['Projected Balance']),
+            usageRate: parseNumber(data['Usage Rate']),
+            burnoutRisk: data['Burnout Risk'] || 'Low',
+            healthScore: parseNumber(data['Health Score'])
+          }
+        });
+      }
+    },
+    (error) => {
+      console.error('CSV import error:', error);
+      alert('Error importing CSV file. Please check the format and try again.');
+    }
+  );
+
+  const navigationActions = [
+    {
+      label: 'Export Settings',
+      icon: <Download size={16} />,
+      onClick: exportVacationData,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Export Schedule',
+      icon: <Download size={16} />,
+      onClick: exportScheduleData,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Import Data',
+      icon: <Upload size={16} />,
+      onClick: () => document.getElementById('vacation-csv-import').click(),
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    }
+  ];
+
   return (
     <div className="page-container">
-      <Navigation />
+      <Navigation actions={navigationActions} />
+
+      {/* Hidden file input for CSV import */}
+      <input
+        id="vacation-csv-import"
+        type="file"
+        accept=".csv"
+        onChange={handleCSVImport}
+        style={{ display: 'none' }}
+      />
 
       {/* Header */}
       <div className="page-header">
@@ -727,23 +788,6 @@ const VacationPlanner = () => {
           </div>
         </div>
 
-        {/* Export/Import */}
-        <div className="actions-section">
-          <button className="btn-primary" onClick={exportToCSV}>
-            <Download size={16} />
-            Export PTO Data
-          </button>
-          <label className="btn-primary">
-            <Upload size={16} />
-            Import PTO Data
-            <input
-              type="file"
-              accept=".csv"
-              onChange={importCSV}
-              className="hidden-input"
-            />
-          </label>
-        </div>
       </div>
       
       <SuggestionBox />

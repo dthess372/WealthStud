@@ -8,7 +8,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
       'Property Tax': { monthly: 0 },
       'Insurance': { monthly: 0 },
       'Utilities': { monthly: 0 },
-      'HOA Fees': { monthly: 0 },
+      'HOA Fees': { monthly: 0 }
     }
   },
   'Food': {
@@ -18,7 +18,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
     subcategories: {
       'Groceries': { monthly: 0 },
       'Dining Out': { monthly: 0 },
-      'Coffee/Drinks': { monthly: 0 },
+      'Coffee/Drinks': { monthly: 0 }
     }
   },
   'Transportation': {
@@ -31,7 +31,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
       'Insurance': { monthly: 0 },
       'Maintenance': { monthly: 0 },
       'Public Transit': { monthly: 0 },
-      'Parking/Tolls': { monthly: 0 },
+      'Parking/Tolls': { monthly: 0 }
     }
   },
   'Entertainment': {
@@ -42,7 +42,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
       'Streaming Services': { monthly: 0 },
       'Movies/Events': { monthly: 0 },
       'Hobbies': { monthly: 0 },
-      'Gaming': { monthly: 0 },
+      'Gaming': { monthly: 0 }
     }
   },
   'Personal': {
@@ -54,7 +54,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
       'Personal Care': { monthly: 0 },
       'Gym/Fitness': { monthly: 0 },
       'Subscriptions': { monthly: 0 },
-      'Phone/Internet': { monthly: 0 },
+      'Phone/Internet': { monthly: 0 }
     }
   },
   'Healthcare': {
@@ -65,7 +65,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
       'Insurance Premium': { monthly: 0 },
       'Medical Expenses': { monthly: 0 },
       'Dental/Vision': { monthly: 0 },
-      'Prescriptions': { monthly: 0 },
+      'Prescriptions': { monthly: 0 }
     }
   },
   'Education': {
@@ -75,7 +75,7 @@ export const DEFAULT_BUDGET_CATEGORIES = {
     subcategories: {
       'Student Loans': { monthly: 0 },
       'Courses/Training': { monthly: 0 },
-      'Books/Resources': { monthly: 0 },
+      'Books/Resources': { monthly: 0 }
     }
   },
   'Savings': {
@@ -86,9 +86,9 @@ export const DEFAULT_BUDGET_CATEGORIES = {
       'Emergency Fund': { monthly: 0 },
       'Investment Account': { monthly: 0 },
       'IRA/Roth IRA': { monthly: 0 },
-      'Other Savings': { monthly: 0 },
+      'Other Savings': { monthly: 0 }
     }
-  },
+  }
 };
 
 // Helper function to get a fresh copy of categories

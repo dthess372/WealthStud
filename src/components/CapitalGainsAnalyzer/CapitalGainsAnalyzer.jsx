@@ -1,26 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
   TrendingUp, 
-  TrendingDown, 
   Calculator,
-  Calendar,
-  DollarSign,
-  PieChart as PieChartIcon,
   Download,
   Upload,
   Plus,
   Trash2,
-  AlertCircle,
-  CheckCircle,
   BarChart3,
-  Info,
   Edit2
 } from 'lucide-react';
-import { PieChart, pieArcLabelClasses } from '@mui/x-charts';
+import { PieChart } from '@mui/x-charts';
 import { 
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, 
+  Tooltip, ResponsiveContainer 
 } from 'recharts';
 import SuggestionBox from '../SuggestionBox/SuggestionBox';
 import './CapitalGainsAnalyzer.css';
@@ -390,31 +383,31 @@ const CapitalGainsAnalyzer = () => {
   );
 
   // Chart data preparation
-  const prepareMonthlyData = () => {
-    const monthlyData = {};
+  // const prepareMonthlyData = () => {
+  //   const monthlyData = {};
     
-    trades.forEach(trade => {
-      const saleMonth = new Date(trade.saleDate).toISOString().slice(0, 7);
-      const gainLoss = calculateGainLoss(trade);
-      const type = isLongTerm(trade.purchaseDate, trade.saleDate) ? 'longTerm' : 'shortTerm';
-      
-      if (!monthlyData[saleMonth]) {
-        monthlyData[saleMonth] = { month: saleMonth, shortTerm: 0, longTerm: 0 };
-      }
-      
-      monthlyData[saleMonth][type] += gainLoss;
-    });
-    
-    return Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
-  };
+  //     trades.forEach(trade => {
+  //       const saleMonth = new Date(trade.saleDate).toISOString().slice(0, 7);
+  //       const gainLoss = calculateGainLoss(trade);
+  //       const type = isLongTerm(trade.purchaseDate, trade.saleDate) ? 'longTerm' : 'shortTerm';
+  //       
+  //       if (!monthlyData[saleMonth]) {
+  //         monthlyData[saleMonth] = { month: saleMonth, shortTerm: 0, longTerm: 0 };
+  //       }
+  //       
+  //       monthlyData[saleMonth][type] += gainLoss;
+  //     });
+  //     
+  //     return Object.values(monthlyData).sort((a, b) => a.month.localeCompare(b.month));
+  // };
 
   // Get calculated values
   const {
     shortTermGains,
-    longTermGains,
-    totalTax,
-    longTermRate,
-    effectiveRate
+    longTermGains
+    // totalTax,
+    // longTermRate,
+    // effectiveRate
   } = calculateTotals();
 
   // Calculate capital gains tax for display
@@ -454,90 +447,89 @@ const CapitalGainsAnalyzer = () => {
   // Function aliases for the JSX
   const addTrade = handleAddTrade;
   const updateTrade = handleAddTrade;
-  const exportCSV = handleExportCSV;
   const importCSV = handleImportCSV;
 
-  const prepareAssetData = () => {
-    const assetData = {};
-    
-    trades.forEach(trade => {
-      const gainLoss = calculateGainLoss(trade);
-      if (!assetData[trade.asset]) {
-        assetData[trade.asset] = { gains: 0, losses: 0 };
-      }
-      
-      if (gainLoss > 0) {
-        assetData[trade.asset].gains += gainLoss;
-      } else {
-        assetData[trade.asset].losses += Math.abs(gainLoss);
-      }
-    });
-    
-    return Object.entries(assetData).map(([asset, data]) => ({
-      asset,
-      gains: data.gains,
-      losses: -data.losses,
-      net: data.gains - data.losses
-    }));
-  };
+  // const prepareAssetData = () => {
+  //     const assetData = {};
+  //     
+  //     trades.forEach(trade => {
+  //       const gainLoss = calculateGainLoss(trade);
+  //       if (!assetData[trade.asset]) {
+  //         assetData[trade.asset] = { gains: 0, losses: 0 };
+  //       }
+  //       
+  //       if (gainLoss > 0) {
+  //         assetData[trade.asset].gains += gainLoss;
+  //       } else {
+  //         assetData[trade.asset].losses += Math.abs(gainLoss);
+  //       }
+  //     });
+  //     
+  //     return Object.entries(assetData).map(([asset, data]) => ({
+  //       asset,
+  //       gains: data.gains,
+  //       losses: -data.losses,
+  //       net: data.gains - data.losses
+  //     }));
+  // };
 
   const totals = calculateTotals();
-  const monthlyData = prepareMonthlyData();
-  const assetData = prepareAssetData();
+  // const monthlyData = prepareMonthlyData();
+  // const assetData = prepareAssetData();
 
   // Tax optimization tips
-  const getTaxOptimizationTips = () => {
-    const tips = [];
-    
-    if (totals.netShortTerm > 0 && totals.shortTermRate > totals.longTermRate) {
-      tips.push({
-        icon: AlertCircle,
-        type: 'warning',
-        text: `Consider holding assets for over 1 year to qualify for lower long-term capital gains rates (${formatPercent(totals.longTermRate * 100)} vs ${formatPercent(totals.shortTermRate * 100)}).`
-      });
-    }
-    
-    if (totals.carryforwardLoss < 0) {
-      tips.push({
-        icon: Info,
-        type: 'info',
-        text: `You have ${formatCurrency(Math.abs(totals.carryforwardLoss))} in losses that will carry forward to next year.`
-      });
-    }
-    
-    if (totals.netLongTerm > 0 && totals.netShortTerm < 0) {
-      tips.push({
-        icon: CheckCircle,
-        type: 'success',
-        text: 'Your short-term losses are offsetting some long-term gains, reducing your overall tax liability.'
-      });
-    }
-    
-    if (STATE_CAPITAL_GAINS[taxSettings.state].rate === 0) {
-      tips.push({
-        icon: CheckCircle,
-        type: 'success',
-        text: `${STATE_CAPITAL_GAINS[taxSettings.state].name} has no state capital gains tax, saving you money.`
-      });
-    }
-    
-    if (totals.netShortTerm > 10000) {
-      tips.push({
-        icon: Info,
-        type: 'info',
-        text: 'Consider tax-loss harvesting strategies to offset some of your short-term gains.'
-      });
-    }
-    
-    return tips;
-  };
+  // const getTaxOptimizationTips = () => {
+  //   const tips = [];
+  //     
+  //     if (totals.netShortTerm > 0 && totals.shortTermRate > totals.longTermRate) {
+  //       tips.push({
+  //         icon: AlertCircle,
+  //         type: 'warning',
+  //         text: `Consider holding assets for over 1 year to qualify for lower long-term capital gains rates (${formatPercent(totals.longTermRate * 100)} vs ${formatPercent(totals.shortTermRate * 100)}).`
+  //       });
+  //     }
+  //     
+  //     if (totals.carryforwardLoss < 0) {
+  //       tips.push({
+  //         icon: Info,
+  //         type: 'info',
+  //         text: `You have ${formatCurrency(Math.abs(totals.carryforwardLoss))} in losses that will carry forward to next year.`
+  //       });
+  //     }
+  //     
+  //     if (totals.netLongTerm > 0 && totals.netShortTerm < 0) {
+  //       tips.push({
+  //         icon: CheckCircle,
+  //         type: 'success',
+  //         text: 'Your short-term losses are offsetting some long-term gains, reducing your overall tax liability.'
+  //       });
+  //     }
+  //     
+  //     if (STATE_CAPITAL_GAINS[taxSettings.state].rate === 0) {
+  //       tips.push({
+  //         icon: CheckCircle,
+  //         type: 'success',
+  //         text: `${STATE_CAPITAL_GAINS[taxSettings.state].name} has no state capital gains tax, saving you money.`
+  //       });
+  //     }
+  //     
+  //     if (totals.netShortTerm > 10000) {
+  //       tips.push({
+  //         icon: Info,
+  //         type: 'info',
+  //         text: 'Consider tax-loss harvesting strategies to offset some of your short-term gains.'
+  //       });
+  //     }
+  //     
+  //   //   return tips;
+  // };
 
   return (
     <div className="page-container">
       <Navigation 
         actions={[
-          { label: 'Export CSV', onClick: exportToCSV, icon: Download },
-          { label: 'Import CSV', onClick: importFromCSV, icon: Upload }
+          { label: 'Export CSV', onClick: handleExportCSV, icon: Download },
+          { label: 'Import CSV', onClick: importCSV, icon: Upload }
         ]}
       />
 
@@ -626,7 +618,7 @@ const CapitalGainsAnalyzer = () => {
                   className="input-field no-prefix"
                   value={taxSettings.filingStatus}
                   onChange={(e) => updateCapitalGainsData({
-                    taxSettings: {...taxSettings, filingStatus: e.target.value}
+                    taxSettings: { ...taxSettings, filingStatus: e.target.value }
                   })}
                 >
                   <option value="single">Single</option>
@@ -639,7 +631,7 @@ const CapitalGainsAnalyzer = () => {
                   className="input-field no-prefix"
                   value={taxSettings.state}
                   onChange={(e) => updateCapitalGainsData({
-                    taxSettings: {...taxSettings, state: e.target.value}
+                    taxSettings: { ...taxSettings, state: e.target.value }
                   })}
                 >
                   {Object.entries(STATE_CAPITAL_GAINS).map(([code, data]) => (
@@ -656,7 +648,7 @@ const CapitalGainsAnalyzer = () => {
                     className="input-field"
                     value={taxSettings.taxableIncome}
                     onChange={(e) => updateCapitalGainsData({
-                      taxSettings: {...taxSettings, taxableIncome: parseNumber(e.target.value)}
+                      taxSettings: { ...taxSettings, taxableIncome: parseNumber(e.target.value) }
                     })}
                     placeholder="100000"
                   />
@@ -668,7 +660,7 @@ const CapitalGainsAnalyzer = () => {
                     type="checkbox" 
                     checked={taxSettings.niitApplies}
                     onChange={(e) => updateCapitalGainsData({
-                      taxSettings: {...taxSettings, niitApplies: e.target.checked}
+                      taxSettings: { ...taxSettings, niitApplies: e.target.checked }
                     })}
                   />
                   <span>Subject to Net Investment Income Tax (3.8%)</span>
@@ -695,7 +687,7 @@ const CapitalGainsAnalyzer = () => {
           <div className="section-content">
             {trades.length === 0 ? (
               <div className="empty-state">
-                <p>No trades added yet. Click "Add Trade" to get started.</p>
+                <p>No trades added yet. Click &quot;Add Trade&quot; to get started.</p>
               </div>
             ) : (
               <div className="table-container">
@@ -829,8 +821,8 @@ const CapitalGainsAnalyzer = () => {
                           innerRadius: 40,
                           outerRadius: 120,
                           cx: 150,
-                          cy: 150,
-                        },
+                          cy: 150
+                        }
                       ]}
                       width={300}
                       height={300}
@@ -854,7 +846,7 @@ const CapitalGainsAnalyzer = () => {
           </div>
           <div className="section-content">
             <div className="action-buttons-row">
-              <button className="btn-secondary" onClick={exportCSV}>
+              <button className="btn-secondary" onClick={handleExportCSV}>
                 <Download size={16} />
                 Export Trades
               </button>
@@ -893,7 +885,7 @@ const CapitalGainsAnalyzer = () => {
                       type="text"
                       className="input-field no-prefix"
                       value={newTrade.asset}
-                      onChange={(e) => setNewTrade({...newTrade, asset: e.target.value})}
+                      onChange={(e) => setNewTrade({ ...newTrade, asset: e.target.value })}
                       placeholder="e.g., AAPL, Bitcoin, Real Estate"
                     />
                   </div>
@@ -903,7 +895,7 @@ const CapitalGainsAnalyzer = () => {
                       type="number"
                       className="input-field no-prefix"
                       value={newTrade.quantity}
-                      onChange={(e) => setNewTrade({...newTrade, quantity: parseFloat(e.target.value) || 0})}
+                      onChange={(e) => setNewTrade({ ...newTrade, quantity: parseFloat(e.target.value) || 0 })}
                       placeholder="100"
                     />
                   </div>
@@ -913,7 +905,7 @@ const CapitalGainsAnalyzer = () => {
                       type="date"
                       className="input-field no-prefix"
                       value={newTrade.purchaseDate}
-                      onChange={(e) => setNewTrade({...newTrade, purchaseDate: e.target.value})}
+                      onChange={(e) => setNewTrade({ ...newTrade, purchaseDate: e.target.value })}
                     />
                   </div>
                   <div className="input-group">
@@ -922,7 +914,7 @@ const CapitalGainsAnalyzer = () => {
                       type="date"
                       className="input-field no-prefix"
                       value={newTrade.saleDate}
-                      onChange={(e) => setNewTrade({...newTrade, saleDate: e.target.value})}
+                      onChange={(e) => setNewTrade({ ...newTrade, saleDate: e.target.value })}
                     />
                   </div>
                   <div className="input-group">
@@ -934,7 +926,7 @@ const CapitalGainsAnalyzer = () => {
                         step="0.01"
                         className="input-field"
                         value={newTrade.purchasePrice}
-                        onChange={(e) => setNewTrade({...newTrade, purchasePrice: parseFloat(e.target.value) || 0})}
+                        onChange={(e) => setNewTrade({ ...newTrade, purchasePrice: parseFloat(e.target.value) || 0 })}
                         placeholder="150.00"
                       />
                     </div>
@@ -948,7 +940,7 @@ const CapitalGainsAnalyzer = () => {
                         step="0.01"
                         className="input-field"
                         value={newTrade.salePrice}
-                        onChange={(e) => setNewTrade({...newTrade, salePrice: parseFloat(e.target.value) || 0})}
+                        onChange={(e) => setNewTrade({ ...newTrade, salePrice: parseFloat(e.target.value) || 0 })}
                         placeholder="175.00"
                       />
                     </div>

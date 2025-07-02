@@ -169,10 +169,10 @@ export function getEffectiveTaxRate(tax, income) {
 export function calculateStateTax(taxableIncome, stateCode) {
   const state = STATE_TAX_RATES[stateCode];
   if (!state) {
-    throw new Error(`Invalid state code: ${stateCode}`);
+    return 0; // Return 0 for invalid state codes instead of throwing
   }
   
-  return taxableIncome * state.rate;
+  return Math.max(0, taxableIncome * state.rate);
 }
 
 /**
@@ -182,7 +182,7 @@ export function calculateStateTax(taxableIncome, stateCode) {
  */
 export function calculateSocialSecurityTax(grossIncome) {
   const { rate, cap } = PAYROLL_TAX_RATES.socialSecurity;
-  const taxableWages = Math.min(grossIncome, cap);
+  const taxableWages = Math.min(Math.max(0, grossIncome), cap); // Ensure non-negative
   return taxableWages * rate;
 }
 

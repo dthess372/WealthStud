@@ -17,7 +17,7 @@ export const NET_WORTH_CATEGORIES = {
       { name: 'Emergency Fund', value: 0 },
       { name: 'Checking Account', value: 0 },
       { name: 'Savings Account', value: 0 },
-      { name: 'Money Market', value: 0 },
+      { name: 'Money Market', value: 0 }
     ]
   },
   investments: {
@@ -30,7 +30,7 @@ export const NET_WORTH_CATEGORIES = {
       { name: 'Index Funds', value: 0 },
       { name: 'Individual Stocks', value: 0 },
       { name: 'Cryptocurrency', value: 0 },
-      { name: 'Stock Options', value: 0 },
+      { name: 'Stock Options', value: 0 }
     ]
   },
   realEstate: {
@@ -41,7 +41,7 @@ export const NET_WORTH_CATEGORIES = {
     defaultAccounts: [
       { name: 'Primary Residence', value: 0 },
       { name: 'Rental Property', value: 0 },
-      { name: 'REIT Investments', value: 0 },
+      { name: 'REIT Investments', value: 0 }
     ]
   },
   retirement: {
@@ -53,7 +53,7 @@ export const NET_WORTH_CATEGORIES = {
       { name: '401(k)', value: 0 },
       { name: 'Traditional IRA', value: 0 },
       { name: 'Roth IRA', value: 0 },
-      { name: 'Pension Value', value: 0 },
+      { name: 'Pension Value', value: 0 }
     ]
   },
   other: {
@@ -65,7 +65,7 @@ export const NET_WORTH_CATEGORIES = {
       { name: 'Vehicles', value: 0 },
       { name: 'Collectibles', value: 0 },
       { name: 'Business Value', value: 0 },
-      { name: 'Other Assets', value: 0 },
+      { name: 'Other Assets', value: 0 }
     ]
   },
   debts: {
@@ -78,7 +78,7 @@ export const NET_WORTH_CATEGORIES = {
       { name: 'Car Loans', value: 0 },
       { name: 'Credit Cards', value: 0 },
       { name: 'Student Loans', value: 0 },
-      { name: 'Personal Loans', value: 0 },
+      { name: 'Personal Loans', value: 0 }
     ]
-  },
+  }
 };

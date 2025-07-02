@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -67,6 +67,6 @@ const DynamicChart = ({ data, lines, title, tooltipContent }) => {
       </ResponsiveContainer>
     </div>
   );
-}
+};
 
 export default DynamicChart;

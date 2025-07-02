@@ -1,10 +1,10 @@
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { FORMATTING, VALIDATION_RULES } from "./constants"
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { FORMATTING, VALIDATION_RULES } from './constants';
 
 // Tailwind class merging utility
 export function cn(...inputs) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 // ===== NUMBER PARSING AND VALIDATION =====
@@ -165,7 +165,10 @@ export function sortBy(array, property, direction = 'asc') {
 
 // Validate email format
 export function isValidEmail(email) {
+  if (!email || typeof email !== 'string') return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Additional check for consecutive dots
+  if (email.includes('..')) return false;
   return emailRegex.test(email);
 }
 
@@ -177,7 +180,9 @@ export function isValidAge(age) {
 
 // Validate percentage (0-100)
 export function isValidPercentage(percentage) {
+  if (percentage === null || percentage === undefined) return false;
   const numPercentage = parseNumber(percentage);
+  if (isNaN(numPercentage)) return false;
   return validateNumber(numPercentage, VALIDATION_RULES.PERCENTAGE.MIN, VALIDATION_RULES.PERCENTAGE.MAX);
 }
 
@@ -223,6 +228,7 @@ export function csvToArray(csvString, headers = null) {
 
 // Capitalize first letter
 export function capitalize(str) {
+  if (!str || typeof str !== 'string') return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 

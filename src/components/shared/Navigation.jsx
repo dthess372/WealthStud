@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Navigation.css';
+import WealthStudLogo from './WealthStudLogo';
 import { 
-  HiSparkles, 
   HiChevronDown,
   HiMenuAlt3,
   HiX
@@ -66,7 +66,8 @@ const TOOLS = [
 ];
 
 const Navigation = ({ 
-  actions = []
+  actions = [],
+  pageTitle = null
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -82,11 +83,11 @@ const Navigation = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const getCurrentTool = () => {
-    return TOOLS.find(tool => tool.path === location.pathname);
-  };
+  // const getCurrentTool = () => {
+  //   return TOOLS.find(tool => tool.path === location.pathname);
+  // };
 
-  const currentTool = getCurrentTool();
+  // const currentTool = getCurrentTool();
 
   return (
     <nav className={`navigation ${isScrolled ? 'scrolled' : ''}`}>
@@ -94,9 +95,10 @@ const Navigation = ({
         {/* Left Section - Brand */}
         <div className="nav-left">
           <Link to="/" className="nav-brand">
-            <HiSparkles className="brand-icon" />
+            <WealthStudLogo size={20} />
             <span className="brand-text">WEALTHSTUD</span>
           </Link>
+          {pageTitle && <span className="page-title-nav">{pageTitle}</span>}
 
           {/* Mobile Menu Toggle */}
           <button 
@@ -105,6 +107,19 @@ const Navigation = ({
           >
             {isMobileMenuOpen ? <HiX /> : <HiMenuAlt3 />}
           </button>
+        </div>
+
+        {/* Center Section - Copyright & Legal Info */}
+        <div className="nav-center">
+          <div className="nav-copyright">
+            <div className="copyright-text">
+              © {new Date().getFullYear()} WealthStud
+            </div>
+            <div className="legal-notice">
+              <FaShieldAlt size={10} />
+              <span>For informational purposes only</span>
+            </div>
+          </div>
         </div>
 
         {/* Right Section */}
@@ -141,7 +156,7 @@ const Navigation = ({
                   className={`dropdown-item ${location.pathname === '/' ? 'active' : ''}`}
                   onClick={() => setIsToolsDropdownOpen(false)}
                 >
-                  <HiSparkles className="dropdown-icon" />
+                  <WealthStudLogo size={16} />
                   <span>Home</span>
                 </Link>
                 {TOOLS.map((tool) => {
@@ -177,7 +192,7 @@ const Navigation = ({
                 className={`mobile-tool-item ${location.pathname === '/' ? 'active' : ''}`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <HiSparkles className="tool-icon" />
+                <WealthStudLogo size={16} />
                 <span className="tool-name">Home</span>
               </Link>
               {TOOLS.map((tool) => {

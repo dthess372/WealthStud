@@ -3,7 +3,6 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage/HomePage';
 import RetirementCalc from './components/RetirementCalculator/RetirementCalc';
 import VacationPlanner from './components/VacationTimeTool/VacationPlanner';
-import Footer from './components/Footer/Footer';
 import BudgetPlanner from './components/BudgetPlanner/BudgetPlanner';
 import NetWorthCalculator from './components/NetWorthCalculator/NetWorthCalculator';
 import SavingPlanner from './components/SavingPlanner/SavingPlanner';
@@ -15,7 +14,7 @@ function App() {
   return (
     <Router>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <main style={{ flex: 1 }}>
+        <main style={{ flex: 1, paddingTop: '40px' }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/RetirementCalculator" element={<RetirementCalc />} />
@@ -28,7 +27,6 @@ function App() {
             <Route path="/FinancialDashboard" element={<FinancialDashboard />} />
           </Routes>
         </main>
-        <Footer />
       </div>
     </Router>
   );

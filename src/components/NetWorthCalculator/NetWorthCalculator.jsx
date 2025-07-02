@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Navigation from '../shared/Navigation';
-import { PieChart, pieArcLabelClasses } from '@mui/x-charts';
+import { PieChart } from '@mui/x-charts';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -596,7 +596,7 @@ const NetWorthCalculator = () => {
                   series={[{
                     data: prepareAssetData(),
                     highlightScope: { faded: 'global', highlighted: 'item' },
-                    faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+                    faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' }
                   }]}
                   height={300}
                   slotProps={{
@@ -631,7 +631,7 @@ const NetWorthCalculator = () => {
                   series={[{
                     data: prepareNetWorthData(),
                     highlightScope: { faded: 'global', highlighted: 'item' },
-                    faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+                    faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' }
                   }]}
                   height={300}
                   slotProps={{

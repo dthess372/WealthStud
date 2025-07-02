@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
   Shield, 
@@ -10,7 +10,9 @@ import {
   DollarSign,
   Zap,
   Activity,
-  Target
+  Target,
+  Download,
+  Upload
 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import './InsuranceAnalyzer.css';
@@ -22,7 +24,7 @@ import {
   formatCurrency
 } from '../../lib/utils';
 import { STORAGE_KEYS } from '../../lib/constants';
-import { useLocalStorage } from '../../hooks';
+import { useLocalStorage, useCSV } from '../../hooks';
 
 // Insurance type configurations
 const INSURANCE_TYPES = {
@@ -58,7 +60,7 @@ const STATE_INSURANCE_FACTORS = {
   'TX': { auto: 1.1, home: 1.0, health: 0.9 },
   'FL': { auto: 1.4, home: 1.5, health: 1.0 },
   'NY': { auto: 1.3, home: 1.3, health: 1.3 },
-  'MI': { auto: 1.5, home: 0.9, health: 1.0 },
+  'MI': { auto: 1.5, home: 0.9, health: 1.0 }
   // Add more states as needed
 };
 
@@ -114,7 +116,107 @@ const InsuranceAnalyzer = () => {
     }
   });
   
-  // CSV functionality would go here if needed
+  // CSV functionality
+  const { exportCSV, createFileInputHandler } = useCSV('insurance');
+
+  const exportInsuranceData = () => {
+    const exportData = [{
+      // General Information
+      'Age': generalInfo.age,
+      'State': generalInfo.state,
+      'Dependents': generalInfo.dependents,
+      'Annual Income': generalInfo.annualIncome,
+      'Total Debt': generalInfo.totalDebt,
+      'Emergency Fund': generalInfo.emergencyFund,
+      
+      // Life Insurance
+      'Life Current Coverage': lifeInsurance.currentCoverage,
+      'Life Employer Coverage': lifeInsurance.employerCoverage,
+      'Spouse Income': lifeInsurance.spouseIncome,
+      'Mortgage Balance': lifeInsurance.mortgageBalance,
+      'Other Debts': lifeInsurance.otherDebts,
+      'Children Education Fund': lifeInsurance.childrenEducation,
+      'Final Expenses': lifeInsurance.finalExpenses,
+      'Years of Income Replacement': lifeInsurance.yearsOfIncomeReplacement,
+      
+      // Auto Insurance
+      'Auto Vehicle Value': autoInsurance.vehicleValue,
+      'Auto Loan Balance': autoInsurance.loanBalance,
+      'Auto Deductible': autoInsurance.deductible,
+      'Auto Coverage Level': autoInsurance.coverageLevel,
+      'Auto Monthly Premium': autoInsurance.monthlyPremium,
+      
+      // Home Insurance
+      'Home Value': homeInsurance.homeValue,
+      'Home Mortgage Balance': homeInsurance.mortgageBalance,
+      'Home Personal Property': homeInsurance.personalProperty,
+      'Home Deductible': homeInsurance.deductible,
+      'Home Monthly Premium': homeInsurance.monthlyPremium,
+      
+      // Health Insurance
+      'Health Plan Type': healthInsurance.planType,
+      'Health Network': healthInsurance.network,
+      'Health Deductible': healthInsurance.deductible,
+      'Health Max Out of Pocket': healthInsurance.maxOutOfPocket,
+      'Health Monthly Premium': healthInsurance.monthlyPremium
+    }];
+    
+    exportCSV(exportData, 'insurance_analysis_data');
+  };
+
+  const handleCSVImport = createFileInputHandler(
+    (result) => {
+      const data = result.data[0];
+      if (data && data['Age']) {
+        setInsuranceData({
+          activeTab: 'life',
+          generalInfo: {
+            age: parseInt(data['Age']) || 35,
+            state: data['State'] || 'MI',
+            dependents: parseInt(data['Dependents']) || 2,
+            annualIncome: parseFloat(data['Annual Income']) || 75000,
+            totalDebt: parseFloat(data['Total Debt']) || 250000,
+            emergencyFund: parseFloat(data['Emergency Fund']) || 15000
+          },
+          lifeInsurance: {
+            currentCoverage: parseFloat(data['Life Current Coverage']) || 0,
+            employerCoverage: parseFloat(data['Life Employer Coverage']) || 100000,
+            spouseIncome: parseFloat(data['Spouse Income']) || 50000,
+            mortgageBalance: parseFloat(data['Mortgage Balance']) || 200000,
+            otherDebts: parseFloat(data['Other Debts']) || 30000,
+            childrenEducation: parseFloat(data['Children Education Fund']) || 100000,
+            finalExpenses: parseFloat(data['Final Expenses']) || 15000,
+            yearsOfIncomeReplacement: parseInt(data['Years of Income Replacement']) || 10
+          },
+          autoInsurance: {
+            vehicleValue: parseFloat(data['Auto Vehicle Value']) || 25000,
+            loanBalance: parseFloat(data['Auto Loan Balance']) || 15000,
+            deductible: parseFloat(data['Auto Deductible']) || 1000,
+            coverageLevel: data['Auto Coverage Level'] || 'full',
+            monthlyPremium: parseFloat(data['Auto Monthly Premium']) || 150
+          },
+          homeInsurance: {
+            homeValue: parseFloat(data['Home Value']) || 300000,
+            mortgageBalance: parseFloat(data['Home Mortgage Balance']) || 200000,
+            personalProperty: parseFloat(data['Home Personal Property']) || 75000,
+            deductible: parseFloat(data['Home Deductible']) || 2500,
+            monthlyPremium: parseFloat(data['Home Monthly Premium']) || 120
+          },
+          healthInsurance: {
+            planType: data['Health Plan Type'] || 'hmo',
+            network: data['Health Network'] || 'in-network',
+            deductible: parseFloat(data['Health Deductible']) || 3000,
+            maxOutOfPocket: parseFloat(data['Health Max Out of Pocket']) || 8000,
+            monthlyPremium: parseFloat(data['Health Monthly Premium']) || 450
+          }
+        });
+      }
+    },
+    (error) => {
+      console.error('CSV import error:', error);
+      alert('Error importing CSV file. Please check the format and try again.');
+    }
+  );
   
   // Destructure data for easier access
   const { activeTab, generalInfo, lifeInsurance, autoInsurance, homeInsurance, healthInsurance } = insuranceData;
@@ -215,7 +317,7 @@ const InsuranceAnalyzer = () => {
   const [_collapsedSections, setCollapsedSections] = useState({});
 
   // Calculate life insurance needs
-  const calculateLifeInsuranceNeeds = () => {
+  const calculateLifeInsuranceNeeds = useCallback(() => {
     // DIME Method calculation
     const debts = lifeInsurance.mortgageBalance + lifeInsurance.otherDebts;
     const incomeReplacement = generalInfo.annualIncome * lifeInsurance.yearsOfIncome;
@@ -239,10 +341,10 @@ const InsuranceAnalyzer = () => {
       estimatedTermCost: termCost,
       estimatedWholeCost: wholeCost
     };
-  };
+  }, [lifeInsurance, generalInfo]);
 
   // Calculate auto insurance estimate
-  const calculateAutoInsurance = () => {
+  const calculateAutoInsurance = useCallback(() => {
     let totalPremium = 0;
     const vehiclePremiums = [];
     
@@ -292,10 +394,10 @@ const InsuranceAnalyzer = () => {
       vehiclePremiums,
       potentialSavings: Math.round(totalPremium * 0.15) // Potential 15% savings
     };
-  };
+  }, [autoInsurance, generalInfo]);
 
   // Calculate home insurance estimate
-  const calculateHomeInsurance = () => {
+  const calculateHomeInsurance = useCallback(() => {
     // Base rate: $3.50 per $1000 of home value
     let baseRate = (homeInsurance.homeValue / 1000) * 3.5;
     
@@ -332,10 +434,10 @@ const InsuranceAnalyzer = () => {
       liabilityCoverage: homeInsurance.liability,
       rebuildCost: Math.round(homeInsurance.homeValue * 1.25) // 125% for full rebuild
     };
-  };
+  }, [homeInsurance, generalInfo]);
 
   // Calculate health insurance optimization
-  const calculateHealthInsurance = () => {
+  const calculateHealthInsurance = useCallback(() => {
     const annualPremium = healthInsurance.currentPremium * 12;
     const employerContribution = healthInsurance.employerContribution * 12;
     const outOfPocket = annualPremium - employerContribution;
@@ -366,7 +468,7 @@ const InsuranceAnalyzer = () => {
       hsaMaxContribution: hdhpMaxHSA,
       taxSavings: hsaTaxBenefit
     };
-  };
+  }, [healthInsurance]);
 
   // Generate recommendations
   useEffect(() => {
@@ -399,7 +501,7 @@ const InsuranceAnalyzer = () => {
     }
     
     // Home insurance recommendations
-    const homeEstimate = calculateHomeInsurance();
+    const _homeEstimate = calculateHomeInsurance();
     if (homeInsurance.securityFeatures.length < 3) {
       newRecommendations.push({
         type: 'home',
@@ -423,11 +525,11 @@ const InsuranceAnalyzer = () => {
     }
     
     setRecommendations(newRecommendations);
-  }, [generalInfo, lifeInsurance, autoInsurance, homeInsurance, healthInsurance]);
+  }, [generalInfo, lifeInsurance, autoInsurance, homeInsurance, healthInsurance, calculateLifeInsuranceNeeds, calculateAutoInsurance, calculateHomeInsurance, calculateHealthInsurance]);
 
 
   // Toggle section collapse
-  const toggleSection = (section) => {
+  const _toggleSection = (section) => {
     setCollapsedSections(prev => ({
       ...prev,
       [section]: !prev[section]
@@ -497,16 +599,42 @@ const InsuranceAnalyzer = () => {
     { name: 'Health', value: totalCosts.health, color: INSURANCE_TYPES.health.color }
   ].filter(item => item.value > 0);
 
-  const insuranceRatioData = [
+  const _insuranceRatioData = [
     { category: 'Insurance Costs', value: totalCosts.total },
     { category: 'Income', value: generalInfo.annualIncome }
   ];
 
   const insurancePercentOfIncome = (totalCosts.total / generalInfo.annualIncome * 100).toFixed(1);
 
+  const navigationActions = [
+    {
+      label: 'Export Analysis',
+      icon: <Download size={16} />,
+      onClick: exportInsuranceData,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Import Data',
+      icon: <Upload size={16} />,
+      onClick: () => document.getElementById('insurance-csv-import').click(),
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    }
+  ];
+
   return (
     <div className="page-container">
-      <Navigation />
+      <Navigation actions={navigationActions} />
+
+      {/* Hidden file input for CSV import */}
+      <input
+        id="insurance-csv-import"
+        type="file"
+        accept=".csv"
+        onChange={handleCSVImport}
+        style={{ display: 'none' }}
+      />
 
       {/* Header */}
       <div className="page-header">
@@ -591,7 +719,7 @@ const InsuranceAnalyzer = () => {
                 <input
                   type="number"
                   value={generalInfo.age}
-                  onChange={(e) => setGeneralInfo({...generalInfo, age: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setGeneralInfo({ ...generalInfo, age: parseInt(e.target.value) || 0 })}
                   min="18"
                   max="100"
                 />
@@ -600,7 +728,7 @@ const InsuranceAnalyzer = () => {
                 <label>State</label>
                 <select 
                   value={generalInfo.state}
-                  onChange={(e) => setGeneralInfo({...generalInfo, state: e.target.value})}
+                  onChange={(e) => setGeneralInfo({ ...generalInfo, state: e.target.value })}
                 >
                   <option value="CA">California</option>
                   <option value="TX">Texas</option>
@@ -614,7 +742,7 @@ const InsuranceAnalyzer = () => {
                 <input
                   type="number"
                   value={generalInfo.dependents}
-                  onChange={(e) => setGeneralInfo({...generalInfo, dependents: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setGeneralInfo({ ...generalInfo, dependents: parseInt(e.target.value) || 0 })}
                   min="0"
                   max="10"
                 />
@@ -626,7 +754,7 @@ const InsuranceAnalyzer = () => {
                   <input
                     type="number"
                     value={generalInfo.annualIncome}
-                    onChange={(e) => setGeneralInfo({...generalInfo, annualIncome: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setGeneralInfo({ ...generalInfo, annualIncome: parseInt(e.target.value) || 0 })}
                     step="1000"
                   />
                 </div>
@@ -672,7 +800,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={lifeInsurance.currentCoverage}
-                            onChange={(e) => setLifeInsurance({...lifeInsurance, currentCoverage: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setLifeInsurance({ ...lifeInsurance, currentCoverage: parseInt(e.target.value) || 0 })}
                             step="10000"
                           />
                         </div>
@@ -684,7 +812,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={lifeInsurance.employerCoverage}
-                            onChange={(e) => setLifeInsurance({...lifeInsurance, employerCoverage: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setLifeInsurance({ ...lifeInsurance, employerCoverage: parseInt(e.target.value) || 0 })}
                             step="10000"
                           />
                         </div>
@@ -694,7 +822,7 @@ const InsuranceAnalyzer = () => {
                         <input
                           type="number"
                           value={lifeInsurance.yearsOfIncome}
-                          onChange={(e) => setLifeInsurance({...lifeInsurance, yearsOfIncome: parseInt(e.target.value) || 0})}
+                          onChange={(e) => setLifeInsurance({ ...lifeInsurance, yearsOfIncome: parseInt(e.target.value) || 0 })}
                           min="1"
                           max="30"
                         />
@@ -703,7 +831,7 @@ const InsuranceAnalyzer = () => {
                         <label>Insurance Type Preference</label>
                         <select 
                           value={lifeInsurance.insuranceType}
-                          onChange={(e) => setLifeInsurance({...lifeInsurance, insuranceType: e.target.value})}
+                          onChange={(e) => setLifeInsurance({ ...lifeInsurance, insuranceType: e.target.value })}
                         >
                           <option value="term">Term Life (Lower Cost)</option>
                           <option value="whole">Whole Life (Cash Value)</option>
@@ -815,12 +943,12 @@ const InsuranceAnalyzer = () => {
                       ))}
                     </div>
 
-                    <div className="input-grid" style={{marginTop: '2rem'}}>
+                    <div className="input-grid" style={{ marginTop: '2rem' }}>
                       <div className="input-group">
                         <label>Driving Record</label>
                         <select 
                           value={autoInsurance.drivingRecord}
-                          onChange={(e) => setAutoInsurance({...autoInsurance, drivingRecord: e.target.value})}
+                          onChange={(e) => setAutoInsurance({ ...autoInsurance, drivingRecord: e.target.value })}
                         >
                           <option value="clean">Clean (No accidents/tickets)</option>
                           <option value="tickets">Minor violations</option>
@@ -834,7 +962,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={autoInsurance.currentPremium}
-                            onChange={(e) => setAutoInsurance({...autoInsurance, currentPremium: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setAutoInsurance({ ...autoInsurance, currentPremium: parseInt(e.target.value) || 0 })}
                             step="100"
                           />
                         </div>
@@ -886,7 +1014,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={homeInsurance.homeValue}
-                            onChange={(e) => setHomeInsurance({...homeInsurance, homeValue: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setHomeInsurance({ ...homeInsurance, homeValue: parseInt(e.target.value) || 0 })}
                             step="10000"
                           />
                         </div>
@@ -896,7 +1024,7 @@ const InsuranceAnalyzer = () => {
                         <input
                           type="number"
                           value={homeInsurance.yearBuilt}
-                          onChange={(e) => setHomeInsurance({...homeInsurance, yearBuilt: parseInt(e.target.value) || 2000})}
+                          onChange={(e) => setHomeInsurance({ ...homeInsurance, yearBuilt: parseInt(e.target.value) || 2000 })}
                           min="1900"
                           max={new Date().getFullYear()}
                         />
@@ -906,7 +1034,7 @@ const InsuranceAnalyzer = () => {
                         <input
                           type="number"
                           value={homeInsurance.squareFeet}
-                          onChange={(e) => setHomeInsurance({...homeInsurance, squareFeet: parseInt(e.target.value) || 0})}
+                          onChange={(e) => setHomeInsurance({ ...homeInsurance, squareFeet: parseInt(e.target.value) || 0 })}
                           step="100"
                         />
                       </div>
@@ -914,7 +1042,7 @@ const InsuranceAnalyzer = () => {
                         <label>Deductible</label>
                         <select 
                           value={homeInsurance.deductible}
-                          onChange={(e) => setHomeInsurance({...homeInsurance, deductible: parseInt(e.target.value)})}
+                          onChange={(e) => setHomeInsurance({ ...homeInsurance, deductible: parseInt(e.target.value) })}
                         >
                           <option value="500">$500</option>
                           <option value="1000">$1,000</option>
@@ -995,7 +1123,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={healthInsurance.currentPremium}
-                            onChange={(e) => setHealthInsurance({...healthInsurance, currentPremium: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setHealthInsurance({ ...healthInsurance, currentPremium: parseInt(e.target.value) || 0 })}
                             step="50"
                           />
                         </div>
@@ -1007,7 +1135,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={healthInsurance.employerContribution}
-                            onChange={(e) => setHealthInsurance({...healthInsurance, employerContribution: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setHealthInsurance({ ...healthInsurance, employerContribution: parseInt(e.target.value) || 0 })}
                             step="50"
                           />
                         </div>
@@ -1019,7 +1147,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={healthInsurance.deductible}
-                            onChange={(e) => setHealthInsurance({...healthInsurance, deductible: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setHealthInsurance({ ...healthInsurance, deductible: parseInt(e.target.value) || 0 })}
                             step="500"
                           />
                         </div>
@@ -1031,7 +1159,7 @@ const InsuranceAnalyzer = () => {
                           <input
                             type="number"
                             value={healthInsurance.expectedMedicalCosts}
-                            onChange={(e) => setHealthInsurance({...healthInsurance, expectedMedicalCosts: parseInt(e.target.value) || 0})}
+                            onChange={(e) => setHealthInsurance({ ...healthInsurance, expectedMedicalCosts: parseInt(e.target.value) || 0 })}
                             step="500"
                           />
                         </div>
@@ -1159,7 +1287,7 @@ const InsuranceAnalyzer = () => {
           </div>
         )}
       </div>
-      
+
       <SuggestionBox />
     </div>
   );

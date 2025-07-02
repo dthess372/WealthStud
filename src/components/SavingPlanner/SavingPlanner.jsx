@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
-  LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, 
+  Tooltip, ResponsiveContainer 
 } from 'recharts';
 import { 
-  TrendingUp, Download, Upload, Target, PiggyBank, Shield, 
-  Zap, AlertCircle, CheckCircle, Plus, X, DollarSign,
-  Calculator, BarChart3, Lightbulb, Percent, Calendar
+  TrendingUp, Download, Upload, Target, Shield, 
+  Zap, AlertCircle, CheckCircle, Plus, X,
+  Calculator, BarChart3, Lightbulb, Calendar
 } from 'lucide-react';
 import './SavingPlanner.css';
 import '../../styles/shared-page-styles.css';
@@ -109,7 +109,7 @@ const SavingPlanner = () => {
   });
 
   // Calculate projections with compound interest
-  const calculateProjections = () => {
+  const calculateProjections = useCallback(() => {
     const { 
       currentAge, retirementAge, currentSavings, monthlyIncome, 
       savingsRate, annualRaise, inflationRate, scenario 
@@ -169,11 +169,11 @@ const SavingPlanner = () => {
     });
     
     setProjections(projectionData);
-  };
+  }, [savingsData, setSummaryMetrics, setProjections]);
 
   useEffect(() => {
     calculateProjections();
-  }, [savingsData]);
+  }, [calculateProjections]);
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -273,7 +273,7 @@ const SavingPlanner = () => {
       tips.push({
         icon: AlertCircle,
         type: 'warning',
-        text: "Consider increasing your savings rate to at least 15% for a comfortable retirement."
+        text: 'Consider increasing your savings rate to at least 15% for a comfortable retirement.'
       });
     }
     
@@ -281,7 +281,7 @@ const SavingPlanner = () => {
       tips.push({
         icon: TrendingUp,
         type: 'info',
-        text: "At your age, you might consider a more aggressive investment strategy for potentially higher returns."
+        text: 'At your age, you might consider a more aggressive investment strategy for potentially higher returns.'
       });
     }
     
@@ -289,7 +289,7 @@ const SavingPlanner = () => {
       tips.push({
         icon: Target,
         type: 'warning',
-        text: "Your projected retirement income is below 70% of current income. Consider increasing contributions."
+        text: 'Your projected retirement income is below 70% of current income. Consider increasing contributions.'
       });
     }
     
@@ -297,14 +297,14 @@ const SavingPlanner = () => {
       tips.push({
         icon: Calculator,
         type: 'danger',
-        text: "Some goals require high monthly contributions. Consider extending target dates or increasing income."
+        text: 'Some goals require high monthly contributions. Consider extending target dates or increasing income.'
       });
     }
     
     tips.push({
       icon: CheckCircle,
       type: 'success',
-      text: "Automate your savings to ensure consistent contributions and take advantage of dollar-cost averaging."
+      text: 'Automate your savings to ensure consistent contributions and take advantage of dollar-cost averaging.'
     });
     
     return tips;
@@ -321,7 +321,14 @@ const SavingPlanner = () => {
     {
       label: 'Export CSV',
       icon: <Download size={16} />,
-      onClick: exportCSV,
+      onClick: handleExportCSV,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Import Data',
+      icon: <Upload size={16} />,
+      onClick: () => document.getElementById('savings-csv-import').click(),
       variant: 'btn-ghost',
       hideTextOnMobile: true
     }
@@ -331,6 +338,15 @@ const SavingPlanner = () => {
     <div className="page-container">
       <Navigation 
         actions={navigationActions}
+      />
+      
+      {/* Hidden file input for CSV import */}
+      <input
+        id="savings-csv-import"
+        type="file"
+        accept=".csv"
+        onChange={handleImportCSV}
+        style={{ display: 'none' }}
       />
       
       {/* Header */}
@@ -619,11 +635,6 @@ const SavingPlanner = () => {
               {goalsData.map(goal => {
                 const progress = calculateGoalProgress(goal);
                 const monthlyNeeded = calculateMonthlyGoalContribution(goal);
-                const priorityColors = {
-                  high: '#ef4444',
-                  medium: '#f59e0b',
-                  low: '#3b82f6'
-                };
                 return (
                   <div key={goal.id} className="goal-card">
                     <div className="goal-header">
@@ -836,23 +847,6 @@ const SavingPlanner = () => {
           </div>
         </div>
 
-        {/* Export/Import Section */}
-        <div className="actions-section">
-          <button className="btn-primary" onClick={handleExportCSV}>
-            <Download size={16} />
-            Export Projections
-          </button>
-          <label className="btn-primary">
-            <Upload size={16} />
-            Import Data
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleImportCSV}
-              className="hidden-input"
-            />
-          </label>
-        </div>
 
         {/* Goal Modal */}
         {showGoalModal && (

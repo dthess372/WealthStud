@@ -272,30 +272,6 @@ const BudgetPlanner = () => {
   };
 
   // CSV Export/Import using shared hook
-  const handleExportCSV = () => {
-    const data = [];
-    Object.entries(categories).forEach(([catKey, category]) => {
-      Object.entries(category.subcategories).forEach(([subKey, subcat]) => {
-        data.push({
-          Category: catKey,
-          Subcategory: subKey,
-          'Monthly Cost': subcat.monthly,
-          'Annual Cost': subcat.monthly * 12
-        });
-      });
-    });
-    
-    // Add income summary
-    data.push(
-      { Category: 'Income', Subcategory: 'Gross Income', 'Monthly Cost': grossIncomeNum / 12, 'Annual Cost': grossIncomeNum },
-      { Category: 'Income', Subcategory: 'Net Income', 'Monthly Cost': netIncome / 12, 'Annual Cost': netIncome },
-      { Category: 'Taxes', Subcategory: 'Federal Tax', 'Monthly Cost': taxDetails.federal / 12, 'Annual Cost': taxDetails.federal },
-      { Category: 'Taxes', Subcategory: 'State Tax', 'Monthly Cost': taxDetails.state / 12, 'Annual Cost': taxDetails.state },
-      { Category: 'Taxes', Subcategory: 'Payroll Tax', 'Monthly Cost': taxDetails.payroll.totalPayroll / 12, 'Annual Cost': taxDetails.payroll.totalPayroll }
-    );
-    
-    exportCSV(data, 'budget_data.csv');
-  };
   
   const handleImportCSV = createFileInputHandler(
     (result) => {
@@ -895,7 +871,7 @@ const BudgetPlanner = () => {
                     innerRadius: 180,
                     outerRadius: 240,
                     highlightScope: { fade: 'global', highlight: 'item' }
-                  },
+                  }
                 ]}
                 width={800}
                 height={500}
@@ -911,24 +887,6 @@ const BudgetPlanner = () => {
               />
             </div>
           </div>
-        </div>
-
-        {/* Export/Import Section */}
-        <div className="actions-section">
-          <button className="btn-primary" onClick={handleExportCSV}>
-            <Download size={16} />
-            Export Budget
-          </button>
-          <label className="btn-primary">
-            <Upload size={16} />
-            Import Budget
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleImportCSV}
-              className="hidden-input"
-            />
-          </label>
         </div>
 
         <SuggestionBox />

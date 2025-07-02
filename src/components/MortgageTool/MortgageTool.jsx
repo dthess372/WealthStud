@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
   BarChart, 
@@ -21,331 +21,245 @@ import {
   TrendingUp,
   Download,
   Upload,
-  DollarSign,
-  Calendar,
-  Target,
   AlertCircle,
-  CheckCircle,
-  Info,
-  Zap
+  CheckCircle
 } from 'lucide-react';
+import { formatCurrency, formatPercent, parseNumber } from '../../lib/utils';
+import { STORAGE_KEYS, COLORS } from '../../lib/constants';
+import { useLocalStorage, useCSV } from '../../hooks';
+import {
+  calculateTotalMonthlyPayment,
+  generateAmortizationSchedule,
+  calculateAffordability,
+  calculatePaymentSavings,
+  calculateLoanToValue,
+  calculatePMI,
+  getPaymentBreakdownChartData,
+  getAmortizationChartData
+} from '../../lib/mortgageCalculations';
 import './MortgageTool.css';
 import '../../styles/shared-page-styles.css';
 import SuggestionBox from '../SuggestionBox/SuggestionBox';
 
 const MortgageTool = () => {
-  const [loanDetails, setLoanDetails] = useState({
-    principal: 400000,
-    interestRate: 6.5,
-    loanTerm: 30,
-    downPayment: 80000,
-    propertyTax: 8000,
-    homeInsurance: 1200,
-    pmi: 0,
-    hoaFees: 0
+  // Initialize data with localStorage persistence
+  const [mortgageData, setMortgageData] = useLocalStorage(STORAGE_KEYS.MORTGAGE_DATA, {
+    loanDetails: {
+      principal: 400000,
+      interestRate: 6.5,
+      loanTerm: 30,
+      downPayment: 80000,
+      propertyTax: 8000,
+      homeInsurance: 1200,
+      pmi: 0,
+      hoaFees: 0
+    },
+    extraPayments: {
+      monthlyExtra: 0,
+      yearlyExtra: 0,
+      oneTimeExtra: 0,
+      biWeekly: false
+    },
+    affordabilityData: {
+      annualIncome: 100000,
+      monthlyDebts: 500,
+      creditScore: 740
+    }
   });
 
-  const [extraPayments, setExtraPayments] = useState({
-    monthlyExtra: 0,
-    yearlyExtra: 0,
-    oneTimeExtra: 0,
-    biWeekly: false
-  });
+  // Extract data for easier access
+  const { loanDetails, extraPayments, affordabilityData } = mortgageData;
 
-  const [affordabilityData, setAffordabilityData] = useState({
-    annualIncome: 100000,
-    monthlyDebts: 500,
-    creditScore: 740
-  });
+  // CSV functionality
+  const { exportCSV, createFileInputHandler } = useCSV('mortgage');
 
   const [activeTab, setActiveTab] = useState('calculator');
   const [amortizationSchedule, setAmortizationSchedule] = useState([]);
   const [monthlyPayment, setMonthlyPayment] = useState(0);
   const [totalMonthlyPayment, setTotalMonthlyPayment] = useState(0);
 
-  // Helper function to safely parse numbers
-  const parseNumber = (value) => {
-    const num = parseFloat(value);
-    return isNaN(num) ? 0 : num;
-  };
+  // Helper function to update mortgage data
+  const updateMortgageData = useCallback((updates) => {
+    setMortgageData(prev => ({ ...prev, ...updates }));
+  }, [setMortgageData]);
 
-  // Helper function to format currency
-  const formatCurrency = (value) => {
-    if (isNaN(value) || !isFinite(value)) return '0';
-    return Math.round(value).toLocaleString();
-  };
-
-  // Helper function to format percentage
-  const formatPercent = (value) => {
-    if (isNaN(value) || !isFinite(value)) return '0.0';
-    return value.toFixed(1);
-  };
-
-  const calculateAmortizationSchedule = () => {
-    const { principal, interestRate, loanTerm } = loanDetails;
-    const { monthlyExtra, biWeekly } = extraPayments;
+  const calculateMortgageDetails = useCallback(() => {
+    // Auto-calculate PMI if not manually set
+    const loanAmount = loanDetails.principal - loanDetails.downPayment;
+    const calculatedPMI = calculatePMI(loanAmount, loanDetails.principal);
     
-    const actualPrincipal = principal - loanDetails.downPayment;
-    const monthlyRate = interestRate / 100 / 12;
-    const numberOfPayments = loanTerm * 12;
-    
-    // Calculate base payment
-    const basePayment = actualPrincipal * 
-      (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
-      (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
-    
-    setMonthlyPayment(basePayment);
-
-    // Calculate PMI if down payment is less than 20%
-    const loanToValue = actualPrincipal / principal;
-    const calculatedPMI = loanToValue > 0.8 ? (actualPrincipal * 0.005 / 12) : 0;
-    
-    // Update PMI in loan details if not manually set
-    if (loanDetails.pmi === 0) {
-      setLoanDetails(prev => ({ ...prev, pmi: calculatedPMI * 12 }));
-    }
-
-    // Calculate total monthly payment including escrow
-    const monthlyPropertyTax = loanDetails.propertyTax / 12;
-    const monthlyInsurance = loanDetails.homeInsurance / 12;
-    const monthlyPMI = (loanDetails.pmi || calculatedPMI * 12) / 12;
-    const monthlyHOA = loanDetails.hoaFees / 12;
-    
-    const totalMonthly = basePayment + monthlyPropertyTax + monthlyInsurance + monthlyPMI + monthlyHOA;
-    setTotalMonthlyPayment(totalMonthly);
-
-    let remainingBalance = actualPrincipal;
-    const schedule = [];
-    let totalInterestPaid = 0;
-    let month = 1;
-    const paymentFrequency = biWeekly ? 26 : 12;
-    const adjustedPayment = biWeekly ? basePayment / 2 : basePayment;
-    const adjustedExtra = biWeekly ? monthlyExtra / 2 : monthlyExtra;
-
-    while (remainingBalance > 0.01 && month <= numberOfPayments * (biWeekly ? 2 : 1)) {
-      const interestPayment = remainingBalance * (biWeekly ? monthlyRate / 2 : monthlyRate);
-      let principalPayment = adjustedPayment - interestPayment + adjustedExtra;
-      
-      // Don't overpay
-      if (principalPayment > remainingBalance) {
-        principalPayment = remainingBalance;
-      }
-      
-      totalInterestPaid += interestPayment;
-      remainingBalance -= principalPayment;
-      
-      const actualMonth = biWeekly ? Math.ceil(month / 2) : month;
-      const year = Math.ceil(actualMonth / 12);
-      
-      schedule.push({
-        month: actualMonth,
-        year,
-        payment: (interestPayment + principalPayment).toFixed(2),
-        principal: principalPayment.toFixed(2),
-        interest: interestPayment.toFixed(2),
-        totalInterest: totalInterestPaid.toFixed(2),
-        balance: Math.max(0, remainingBalance).toFixed(2),
-        isYearEnd: actualMonth % 12 === 0
+    if (loanDetails.pmi === 0 && calculatedPMI > 0) {
+      updateMortgageData({
+        loanDetails: { ...loanDetails, pmi: calculatedPMI }
       });
-      
-      month++;
+      return; // Let the effect run again with updated PMI
     }
 
+    // Calculate payment breakdown
+    const paymentBreakdown = calculateTotalMonthlyPayment(loanDetails);
+    setMonthlyPayment(paymentBreakdown.principalAndInterest);
+    setTotalMonthlyPayment(paymentBreakdown.total);
+
+    // Generate amortization schedule
+    const schedule = generateAmortizationSchedule(loanDetails, extraPayments);
     setAmortizationSchedule(schedule);
-  };
+  }, [loanDetails, extraPayments, updateMortgageData]);
 
   useEffect(() => {
-    calculateAmortizationSchedule();
-  }, [loanDetails, extraPayments]);
+    calculateMortgageDetails();
+  }, [calculateMortgageDetails]);
 
   const handleInputChange = (section, field) => (e) => {
     const value = e.target.value;
     if (section === 'loan') {
-      setLoanDetails(prev => ({
-        ...prev,
-        [field]: value === '' ? 0 : Number(value)
-      }));
+      updateMortgageData({
+        loanDetails: {
+          ...loanDetails,
+          [field]: value === '' ? 0 : parseNumber(value)
+        }
+      });
     } else if (section === 'extra') {
-      setExtraPayments(prev => ({
-        ...prev,
-        [field]: field === 'biWeekly' ? e.target.checked : (value === '' ? 0 : Number(value))
-      }));
+      updateMortgageData({
+        extraPayments: {
+          ...extraPayments,
+          [field]: field === 'biWeekly' ? e.target.checked : (value === '' ? 0 : parseNumber(value))
+        }
+      });
     } else if (section === 'affordability') {
-      setAffordabilityData(prev => ({
-        ...prev,
-        [field]: value === '' ? 0 : Number(value)
-      }));
-    }
-  };
-
-  const calculateAffordability = () => {
-    const { annualIncome, monthlyDebts, creditScore } = affordabilityData;
-    const monthlyIncome = annualIncome / 12;
-    
-    // DTI calculations (28/36 rule)
-    const maxHousingPayment = monthlyIncome * 0.28;
-    const maxTotalDebt = monthlyIncome * 0.36;
-    const maxPaymentWithDebts = maxTotalDebt - monthlyDebts;
-    
-    const affordablePayment = Math.min(maxHousingPayment, maxPaymentWithDebts);
-    const currentDTI = ((totalMonthlyPayment + monthlyDebts) / monthlyIncome) * 100;
-    
-    let affordabilityRating;
-    let ratingClass;
-    let ratingIcon;
-    
-    if (currentDTI <= 28) {
-      affordabilityRating = 'Excellent';
-      ratingClass = 'affordability-excellent';
-      ratingIcon = CheckCircle;
-    } else if (currentDTI <= 36) {
-      affordabilityRating = 'Good';
-      ratingClass = 'affordability-good';
-      ratingIcon = CheckCircle;
-    } else if (currentDTI <= 43) {
-      affordabilityRating = 'Fair';
-      ratingClass = 'affordability-fair';
-      ratingIcon = AlertCircle;
-    } else {
-      affordabilityRating = 'Poor';
-      ratingClass = 'affordability-poor';
-      ratingIcon = AlertCircle;
-    }
-
-    return {
-      maxAffordable: affordablePayment,
-      currentDTI,
-      affordabilityRating,
-      ratingClass,
-      ratingIcon,
-      creditScore
-    };
-  };
-
-  const calculateSavingsStrategies = () => {
-    const scheduleWithoutExtra = calculateScheduleWithoutExtra();
-    const currentSchedule = amortizationSchedule;
-    
-    const baseTotalInterest = scheduleWithoutExtra.reduce((sum, payment) => sum + parseFloat(payment.interest), 0);
-    const currentTotalInterest = currentSchedule.reduce((sum, payment) => sum + parseFloat(payment.interest), 0);
-    
-    const interestSavings = baseTotalInterest - currentTotalInterest;
-    const timeSavings = scheduleWithoutExtra.length - currentSchedule.length;
-    
-    return {
-      interestSavings,
-      timeSavings: Math.round(timeSavings / 12 * 10) / 10, // Convert to years
-      payoffDate: currentSchedule.length > 0 ? currentSchedule[currentSchedule.length - 1].year : loanDetails.loanTerm
-    };
-  };
-
-  const calculateScheduleWithoutExtra = () => {
-    const { principal, interestRate, loanTerm } = loanDetails;
-    const actualPrincipal = principal - loanDetails.downPayment;
-    const monthlyRate = interestRate / 100 / 12;
-    const numberOfPayments = loanTerm * 12;
-    
-    const payment = actualPrincipal * 
-      (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
-      (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
-
-    let remainingBalance = actualPrincipal;
-    const schedule = [];
-    let totalInterestPaid = 0;
-
-    for (let month = 1; month <= numberOfPayments; month++) {
-      const interestPayment = remainingBalance * monthlyRate;
-      const principalPayment = payment - interestPayment;
-      totalInterestPaid += interestPayment;
-      remainingBalance -= principalPayment;
-
-      schedule.push({
-        month,
-        payment: payment.toFixed(2),
-        principal: principalPayment.toFixed(2),
-        interest: interestPayment.toFixed(2),
-        totalInterest: totalInterestPaid.toFixed(2),
-        balance: Math.max(0, remainingBalance).toFixed(2)
+      updateMortgageData({
+        affordabilityData: {
+          ...affordabilityData,
+          [field]: value === '' ? 0 : parseNumber(value)
+        }
       });
     }
-
-    return schedule;
   };
 
-  const exportToCSV = () => {
-    const headers = ['Month', 'Year', 'Payment', 'Principal', 'Interest', 'Total Interest', 'Remaining Balance'];
-    const csvContent = [
-      headers.join(','),
-      ...amortizationSchedule.map(row => 
-        [row.month, row.year, row.payment, row.principal, row.interest, row.totalInterest, row.balance].join(',')
-      )
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'mortgage-amortization.csv';
-    link.click();
-  };
-
-  const importCSV = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target.result;
-      const [headers, firstRow] = text.split('\n');
-      if (firstRow) {
-        const [, , payment, , , , balance] = firstRow.split(',');
-        const principal = Number(balance);
-        setLoanDetails(prev => ({
-          ...prev,
-          principal
-        }));
-      }
+  const getAffordabilityData = () => {
+    const affordability = calculateAffordability(affordabilityData, totalMonthlyPayment);
+    
+    let ratingIcon;
+    if (affordability.currentDTI <= 36) {
+      ratingIcon = CheckCircle;
+    } else {
+      ratingIcon = AlertCircle;
+    }
+    
+    return {
+      ...affordability,
+      ratingIcon
     };
-    reader.readAsText(file);
   };
+
+  const getSavingsData = () => {
+    return calculatePaymentSavings(loanDetails, extraPayments);
+  };
+
+  const exportAmortizationSchedule = () => {
+    const scheduleData = amortizationSchedule.map(row => ({
+      'Month': row.month,
+      'Year': row.year,
+      'Payment': row.payment,
+      'Principal': row.principal,
+      'Interest': row.interest,
+      'Total Interest': row.totalInterest,
+      'Remaining Balance': row.balance
+    }));
+    
+    exportCSV(scheduleData, 'mortgage_amortization_schedule');
+  };
+
+  const exportMortgageData = () => {
+    const exportData = [{
+      'Home Price': loanDetails.principal,
+      'Down Payment': loanDetails.downPayment,
+      'Interest Rate': loanDetails.interestRate,
+      'Loan Term': loanDetails.loanTerm,
+      'Property Tax': loanDetails.propertyTax,
+      'Home Insurance': loanDetails.homeInsurance,
+      'PMI': loanDetails.pmi,
+      'HOA Fees': loanDetails.hoaFees,
+      'Monthly Extra Payment': extraPayments.monthlyExtra,
+      'Yearly Extra Payment': extraPayments.yearlyExtra,
+      'Bi-Weekly Payments': extraPayments.biWeekly,
+      'Annual Income': affordabilityData.annualIncome,
+      'Monthly Debts': affordabilityData.monthlyDebts,
+      'Credit Score': affordabilityData.creditScore
+    }];
+    
+    exportCSV(exportData, 'mortgage_calculator_data');
+  };
+
+  const handleCSVImport = createFileInputHandler(
+    (result) => {
+      const data = result.data[0];
+      if (data && data['Home Price']) {
+        // Import mortgage calculator data
+        updateMortgageData({
+          loanDetails: {
+            principal: parseNumber(data['Home Price']),
+            downPayment: parseNumber(data['Down Payment']),
+            interestRate: parseNumber(data['Interest Rate']),
+            loanTerm: parseNumber(data['Loan Term']),
+            propertyTax: parseNumber(data['Property Tax']),
+            homeInsurance: parseNumber(data['Home Insurance']),
+            pmi: parseNumber(data['PMI']),
+            hoaFees: parseNumber(data['HOA Fees'])
+          },
+          extraPayments: {
+            monthlyExtra: parseNumber(data['Monthly Extra Payment']),
+            yearlyExtra: parseNumber(data['Yearly Extra Payment']),
+            oneTimeExtra: 0,
+            biWeekly: data['Bi-Weekly Payments'] === 'true'
+          },
+          affordabilityData: {
+            annualIncome: parseNumber(data['Annual Income']),
+            monthlyDebts: parseNumber(data['Monthly Debts']),
+            creditScore: parseNumber(data['Credit Score'])
+          }
+        });
+      }
+    },
+    (error) => {
+      console.error('CSV import error:', error);
+      alert('Error importing CSV file. Please check the format and try again.');
+    }
+  );
 
   const getChartData = () => {
-    return amortizationSchedule
-      .filter(data => data.month % 12 === 0 || data.month === amortizationSchedule.length)
-      .map(data => ({
-        year: data.year,
-        interest: Number(data.totalInterest),
-        principal: (loanDetails.principal - loanDetails.downPayment) - Number(data.balance),
-        balance: Number(data.balance)
-      }));
+    const loanAmount = loanDetails.principal - loanDetails.downPayment;
+    return getAmortizationChartData(amortizationSchedule, loanAmount);
   };
 
   const getPaymentBreakdownData = () => {
-    const monthlyPI = monthlyPayment;
-    const monthlyTax = loanDetails.propertyTax / 12;
-    const monthlyInsurance = loanDetails.homeInsurance / 12;
-    const monthlyPMI = loanDetails.pmi / 12;
-    const monthlyHOA = loanDetails.hoaFees / 12;
-
-    return [
-      { name: 'Principal & Interest', value: monthlyPI, color: '#796832' },
-      { name: 'Property Tax', value: monthlyTax, color: '#C5563F' },
-      { name: 'Insurance', value: monthlyInsurance, color: '#237F74' },
-      { name: 'PMI', value: monthlyPMI, color: '#e63946' },
-      { name: 'HOA', value: monthlyHOA, color: '#1C3645' }
-    ].filter(item => item.value > 0);
+    const paymentBreakdown = calculateTotalMonthlyPayment(loanDetails);
+    return getPaymentBreakdownChartData(paymentBreakdown, COLORS);
   };
 
-  const affordability = calculateAffordability();
-  const savings = calculateSavingsStrategies();
-  const loanToValue = ((loanDetails.principal - loanDetails.downPayment) / loanDetails.principal) * 100;
+  const affordability = getAffordabilityData();
+  const savings = getSavingsData();
+  const loanToValue = calculateLoanToValue(loanDetails.principal - loanDetails.downPayment, loanDetails.principal);
   const totalLoanCost = amortizationSchedule.reduce((sum, payment) => sum + parseFloat(payment.payment), 0);
 
   const navigationActions = [
     {
-      label: 'Export PDF',
+      label: 'Export Data',
       icon: <Download size={16} />,
-      onClick: () => console.log('Export PDF feature coming soon'),
+      onClick: exportMortgageData,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Export Schedule',
+      icon: <Download size={16} />,
+      onClick: exportAmortizationSchedule,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Import Data',
+      icon: <Upload size={16} />,
+      onClick: () => document.getElementById('mortgage-csv-import').click(),
       variant: 'btn-ghost',
       hideTextOnMobile: true
     }
@@ -355,6 +269,15 @@ const MortgageTool = () => {
     <div className="page-container">
       <Navigation 
         actions={navigationActions}
+      />
+      
+      {/* Hidden file input for CSV import */}
+      <input
+        id="mortgage-csv-import"
+        type="file"
+        accept=".csv"
+        onChange={handleCSVImport}
+        style={{ display: 'none' }}
       />
       
       {/* Header */}
@@ -677,7 +600,7 @@ const MortgageTool = () => {
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                             <span>Payoff Time:</span>
-                            <span>{savings.payoffDate} years</span>
+                            <span>{Math.round(savings.payoffDate)} years</span>
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: 'var(--primary-color)' }}>
                             <span>LTV Ratio:</span>
@@ -837,15 +760,18 @@ const MortgageTool = () => {
                 {activeTab === 'schedule' && (
                   <div>
                     <div className="controls-row">
-                      <button className="control-btn" onClick={exportToCSV}>
+                      <button className="control-btn" onClick={exportAmortizationSchedule}>
                         Export Schedule
                       </button>
+                      <button className="control-btn" onClick={exportMortgageData}>
+                        Export Data
+                      </button>
                       <label className="control-btn">
-                        Import Schedule
+                        Import Data
                         <input
                           type="file"
                           accept=".csv"
-                          onChange={importCSV}
+                          onChange={handleCSVImport}
                           className="hidden-input"
                         />
                       </label>
@@ -909,8 +835,8 @@ const MortgageTool = () => {
                     labelStyle={{ color: 'white' }}
                   />
                   <Legend />
-                  <Bar dataKey="interest" stackId="a" fill="#e63946" name="Total Interest Paid" />
-                  <Bar dataKey="principal" stackId="a" fill="#22c55e" name="Principal Paid" />
+                  <Bar dataKey="interest" stackId="a" fill={COLORS.chart.expenses} name="Total Interest Paid" />
+                  <Bar dataKey="principal" stackId="a" fill={COLORS.chart.income} name="Principal Paid" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -931,7 +857,7 @@ const MortgageTool = () => {
                   <Line 
                     type="monotone" 
                     dataKey="balance" 
-                    stroke="#796832" 
+                    stroke={COLORS.chart.assets} 
                     strokeWidth={3}
                     name="Remaining Balance" 
                     dot={false}
@@ -973,23 +899,6 @@ const MortgageTool = () => {
           </div>
         </div>
 
-        {/* Actions Section */}
-        <div className="actions-section">
-          <button className="btn-primary" onClick={exportToCSV}>
-            <Download size={16} />
-            Export Analysis
-          </button>
-          <label className="btn-primary">
-            <Upload size={16} />
-            Import Data
-            <input
-              type="file"
-              accept=".csv"
-              onChange={importCSV}
-              className="hidden-input"
-            />
-          </label>
-        </div>
       </div>
       
       <SuggestionBox />

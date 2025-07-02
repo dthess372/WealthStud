@@ -1,24 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Navigation from '../shared/Navigation';
 import { 
   TrendingUp, 
-  Calendar, 
-  DollarSign, 
-  PieChart,
-  AlertCircle,
   Target,
-  Award,
   Briefcase,
   Calculator,
-  Info,
   Plus,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Download,
+  Upload
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Tooltip as ReactToolTip } from 'react-tooltip';
-import "./RetirementCalc.css";
+import './RetirementCalc.css';
 import '../../styles/shared-page-styles.css';
 
 // Import shared utilities and configurations
@@ -80,7 +75,6 @@ const RetirementCalc = () => {
       let totalBalance = 0;
       
       accounts.forEach(account => {
-        const accountType = ACCOUNT_TYPES[account.type];
         const currentBalance = parseNumber(account.values.currentBalance);
         const expectedReturn = parseNumber(account.values.expectedReturn, 7) / 100;
         let annualContribution = 0;
@@ -265,7 +259,7 @@ const RetirementCalc = () => {
     if (!simulationResults) return [];
     
     const { statistics } = simulationResults;
-    return statistics.total.map((stat, index) => ({
+    return statistics.total.map((stat) => ({
       year: stat.year,
       min: Math.round(stat.min),
       q1: Math.round(stat.q1),
@@ -302,11 +296,58 @@ const RetirementCalc = () => {
 
   const totalAnnualContributions = calculateTotalAnnualContributions();
 
+  // CSV Export functionality
+  const exportRetirementData = () => {
+    const exportData = [{
+      // General Information
+      'Birth Date': generalInfo.birthDate,
+      'Current Salary': generalInfo.currentSalary,
+      'Annual Raise': generalInfo.annualRaise,
+      'Retirement Age': generalInfo.retirementAge,
+      
+      // Summary Metrics
+      'Current Age': currentAge,
+      'Years to Retirement': yearsToRetirement,
+      'Total Annual Contributions': totalAnnualContributions,
+      'Projected Balance': projectedBalance,
+      'Monthly Retirement Income': monthlyRetirementIncome
+    }];
+    
+    exportCSV(exportData, 'retirement_calculator_data');
+  };
+
+  const handleCSVImport = createFileInputHandler(
+    (result) => {
+      const data = result.data[0];
+      if (data && data['Birth Date']) {
+        updateRetirementData({
+          generalInfo: {
+            birthDate: data['Birth Date'] || generalInfo.birthDate,
+            currentSalary: parseNumber(data['Current Salary']) || generalInfo.currentSalary,
+            annualRaise: parseNumber(data['Annual Raise']) || generalInfo.annualRaise,
+            retirementAge: parseNumber(data['Retirement Age']) || generalInfo.retirementAge
+          }
+        });
+      }
+    },
+    (error) => {
+      console.error('CSV import error:', error);
+      alert('Error importing CSV file. Please check the format and try again.');
+    }
+  );
+
   const navigationActions = [
     {
       label: 'Export Analysis',
-      icon: <Calculator size={16} />,
-      onClick: () => {},
+      icon: <Download size={16} />,
+      onClick: exportRetirementData,
+      variant: 'btn-ghost',
+      hideTextOnMobile: true
+    },
+    {
+      label: 'Import Data',
+      icon: <Upload size={16} />,
+      onClick: () => document.getElementById('retirement-csv-import').click(),
       variant: 'btn-ghost',
       hideTextOnMobile: true
     }
@@ -316,6 +357,15 @@ const RetirementCalc = () => {
     <div className="page-container">
       <Navigation 
         actions={navigationActions}
+      />
+      
+      {/* Hidden file input for CSV import */}
+      <input
+        id="retirement-csv-import"
+        type="file"
+        accept=".csv"
+        onChange={handleCSVImport}
+        style={{ display: 'none' }}
       />
       
       {/* Header */}
@@ -751,6 +801,7 @@ const RetirementCalc = () => {
             </div>
           </div>
         )}
+
       </div>
       
       <SuggestionBox />
