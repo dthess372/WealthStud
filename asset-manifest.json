@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/WealthStud/static/css/main.80ce5160.css",
+    "main.js": "/WealthStud/static/js/main.f347a113.js",
+    "index.html": "/WealthStud/index.html",
+    "main.80ce5160.css.map": "/WealthStud/static/css/main.80ce5160.css.map",
+    "main.f347a113.js.map": "/WealthStud/static/js/main.f347a113.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.80ce5160.css",
+    "static/js/main.f347a113.js"
+  ]
+}
