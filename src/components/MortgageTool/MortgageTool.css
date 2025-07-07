@@ -140,9 +140,6 @@
   color: var(--background);
 }
 
-.section-content {
-  padding: 1.5rem;
-}
 
 /* Dashboard */
 .mortgage-dashboard {
@@ -575,9 +572,6 @@
     padding: 1rem;
   }
   
-  .section-content {
-    padding: 1rem;
-  }
   
   .mortgage-input-layout {
     grid-template-columns: 1fr;

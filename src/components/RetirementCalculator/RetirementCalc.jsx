@@ -376,62 +376,34 @@ const RetirementCalc = () => {
         </div>
       </div>
 
-      {/* Overview Section */}
-      <div className="page-intro-section">
-        <h2 className="intro-title">Plan Your Retirement with Confidence</h2>
-        <p>
-          Use advanced Monte Carlo simulations to project your retirement savings across multiple account types with realistic market scenarios.
-        </p>
-        <div className="intro-steps">
-          <div className="step">
-            <span className="step-number">1</span>
-            <span>Enter your basic information and retirement goals</span>
-          </div>
-          <div className="step">
-            <span className="step-number">2</span>
-            <span>Add your retirement accounts (401k, IRA, etc.)</span>
-          </div>
-          <div className="step">
-            <span className="step-number">3</span>
-            <span>Run Monte Carlo simulation for projections</span>
-          </div>
-          <div className="step">
-            <span className="step-number">4</span>
-            <span>Analyze results and optimize your strategy</span>
-          </div>
-        </div>
-        <p className="intro-note">
-          🎯 Monte Carlo simulation • 📊 Multiple scenarios • 💼 Account types • 📈 Real-time projections
-        </p>
-      </div>
-
+      {/* Page Content */}
       <div className="page-content">
-        {/* Dashboard */}
-        <div className="summary-grid">
-          <div className="dashboard-card">
-            <div className="dashboard-value">{currentAge}</div>
-            <div className="dashboard-label">Current Age</div>
+        {/* Overview Section */}
+        <div className="page-intro-section">
+          <h2 className="intro-title">Plan Your Retirement with Confidence</h2>
+          <div className="intro-steps">
+            <div className="step">
+              <span className="step-number">1</span>
+              <span>Enter basic info</span>
+            </div>
+            <div className="step">
+              <span className="step-number">2</span>
+              <span>Add retirement accounts</span>
+            </div>
+            <div className="step">
+              <span className="step-number">3</span>
+              <span>Run the simulation</span>
+            </div>
+            <div className="step">
+              <span className="step-number">4</span>
+              <span>Analyze and optimize your strategy</span>
+            </div>
           </div>
-          <div className="dashboard-card info">
-            <div className="dashboard-value">{yearsToRetirement}</div>
-            <div className="dashboard-label">Years to Retirement</div>
-          </div>
-          <div className="dashboard-card success">
-            <div className="dashboard-value small">{formatCurrency(projectedBalance)}</div>
-            <div className="dashboard-label">Projected Balance</div>
-            <div className="dashboard-sublabel">at age {generalInfo.retirementAge}</div>
-          </div>
-          <div className="dashboard-card">
-            <div className="dashboard-value small">{formatCurrency(monthlyRetirementIncome)}</div>
-            <div className="dashboard-label">Est. Monthly Income</div>
-            <div className="dashboard-sublabel">4% withdrawal rate</div>
-          </div>
-          <div className="dashboard-card warning">
-            <div className="dashboard-value small">{formatCurrency(totalAnnualContributions)}</div>
-            <div className="dashboard-label">Total Annual Contributions</div>
-            <div className="dashboard-sublabel">{accounts.length} accounts</div>
-          </div>
+          <p className="intro-note">
+            💼 Multiple account types • 🎯 Monte Carlo simulation • 📈 Real-time projections
+          </p>
         </div>
+
 
         {/* General Information */}
         <div className="section-card">
@@ -443,7 +415,6 @@ const RetirementCalc = () => {
               General Information
             </h2>
           </div>
-          <div className="section-content">
             <div className="general-info-grid">
               <div className="input-group">
                 <label className="input-label">Birth Date</label>
@@ -453,11 +424,13 @@ const RetirementCalc = () => {
                   value={generalInfo.birthDate}
                   onChange={(e) => handleGeneralInfoChange('birthDate', e.target.value)}
                 />
+                {currentAge > 0 && (
+                  <div className="input-info">Current age: {currentAge} years old</div>
+                )}
               </div>
               <div className="input-group">
                 <label className="input-label">Current Annual Salary</label>
                 <div className="input-wrapper">
-                  <span className="input-prefix">$</span>
                   <input
                     type="number"
                     className="input-field"
@@ -478,7 +451,6 @@ const RetirementCalc = () => {
                     min="0"
                     step="0.1"
                   />
-                  <span className="input-suffix">%</span>
                 </div>
               </div>
               <div className="input-group">
@@ -491,9 +463,11 @@ const RetirementCalc = () => {
                   min="50"
                   max="80"
                 />
+                {yearsToRetirement > 0 && (
+                  <div className="input-info">{yearsToRetirement} years until retirement</div>
+                )}
               </div>
             </div>
-          </div>
         </div>
 
         {/* Retirement Accounts */}
@@ -513,7 +487,6 @@ const RetirementCalc = () => {
               Add Account
             </button>
           </div>
-          <div className="section-content">
             {/* Add Account Dropdown */}
             {showAddAccount && (
               <div className="add-account-dropdown">
@@ -615,7 +588,7 @@ const RetirementCalc = () => {
                                     {field.required && <span className="required">*</span>}
                                   </label>
                                   <div className="input-wrapper">
-                                    {field.type === 'currency' && <span className="input-prefix">$</span>}
+                                    {field.type === 'currency'}
                                     <input
                                       type="number"
                                       className={`input-field ${field.type === 'currency' ? '' : 'no-prefix'} ${field.type === 'percent' ? 'has-suffix' : ''}`}
@@ -624,7 +597,7 @@ const RetirementCalc = () => {
                                       placeholder={field.type === 'currency' ? '0' : field.type === 'percent' ? '0' : ''}
                                       step={field.type === 'percent' ? '0.1' : '1'}
                                     />
-                                    {field.type === 'percent' && <span className="input-suffix">%</span>}
+                                    {field.type === 'percent'}
                                   </div>
                                 </div>
                               );
@@ -653,7 +626,6 @@ const RetirementCalc = () => {
                 })}
               </div>
             )}
-          </div>
         </div>
 
         {/* Submit Button */}
@@ -671,7 +643,7 @@ const RetirementCalc = () => {
             ) : (
               <>
                 <Calculator size={20} />
-                Run Monte Carlo Simulation
+                Run Simulation
               </>
             )}
           </button>
@@ -692,7 +664,6 @@ const RetirementCalc = () => {
                   Total Portfolio Projection
                 </h2>
               </div>
-              <div className="section-content">
                 <div className="chart-container">
                   <ResponsiveContainer width="100%" height={400}>
                     <LineChart data={prepareChartData()} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
@@ -749,7 +720,6 @@ const RetirementCalc = () => {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
             </div>
 
             {/* Final Projections Summary */}
@@ -762,7 +732,6 @@ const RetirementCalc = () => {
                   Retirement Projections Summary
                 </h2>
               </div>
-              <div className="section-content">
                 <div className="projections-summary">
                   <div className="projection-card">
                     <h3>Conservative Scenario</h3>
@@ -785,8 +754,21 @@ const RetirementCalc = () => {
                     </div>
                     <p>Best case outcome</p>
                   </div>
+                  <div className="projection-card info">
+                    <h3>Monthly Income</h3>
+                    <div className="projection-amount">
+                      {formatCurrency(monthlyRetirementIncome)}
+                    </div>
+                    <p>4% withdrawal rate</p>
+                  </div>
+                  <div className="projection-card warning">
+                    <h3>Annual Contributions</h3>
+                    <div className="projection-amount">
+                      {formatCurrency(totalAnnualContributions)}
+                    </div>
+                    <p>{accounts.length} account{accounts.length !== 1 ? 's' : ''}</p>
+                  </div>
                 </div>
-              </div>
             </div>
           </>
         )}
@@ -797,7 +779,7 @@ const RetirementCalc = () => {
             <div className="empty-state">
               <div className="empty-state-icon">📊</div>
               <h3>Ready to See Your Future?</h3>
-              <p>You&apos;ve added {accounts.length} account{accounts.length > 1 ? 's' : ''}. Click &quot;Run Monte Carlo Simulation&quot; to see your retirement projections.</p>
+              <p>You&apos;ve added {accounts.length} account{accounts.length > 1 ? 's' : ''}. Click &quot;Run Simulation&quot; to see your retirement projections.</p>
             </div>
           </div>
         )}

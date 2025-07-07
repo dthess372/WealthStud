@@ -24,7 +24,7 @@ describe('Federal Tax Calculations', () => {
 
     test('should calculate federal tax for married filing jointly', () => {
       expect(calculateFederalTax(50000, 'married')).toBeCloseTo(5536, 0); // Actual calculation
-      expect(calculateFederalTax(100000, 'married')).toBeCloseTo(11536, 0); // Actual calculation
+      expect(calculateFederalTax(100000, 'married')).toBeCloseTo(12106, 0); // Actual calculation: $2,320 + $8,532 + $1,254
     });
 
     test('should handle zero income', () => {
@@ -68,8 +68,8 @@ describe('Federal Tax Calculations', () => {
 
   describe('getEffectiveTaxRate', () => {
     test('should calculate effective tax rate correctly', () => {
-      expect(getEffectiveTaxRate(10000, 100000)).toBe(0.1); // Returns decimal, not percentage
-      expect(getEffectiveTaxRate(25000, 100000)).toBe(0.25);
+      expect(getEffectiveTaxRate(10000, 100000)).toBe(10); // Returns percentage
+      expect(getEffectiveTaxRate(25000, 100000)).toBe(25);
       expect(getEffectiveTaxRate(0, 100000)).toBe(0);
     });
 
@@ -79,7 +79,7 @@ describe('Federal Tax Calculations', () => {
 
     test('should handle edge cases', () => {
       expect(getEffectiveTaxRate(0, 0)).toBe(0);
-      expect(getEffectiveTaxRate(-1000, 100000)).toBe(-0.01); // Allow negative tax credits
+      expect(getEffectiveTaxRate(-1000, 100000)).toBe(-1); // Allow negative tax credits (percentage)
     });
   });
 });
@@ -162,7 +162,7 @@ describe('Payroll Tax Calculations', () => {
       const marriedTax = calculateMedicareTax(income, 'married');
       
       // Married threshold is higher, so should have lower effective rate
-      expect(marriedTax / income).toBeLessThanOrEqual(singleTax / income);
+      expect(marriedTax.total / income).toBeLessThanOrEqual(singleTax.total / income);
     });
   });
 
@@ -174,8 +174,8 @@ describe('Payroll Tax Calculations', () => {
       const medicareTax = calculateMedicareTax(income, 'single');
       
       expect(payrollTax.socialSecurity).toBeCloseTo(ssTax, 1);
-      expect(payrollTax.medicare).toBeCloseTo(medicareTax, 1);
-      expect(payrollTax.total).toBeCloseTo(ssTax + medicareTax, 1);
+      expect(payrollTax.medicare).toBeCloseTo(medicareTax.total, 1);
+      expect(payrollTax.total).toBeCloseTo(ssTax + medicareTax.total, 1);
     });
 
     test('should provide detailed breakdown', () => {

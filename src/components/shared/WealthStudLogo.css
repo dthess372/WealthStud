@@ -11,61 +11,60 @@
 .wealthstud-logo .spinner {
   width: 100%;
   height: 100%;
-  --clr: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  --clr-solid: #3b82f6;
-  --clr-alpha: rgba(59, 130, 246, 0.1);
   animation: spinner 4s infinite ease;
   transform-style: preserve-3d;
   position: relative;
 }
 
 .wealthstud-logo .spinner > div {
-  background: var(--clr-alpha);
+  /* background: var(--clr-alpha); */
   height: 100%;
   position: absolute;
   width: 100%;
-  border: 2px solid var(--clr-solid);
-  border-radius: 2px;
-  backdrop-filter: blur(10px);
+  border: 1px solid transparent;
+  /* border-radius: 2px; */
+  /* backdrop-filter: blur(10px); */
 }
 
 .wealthstud-logo .spinner div:nth-of-type(1) {
   transform: translateZ(-50%) rotateY(180deg);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+  background: none;
+  border: none;
 }
 
 .wealthstud-logo .spinner div:nth-of-type(2) {
   transform: rotateY(-270deg) translateX(50%);
   transform-origin: top right;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%);
-  border-color: #60a5fa;
+  background: none;
+  border-color: lime;
 }
 
 .wealthstud-logo .spinner div:nth-of-type(3) {
   transform: rotateY(270deg) translateX(-50%);
   transform-origin: center left;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  background: none;
   border-color: #8b5cf6;
 }
 
 .wealthstud-logo .spinner div:nth-of-type(4) {
   transform: rotateX(90deg) translateY(-50%);
   transform-origin: top center;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+  background: none;
   border-color: #3b82f6;
 }
 
 .wealthstud-logo .spinner div:nth-of-type(5) {
   transform: rotateX(-90deg) translateY(50%);
   transform-origin: bottom center;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%);
+  background: none;
   border-color: #a855f7;
 }
 
 .wealthstud-logo .spinner div:nth-of-type(6) {
   transform: translateZ(50%);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
-  border-color: #60a5fa;
+  background: none;
+  border-color: #ff000000;
+  border: none;
 }
 
 @keyframes spinner {

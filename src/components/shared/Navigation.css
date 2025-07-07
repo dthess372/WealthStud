@@ -3,7 +3,6 @@
   top: 0;
   width: 100%;
   height: 40px;
-  background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   z-index: var(--z-index-header);
@@ -40,8 +39,7 @@
 .nav-left {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
-  padding-left: var(--space-sm);
+  padding-left: 25px;
 }
 
 /* Brand */

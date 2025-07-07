@@ -435,7 +435,6 @@ const SavingPlanner = () => {
               Savings Parameters
             </h2>
           </div>
-          <div className="section-content">
             <div className="input-grid">
               <div className="input-section">
                 <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--primary-text-color)' }}>
@@ -571,7 +570,6 @@ const SavingPlanner = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Investment Scenarios */}
@@ -584,7 +582,6 @@ const SavingPlanner = () => {
               Investment Strategy
             </h2>
           </div>
-          <div className="section-content">
             <div className="scenarios-grid">
               {Object.entries(INVESTMENT_SCENARIOS).map(([key, scenario]) => {
                 const Icon = scenario.icon;
@@ -617,7 +614,6 @@ const SavingPlanner = () => {
                 );
               })}
             </div>
-          </div>
         </div>
 
         {/* Savings Goals */}
@@ -630,7 +626,6 @@ const SavingPlanner = () => {
               Savings Goals
             </h2>
           </div>
-          <div className="section-content">
             <div className="goals-grid">
               {goalsData.map(goal => {
                 const progress = calculateGoalProgress(goal);
@@ -689,7 +684,6 @@ const SavingPlanner = () => {
                 </button>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Projections Chart */}
@@ -702,7 +696,6 @@ const SavingPlanner = () => {
               Savings Growth Projection
             </h2>
           </div>
-          <div className="section-content">
             <div className="chart-container">
               <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -778,7 +771,6 @@ const SavingPlanner = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Detailed Projections Table */}
@@ -791,7 +783,6 @@ const SavingPlanner = () => {
               Detailed Projections
             </h2>
           </div>
-          <div className="section-content">
             <div style={{ overflowX: 'auto' }}>
               <table className="projections-table">
                 <thead>
@@ -823,7 +814,6 @@ const SavingPlanner = () => {
                 </tbody>
               </table>
             </div>
-          </div>
         </div>
 
         {/* Savings Tips */}

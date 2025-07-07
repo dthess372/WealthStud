@@ -4,57 +4,70 @@
    ============================================================================= */
 
 :root {
-  /* ===== COLOR PALETTE ===== */
+  /* ===== PROFESSIONAL COLOR PALETTE ===== */
   
-  /* Dark Theme Base Colors */
-  --color-bg-primary: #0a0a0b;          /* Deep black background */
-  --color-bg-secondary: #111114;        /* Card/section backgrounds */
-  --color-bg-tertiary: #1a1a1f;         /* Elevated elements */
-  --color-bg-quaternary: #242429;       /* Input fields, borders */
+  /* Dark Theme Base Colors - Professional & Elegant */
+  --color-bg-primary: #0a0b0f;          /* Deep navy background */
+  --color-bg-secondary: #1a1d23;        /* Card/section backgrounds */
+  --color-bg-tertiary: #252a32;         /* Elevated elements */
+  --color-bg-quaternary: #2f3540;       /* Input fields, borders */
   
-  /* Surface Colors */
-  --color-surface-100: #2d2d35;         /* Hover states */
-  --color-surface-200: #3a3a42;         /* Active states */
-  --color-surface-300: #47474f;         /* Borders, dividers */
-  --color-surface-400: #54545c;         /* Subtle text */
+  /* Surface Colors - Unified Gray Scale */
+  --color-surface-100: #3a414d;         /* Hover states */
+  --color-surface-200: #4a525f;         /* Active states */
+  --color-surface-300: #5a6470;         /* Borders, dividers */
+  --color-surface-400: #6b7580;         /* Subtle text */
   
-  /* Text Colors */
+  /* Text Colors - High Contrast for Readability */
   --color-text-primary: #ffffff;         /* Main headings */
-  --color-text-secondary: #e4e4e7;      /* Body text */
-  --color-text-tertiary: #a1a1aa;       /* Secondary text */
-  --color-text-quaternary: #71717a;     /* Placeholder text */
-  --color-text-inverse: #0a0a0b;        /* Text on light backgrounds */
+  --color-text-secondary: #e2e8f0;      /* Body text */
+  --color-text-tertiary: #cbd5e1;       /* Secondary text */
+  --color-text-quaternary: #94a3b8;     /* Placeholder text */
+  --color-text-inverse: #0a0b0f;        /* Text on light backgrounds */
   
-  /* Vibrant Accent Colors */
-  --color-primary: #3b82f6;             /* Primary blue */
-  --color-primary-light: #60a5fa;       /* Light blue */
+  /* Professional Accent Colors - Financial Theme */
+  --color-primary: #2563eb;             /* Professional blue */
+  --color-primary-light: #3b82f6;       /* Light blue */
   --color-primary-dark: #1d4ed8;        /* Dark blue */
-  --color-primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --color-primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   
-  --color-success: #10b981;             /* Green for positive */
-  --color-success-light: #34d399;       /* Light green */
-  --color-success-dark: #059669;        /* Dark green */
-  --color-success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --color-success: #16a34a;             /* Professional green */
+  --color-success-light: #22c55e;       /* Light green */
+  --color-success-dark: #15803d;        /* Dark green */
+  --color-success-gradient: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
   
-  --color-warning: #f59e0b;             /* Orange for warning */
-  --color-warning-light: #fbbf24;       /* Light orange */
-  --color-warning-dark: #d97706;        /* Dark orange */
-  --color-warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --color-warning: #ea580c;             /* Professional orange */
+  --color-warning-light: #f97316;       /* Light orange */
+  --color-warning-dark: #c2410c;        /* Dark orange */
+  --color-warning-gradient: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
   
-  --color-danger: #ef4444;              /* Red for negative */
-  --color-danger-light: #f87171;        /* Light red */
-  --color-danger-dark: #dc2626;         /* Dark red */
-  --color-danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --color-danger: #dc2626;              /* Professional red */
+  --color-danger-light: #ef4444;        /* Light red */
+  --color-danger-dark: #b91c1c;         /* Dark red */
+  --color-danger-gradient: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   
-  --color-purple: #8b5cf6;              /* Purple accent */
-  --color-purple-light: #a78bfa;        /* Light purple */
-  --color-purple-dark: #7c3aed;         /* Dark purple */
-  --color-purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  --color-purple: #7c3aed;              /* Professional purple */
+  --color-purple-light: #8b5cf6;        /* Light purple */
+  --color-purple-dark: #6d28d9;         /* Dark purple */
+  --color-purple-gradient: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   
-  --color-cyan: #06b6d4;                /* Cyan accent */
-  --color-cyan-light: #22d3ee;          /* Light cyan */
-  --color-cyan-dark: #0891b2;           /* Dark cyan */
-  --color-cyan-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  --color-cyan: #0891b2;                /* Professional cyan */
+  --color-cyan-light: #06b6d4;          /* Light cyan */
+  --color-cyan-dark: #0e7490;           /* Dark cyan */
+  --color-cyan-gradient: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  
+  /* Additional Semantic Colors */
+  --color-info: #0ea5e9;                /* Information blue */
+  --color-info-light: #38bdf8;          /* Light info */
+  --color-info-dark: #0284c7;           /* Dark info */
+  --color-info-gradient: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  
+  /* Chart & Data Visualization Colors */
+  --color-chart-primary: #2563eb;        /* Primary data */
+  --color-chart-secondary: #16a34a;      /* Secondary data */
+  --color-chart-tertiary: #ea580c;       /* Tertiary data */
+  --color-chart-quaternary: #7c3aed;     /* Additional data */
+  --color-chart-accent: #0891b2;         /* Accent data */
   
   /* ===== SPACING SYSTEM ===== */
   --space-xs: 0.25rem;    /* 4px */
@@ -149,7 +162,10 @@
 .text-success { color: var(--color-success); }
 .text-warning { color: var(--color-warning); }
 .text-danger { color: var(--color-danger); }
+.text-info { color: var(--color-info); }
 .text-primary-color { color: var(--color-primary); }
+.text-purple { color: var(--color-purple); }
+.text-cyan { color: var(--color-cyan); }
 
 /* Background Utilities */
 .bg-primary { background-color: var(--color-bg-primary); }
@@ -161,6 +177,18 @@
 .bg-gradient-success { background: var(--color-success-gradient); }
 .bg-gradient-warning { background: var(--color-warning-gradient); }
 .bg-gradient-danger { background: var(--color-danger-gradient); }
+.bg-gradient-purple { background: var(--color-purple-gradient); }
+.bg-gradient-cyan { background: var(--color-cyan-gradient); }
+.bg-gradient-info { background: var(--color-info-gradient); }
+
+/* Semantic background colors */
+.bg-success { background-color: var(--color-success); }
+.bg-warning { background-color: var(--color-warning); }
+.bg-danger { background-color: var(--color-danger); }
+.bg-info { background-color: var(--color-info); }
+.bg-primary-color { background-color: var(--color-primary); }
+.bg-purple { background-color: var(--color-purple); }
+.bg-cyan { background-color: var(--color-cyan); }
 
 /* Spacing Utilities */
 .p-xs { padding: var(--space-xs); }

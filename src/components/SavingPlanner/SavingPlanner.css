@@ -186,9 +186,6 @@
   color: var(--background);
 }
 
-.section-content {
-  padding: 1.5rem;
-}
 
 /* Input grid */
 .input-grid {
@@ -758,9 +755,6 @@
     padding: 1rem;
   }
   
-  .section-content {
-    padding: 1rem;
-  }
   
   .input-grid {
     grid-template-columns: 1fr;

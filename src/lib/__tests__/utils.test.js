@@ -468,7 +468,13 @@ describe('Local Storage Utilities', () => {
     removeItem: jest.fn(),
     clear: jest.fn(),
   };
-  global.localStorage = localStorageMock;
+  
+  beforeAll(() => {
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      writable: true
+    });
+  });
 
   beforeEach(() => {
     localStorageMock.getItem.mockClear();

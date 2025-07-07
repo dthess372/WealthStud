@@ -12,7 +12,7 @@ import FinancialDashboard from './components/FinancialDashboard/FinancialDashboa
 
 function App() {
   return (
-    <Router>
+    <Router basename={process.env.NODE_ENV === 'production' ? '/WealthStud' : ''}>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <main style={{ flex: 1, paddingTop: '40px' }}>
           <Routes>

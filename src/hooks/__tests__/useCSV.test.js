@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { renderHook, act } from '@testing-library/react';
 import { useCSV } from '../useCSV';
 
@@ -18,12 +21,24 @@ document.body.appendChild = jest.fn();
 document.body.removeChild = jest.fn();
 
 describe('useCSV', () => {
+  let container;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // Create a container for the test
+    container = document.createElement('div');
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    // Clean up
+    if (container) {
+      document.body.removeChild(container);
+    }
   });
 
   test('should initialize with prefix', () => {
-    const { result } = renderHook(() => useCSV('budget'));
+    const { result } = renderHook(() => useCSV('budget'), { container });
     
     expect(typeof result.current.exportCSV).toBe('function');
     expect(typeof result.current.createFileInputHandler).toBe('function');

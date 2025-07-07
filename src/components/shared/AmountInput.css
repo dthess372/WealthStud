@@ -1,0 +1,237 @@
+/* =============================================================================
+   ENHANCED INPUT COMPONENTS WITH ADORNMENTS
+   Professional input styling for WealthStud
+   ============================================================================= */
+
+/* Text Input Container */
+.text-input-container {
+  width: 100%;
+  margin-bottom: var(--space-lg);
+}
+
+/* Label Container with Suggestion Support */
+.input-label-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+  gap: var(--space-md);
+}
+
+.input-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.input-label:hover {
+  color: var(--color-text-primary);
+}
+
+/* Input Wrapper with Adornment Support */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Enhanced Input Field */
+.input-field {
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-surface-300);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  outline: none;
+  font-family: var(--font-family-primary);
+}
+
+/* Input field with adornment (unit icon) */
+.input-field.with-adornment {
+  padding-left: 48px; /* Space for the adornment */
+}
+
+/* Input States */
+.input-field:focus {
+  border-color: var(--color-primary);
+  background: var(--color-bg-quaternary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-field:hover:not(:focus):not(:disabled) {
+  border-color: var(--color-surface-200);
+  background: var(--color-bg-quaternary);
+}
+
+.input-field:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-surface-100);
+}
+
+.input-field.error {
+  border-color: var(--color-danger);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+.input-field.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Placeholder Styling */
+.input-field::placeholder {
+  color: var(--color-text-quaternary);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Unit Adornment */
+.unit-adornment {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.unit-adornment.left {
+  left: var(--space-md);
+}
+
+.unit-adornment.right {
+  right: var(--space-md);
+}
+
+/* Focus state for adornment */
+.input-field:focus + .unit-adornment,
+.input-wrapper:focus-within .unit-adornment {
+  color: var(--color-primary);
+}
+
+/* Amount Suggestion */
+.amount-suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+}
+
+.suggestion-name {
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-medium);
+}
+
+.suggestion-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.suggestion-button:hover {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--color-primary-light);
+}
+
+.suggestion-button:active {
+  background: rgba(37, 99, 235, 0.15);
+  transform: scale(0.98);
+}
+
+/* Error Message */
+.input-error {
+  margin-top: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Professional Input Variants */
+.input-field.large {
+  padding: var(--space-lg) var(--space-xl);
+  font-size: var(--text-lg);
+  border-radius: var(--radius-xl);
+}
+
+.input-field.large.with-adornment {
+  padding-left: 56px;
+}
+
+.input-field.small {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+}
+
+.input-field.small.with-adornment {
+  padding-left: 40px;
+}
+
+/* Professional styling for currency inputs */
+.currency-input .input-field {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* Number input specific styling */
+.input-field[type="number"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Remove number input spinners */
+.input-field[type="number"]::-webkit-outer-spin-button,
+.input-field[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-field[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Focus ring for accessibility */
+.input-field:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .input-label-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  
+  .amount-suggestion {
+    align-self: flex-end;
+  }
+  
+  .input-field {
+    font-size: var(--text-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .input-field {
+    padding: var(--space-md);
+  }
+  
+  .input-field.with-adornment {
+    padding-left: 44px;
+  }
+}

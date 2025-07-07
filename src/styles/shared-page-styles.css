@@ -25,8 +25,8 @@
 
 /* Page header styling */
 .page-header {
-  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-purple) 100%);
+  border: none;
   padding: var(--space-2xl) 0;
   text-align: center;
   position: relative;
@@ -40,9 +40,6 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(circle at 30% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 70%),
-    radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -58,11 +55,7 @@
   font-size: clamp(2rem, 5vw, 2.5rem);
   font-weight: var(--font-weight-bold);
   margin: 0;
-  background: linear-gradient(135deg, var(--color-primary), #d4af37);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.02em;
+  color: var(--color-text-primary)
 }
 
 .page-subtitle {
@@ -74,14 +67,13 @@
 
 /* Page intro section */
 .page-intro-section {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  border-radius: var(--radius-2xl);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-radius: var(--radius-lg);
   color: var(--color-text-secondary);
   box-shadow: 
-    0 4px 24px rgba(59, 130, 246, 0.08),
+    0 4px 24px rgba(37, 99, 235, 0.08),
     0 2px 6px rgba(0,0,0,0.05);
-  max-width: 1200px;
   margin: var(--space-2xl) auto;
   padding: var(--space-2xl);
   backdrop-filter: blur(20px);
@@ -96,7 +88,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.3), transparent);
 }
 
 .intro-title {
@@ -123,7 +115,7 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-lg);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  background: linear-gradient(135deg, rgb(16, 60, 131) 0%, rgba(139, 92, 246, 0.05) 100%);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(59, 130, 246, 0.1);
   transition: var(--transition-normal);
@@ -180,7 +172,7 @@
     0 4px 24px rgba(59, 130, 246, 0.08),
     0 2px 6px rgba(0,0,0,0.05);
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Allow content to expand naturally */
   transition: var(--transition-normal);
 }
 

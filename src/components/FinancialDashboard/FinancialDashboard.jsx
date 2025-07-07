@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   AreaChart, Area, LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -7,16 +7,25 @@ import {
   BarChart3, 
   Calculator,
   Download,
-  RefreshCw
+  Upload,
+  RefreshCw,
+  ChevronDown,
+  ChevronRight,
+  User,
+  DollarSign,
+  Receipt,
+  PiggyBank,
+  TrendingUp,
+  Home,
+  CreditCard,
+  Trash2
 } from 'lucide-react';
 import Navigation from '../shared/Navigation';
-import { formatCurrency, formatPercent, parseNumber } from '../../lib/utils';
+import { formatCurrency, formatPercent, decimalToPercent, parseNumber } from '../../lib/utils';
 import { STORAGE_KEYS } from '../../lib/constants';
 import { calculateAllTaxes, getAllStates } from '../../lib/taxes';
 import { useLocalStorage, useCSV } from '../../hooks';
 import './FinancialDashboard.css';
-import '../../styles/shared-inputs.css';
-import '../../styles/shared-page-styles.css';
 
 const FinancialDashboard = () => {
   const [viewPeriod, setViewPeriod] = useState('monthly'); // daily, weekly, monthly, yearly
@@ -24,29 +33,47 @@ const FinancialDashboard = () => {
   const [projectionYears, setProjectionYears] = useState(10);
   const [timelineMonths, setTimelineMonths] = useState(12); // For slider: 1-360 months
   const [focusedChart, setFocusedChart] = useState('overview'); // Which chart is currently the main focus
+  const [selectedCategory, setSelectedCategory] = useState('basic'); // Which category is selected
   
 
   // Use localStorage for data persistence
   const [financialData, setFinancialData] = useLocalStorage(STORAGE_KEYS.FINANCIAL_DASHBOARD, {
     // Basic Info
-    salary: 100000,
-    age: 30,
+    age: 30, // keeping for backward compatibility
+    birthdate: '', // new birthdate field
     retirementAge: 67,
     filingStatus: 'single',
     selectedState: 'MI',
-    payFrequency: 'biweekly', // weekly, biweekly, semimonthly, monthly
-    nextPayDate: new Date().toISOString().split('T')[0],
-    monthlyExpenses: 4500,
+    dependents: 0,
+    
+    // Income Sources (Static Fields)
+    employmentType: 'salary', // 'salary' or 'hourly'
+    salaryAmount: 100000,
+    hourlyRate: 25,
+    hoursPerWeek: 40,
+    payFrequency: 'biweekly',
+    lastPayDate: '',
+    businessIncome: 0,
+    otherIncome: 0,
+    
+    // Expenses
+    expenses: [
+      { id: 1, category: 'Housing', amount: 1800 },
+      { id: 2, category: 'Food', amount: 600 },
+      { id: 3, category: 'Transportation', amount: 400 },
+      { id: 4, category: 'Utilities', amount: 200 },
+      { id: 5, category: 'Entertainment', amount: 300 },
+      { id: 6, category: 'Healthcare', amount: 200 }
+    ],
     
     // Account Balances
     checkingBalance: 5000,
-    savingsBalance: 20000,
+    savingsBalance: 10000,
     brokerageBalance: 15000,
-    cryptoBalance: 5000,
     
     // Retirement Account Balances
-    current401k: 50000,
-    currentRothIRA: 25000,
+    current401k: 0,
+    currentRothIRA: 0,
     currentTraditionalIRA: 0,
     currentPension: 0,
     otherRetirementType: 'pension',
@@ -67,7 +94,6 @@ const FinancialDashboard = () => {
     checkingAllocation: 60, // % of paycheck to checking
     savingsAllocation: 15, // % of paycheck to savings
     brokerageAllocation: 15, // % of paycheck to brokerage
-    cryptoAllocation: 5, // % of paycheck to crypto
     emergencyFundAllocation: 5, // % of paycheck to emergency fund
     
     // Retirement Contributions
@@ -79,7 +105,6 @@ const FinancialDashboard = () => {
     // Investment Returns (annual %)
     savingsReturn: 2.5, // High-yield savings rate
     brokerageReturn: 7, // Stock market average
-    cryptoReturn: 15, // Volatile crypto estimate
     retirement401kReturn: 7, // Conservative retirement mix
     rothIRAReturn: 7, // Conservative retirement mix
     traditionalIRAReturn: 7, // Conservative retirement mix
@@ -102,21 +127,53 @@ const FinancialDashboard = () => {
   const [projections, setProjections] = useState([]);
   const [summaryMetrics, setSummaryMetrics] = useState({});
 
+  // Calculate total gross income from all sources
+  const calculateTotalIncome = useCallback(() => {
+    let total = 0;
+    
+    // Employment Income (Salary or Hourly)
+    if (financialData.employmentType === 'salary') {
+      const salary = parseNumber(financialData.salaryAmount) || 0;
+      total += salary;
+    } else if (financialData.employmentType === 'hourly') {
+      const hourlyRate = parseNumber(financialData.hourlyRate) || 0;
+      const hoursPerWeek = parseNumber(financialData.hoursPerWeek) || 0;
+      total += hourlyRate * hoursPerWeek * 52; // Annual calculation
+    }
+    
+    // Business Income
+    const monthlyBusiness = parseNumber(financialData.businessIncome) || 0;
+    total += monthlyBusiness * 12;
+    
+    // Other Income
+    const monthlyOther = parseNumber(financialData.otherIncome) || 0;
+    total += monthlyOther * 12;
+    
+    return total;
+  }, [financialData.employmentType, financialData.salaryAmount, financialData.hourlyRate, financialData.hoursPerWeek, financialData.businessIncome, financialData.otherIncome]);
+
   // Calculate tax rate based on income and location
   const calculateTaxRate = useCallback(() => {
     try {
+      const totalIncome = calculateTotalIncome();
+      if (totalIncome === 0) return 0;
+      
+      // Include pre-tax contributions for accurate tax calculation
+      const annual401k = totalIncome * (parseNumber(financialData.contribution401k) / 100);
+      const traditionalIRA = parseNumber(financialData.contributionTraditionalIRA);
+      
       const taxInfo = calculateAllTaxes(
-        financialData.salary,
+        totalIncome,
         financialData.filingStatus,
         financialData.selectedState,
-        0, // 401k contribution (pre-tax)
-        0  // IRA contribution
+        annual401k, // 401k contribution (pre-tax)
+        traditionalIRA  // Traditional IRA contribution
       );
-      return (taxInfo.totalTaxes / financialData.salary) * 100;
+      return (taxInfo.totalTaxes / totalIncome) * 100;
     } catch (error) {
       return 25; // fallback to 25%
     }
-  }, [financialData.salary, financialData.filingStatus, financialData.selectedState]);
+  }, [calculateTotalIncome, financialData.filingStatus, financialData.selectedState, financialData.contribution401k, financialData.contributionTraditionalIRA]);
 
   // Render chart based on type and configuration
   const renderChart = (chartKey, data, config, isMainChart) => {
@@ -126,7 +183,7 @@ const FinancialDashboard = () => {
     
     const commonProps = {
       data: data || [],
-      margin: { top: 20, right: 30, left: 20, bottom: isMainChart ? 80 : 40 }
+      margin: { top: 20, right: 20, left: 0, bottom: isMainChart ? 20 : 0 }
     };
 
     const xAxisProps = {
@@ -137,9 +194,11 @@ const FinancialDashboard = () => {
         if (timelineMonths <= 24) {
           const year = Math.floor(value / 12) + new Date().getFullYear();
           const month = (value % 12) + 1;
-          return `${year}-${String(month).padStart(2, '0')}`;
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const yearShort = String(year).slice(-2);
+          return `${monthNames[month - 1]} '${yearShort}`;
         }
-        return value;
+        return `'${String(value).slice(-2)}`;
       }
     };
 
@@ -227,24 +286,35 @@ const FinancialDashboard = () => {
     }
   };
 
-  const calculateProjections = () => {
+  const calculateProjections = useCallback(() => {
     const data = [];
     const year = new Date().getFullYear();
     
     // Calculate timeline in months instead of years
     const totalMonths = Math.max(timelineMonths, projectionYears * 12);
     
+    // Calculate current age from birthdate or use stored age as fallback
+    const calculateAgeFromBirthdate = (birthdate) => {
+      if (!birthdate) return parseNumber(financialData.age) || 30;
+      const today = new Date();
+      const birth = new Date(birthdate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return Math.max(0, age);
+    };
+    
     // Parse all numeric values at calculation time
     const parsedData = {
-      age: parseNumber(financialData.age),
-      salary: parseNumber(financialData.salary),
-      monthlyExpenses: parseNumber(financialData.monthlyExpenses),
+      age: calculateAgeFromBirthdate(financialData.birthdate),
+      totalIncome: calculateTotalIncome(),
       
       // Account Balances
       checkingBalance: parseNumber(financialData.checkingBalance),
       savingsBalance: parseNumber(financialData.savingsBalance),
       brokerageBalance: parseNumber(financialData.brokerageBalance),
-      cryptoBalance: parseNumber(financialData.cryptoBalance),
       
       // Retirement Balances
       current401k: parseNumber(financialData.current401k),
@@ -268,7 +338,6 @@ const FinancialDashboard = () => {
       checkingAllocation: parseNumber(financialData.checkingAllocation),
       savingsAllocation: parseNumber(financialData.savingsAllocation),
       brokerageAllocation: parseNumber(financialData.brokerageAllocation),
-      cryptoAllocation: parseNumber(financialData.cryptoAllocation),
       
       // Retirement Contributions
       contribution401k: parseNumber(financialData.contribution401k),
@@ -279,7 +348,6 @@ const FinancialDashboard = () => {
       // Returns (convert annual to monthly)
       savingsReturn: parseNumber(financialData.savingsReturn) / 12 / 100,
       brokerageReturn: parseNumber(financialData.brokerageReturn) / 12 / 100,
-      cryptoReturn: parseNumber(financialData.cryptoReturn) / 12 / 100,
       retirement401kReturn: parseNumber(financialData.retirement401kReturn) / 12 / 100,
       rothIRAReturn: parseNumber(financialData.rothIRAReturn) / 12 / 100,
       traditionalIRAReturn: parseNumber(financialData.traditionalIRAReturn) / 12 / 100,
@@ -299,20 +367,18 @@ const FinancialDashboard = () => {
     };
     
     const currentAge = parsedData.age;
-    let salary = parsedData.salary;
+    let totalIncome = parsedData.totalIncome;
     const effectiveTaxRate = calculateTaxRate();
     
-    // Calculate monthly income based on pay frequency
+    // Calculate monthly income from all sources
     const getMonthlyIncome = () => {
-      const payFrequency = financialData.payFrequency;
-      switch (payFrequency) {
-        case 'weekly': return salary / 52 * 4.33;
-        case 'biweekly': return salary / 26 * 2.17;
-        case 'semimonthly': return salary / 24 * 2;
-        case 'monthly': return salary / 12;
-        default: return salary / 26 * 2.17; // Default to biweekly
-      }
+      return totalIncome / 12; // Convert annual to monthly
     };
+    
+    // Calculate total monthly expenses
+    const totalMonthlyExpenses = (financialData.expenses || []).reduce((sum, expense) => {
+      return sum + parseNumber(expense.amount);
+    }, 0);
     
     let monthlyIncome = getMonthlyIncome();
     let netMonthlyIncome = monthlyIncome * (1 - effectiveTaxRate / 100);
@@ -321,7 +387,6 @@ const FinancialDashboard = () => {
     let checking = parsedData.checkingBalance;
     let savings = parsedData.savingsBalance;
     let brokerage = parsedData.brokerageBalance;
-    let crypto = parsedData.cryptoBalance;
     
     // Retirement accounts
     let retirement401k = parsedData.current401k;
@@ -347,12 +412,11 @@ const FinancialDashboard = () => {
         checking: netMonthlyIncome * (parsedData.checkingAllocation / 100),
         savings: netMonthlyIncome * (parsedData.savingsAllocation / 100),
         brokerage: netMonthlyIncome * (parsedData.brokerageAllocation / 100),
-        crypto: netMonthlyIncome * (parsedData.cryptoAllocation / 100)
       };
       
       // Monthly retirement contributions
-      const monthly401k = (salary * (parsedData.contribution401k / 100)) / 12;
-      const monthlyEmployerMatch = Math.min(monthly401k, (salary * (parsedData.employerMatch / 100)) / 12);
+      const monthly401k = (totalIncome * (parsedData.contribution401k / 100)) / 12;
+      const monthlyEmployerMatch = Math.min(monthly401k, (totalIncome * (parsedData.employerMatch / 100)) / 12);
       const monthlyRothIRA = parsedData.contributionRothIRA / 12;
       const monthlyTraditionalIRA = parsedData.contributionTraditionalIRA / 12;
       
@@ -360,10 +424,9 @@ const FinancialDashboard = () => {
       checking += monthlyContributions.checking;
       savings += monthlyContributions.savings;
       brokerage += monthlyContributions.brokerage;
-      crypto += monthlyContributions.crypto;
       
       // Deduct monthly expenses from checking
-      checking -= parsedData.monthlyExpenses;
+      checking -= totalMonthlyExpenses;
       
       // If checking goes negative, transfer from savings
       if (checking < 0) {
@@ -375,7 +438,6 @@ const FinancialDashboard = () => {
       // Apply monthly investment growth (checking earns no interest)
       savings += savings * parsedData.savingsReturn;
       brokerage += brokerage * parsedData.brokerageReturn;
-      crypto += crypto * parsedData.cryptoReturn;
       
       // Retirement account growth
       retirement401k += monthly401k + monthlyEmployerMatch + (retirement401k * parsedData.retirement401kReturn);
@@ -412,7 +474,7 @@ const FinancialDashboard = () => {
       }
       
       // Calculate totals
-      const totalLiquid = checking + savings + brokerage + crypto;
+      const totalLiquid = checking + savings + brokerage;
       const totalRetirement = retirement401k + rothIRA + traditionalIRA + pension;
       const totalAssets = totalLiquid + totalRetirement + homeValue + carValue + otherAssets;
       const totalDebts = mortgage + carLoan + creditCards + studentLoans + otherDebts;
@@ -425,11 +487,10 @@ const FinancialDashboard = () => {
           month: month,
           year: year + Math.floor(month / 12),
           age: Math.round((currentAge + month / 12) * 10) / 10,
-          salary: Math.round(salary),
+          totalIncome: Math.round(totalIncome),
           checking: Math.round(checking),
           savings: Math.round(savings),
           brokerage: Math.round(brokerage),
-          crypto: Math.round(crypto),
           total401k: Math.round(retirement401k),
           rothIRA: Math.round(rothIRA),
           traditionalIRA: Math.round(traditionalIRA),
@@ -450,9 +511,9 @@ const FinancialDashboard = () => {
         });
       }
       
-      // Annual salary increase (every 12 months)
+      // Annual income increase (every 12 months)
       if (month > 0 && month % 12 === 0) {
-        salary *= 1.03; // 3% annual increase
+        totalIncome *= 1.03; // 3% annual increase
         monthlyIncome = getMonthlyIncome();
         netMonthlyIncome = monthlyIncome * (1 - effectiveTaxRate / 100);
       }
@@ -468,24 +529,24 @@ const FinancialDashboard = () => {
       currentNetWorth: current.netWorth,
       projectedNetWorth: final.netWorth,
       totalGrowth: final.netWorth - current.netWorth,
-      monthlyIncome: Math.round(current.salary / 12),
-      monthlyExpenses: parsedData.monthlyExpenses,
-      monthlyCashFlow: Math.round(current.salary / 12) - parsedData.monthlyExpenses,
-      dailyIncome: Math.round(current.salary / 365),
-      weeklyIncome: Math.round(current.salary / 52),
+      monthlyIncome: Math.round(current.totalIncome / 12),
+      monthlyExpenses: totalMonthlyExpenses,
+      monthlyCashFlow: Math.round(current.totalIncome / 12) - totalMonthlyExpenses,
+      dailyIncome: Math.round(current.totalIncome / 365),
+      weeklyIncome: Math.round(current.totalIncome / 52),
       effectiveTaxRate: effectiveTaxRate,
-      debtToIncomeRatio: (current.totalDebts / current.salary) * 100,
-      savingsRate: ((parsedData.savingsAllocation + parsedData.brokerageAllocation + parsedData.cryptoAllocation + parsedData.contribution401k) / 100) * 100
+      debtToIncomeRatio: (current.totalDebts / current.totalIncome) * 100,
+      savingsRate: ((parsedData.savingsAllocation + parsedData.brokerageAllocation + parsedData.contribution401k) / 100) * 100
     });
-  };
+  }, [financialData, timelineMonths, projectionYears, calculateTaxRate]);
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = useCallback((field, value) => {
     // Store all values as-is, no parsing until calculation
     setFinancialData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, [setFinancialData]);
 
   // Controlled input that only updates parent on blur
   const BlurInput = ({ field, type = 'number', className, placeholder, ...props }) => {
@@ -504,31 +565,37 @@ const FinancialDashboard = () => {
     );
   };
 
-  const handleExport = () => {
-    const exportData = {
-      financialData,
-      projections,
-      summaryMetrics,
-      projectionYears
-    };
-    exportCSV([exportData], 'financial-dashboard');
-  };
-
   const handleReset = () => {
     setFinancialData({
-      salary: 100000,
-      age: 30,
+      age: 30, // keeping for backward compatibility
+      birthdate: '', // reset birthdate
       retirementAge: 67,
       filingStatus: 'single',
       selectedState: 'MI',
+      dependents: 0,
+      
+      // Income Sources (Static Fields)
+      employmentType: 'salary',
+      salaryAmount: 100000,
+      hourlyRate: 25,
+      hoursPerWeek: 40,
       payFrequency: 'biweekly',
-      nextPayDate: new Date().toISOString().split('T')[0],
-      monthlyExpenses: 4500,
+      lastPayDate: '',
+      businessIncome: 0,
+      otherIncome: 0,
+      
+      expenses: [
+        { id: 1, category: 'Housing', amount: 1800 },
+        { id: 2, category: 'Food', amount: 600 },
+        { id: 3, category: 'Transportation', amount: 400 },
+        { id: 4, category: 'Utilities', amount: 200 },
+        { id: 5, category: 'Entertainment', amount: 300 },
+        { id: 6, category: 'Healthcare', amount: 200 }
+      ],
       
       checkingBalance: 5000,
       savingsBalance: 20000,
       brokerageBalance: 15000,
-      cryptoBalance: 5000,
       
       current401k: 50000,
       currentRothIRA: 25000,
@@ -549,7 +616,6 @@ const FinancialDashboard = () => {
       checkingAllocation: 60,
       savingsAllocation: 15,
       brokerageAllocation: 15,
-      cryptoAllocation: 5,
       emergencyFundAllocation: 5,
       
       contribution401k: 6,
@@ -559,7 +625,6 @@ const FinancialDashboard = () => {
       
       savingsReturn: 2.5,
       brokerageReturn: 7,
-      cryptoReturn: 15,
       retirement401kReturn: 7,
       rothIRAReturn: 7,
       traditionalIRAReturn: 7,
@@ -578,7 +643,27 @@ const FinancialDashboard = () => {
   };
 
   // CSV functionality
-  const { exportCSV } = useCSV('financial-dashboard');
+  const { exportCSV, createFileInputHandler } = useCSV('financial-dashboard');
+
+  const handleExport = () => {
+    const exportData = {
+      financialData,
+      projections,
+      summaryMetrics,
+      projectionYears
+    };
+    exportCSV([exportData], 'financial-dashboard');
+  };
+
+  const handleImport = createFileInputHandler((importedData) => {
+    if (importedData && importedData.length > 0 && importedData[0].financialData) {
+      setFinancialData(importedData[0].financialData);
+      if (importedData[0].projectionYears) {
+        setProjectionYears(importedData[0].projectionYears);
+        setTimelineMonths(importedData[0].projectionYears * 12);
+      }
+    }
+  });
 
   // Format currency for chart axis - intuitive units
   const formatChartCurrency = (value) => {
@@ -594,14 +679,16 @@ const FinancialDashboard = () => {
     }
   };
 
-  // Chart data preparation - organized by category
-  const chartDataSets = {
+  // Chart data preparation - memoized for performance
+  const chartDataSets = useMemo(() => ({
     overview: projections.map(item => ({
       month: item.month,
       year: item.year,
-      'Total Assets': item.totalAssets || 0,
-      'Net Worth': item.netWorth || 0,
-      'Total Debts': item.totalDebts || 0
+      'Physical Assets': (item.homeValue || 0) + (item.carValue || 0) + (item.otherAssets || 0),
+      'Liquid Accounts': (item.checking || 0) + (item.savings || 0) + (item.brokerage || 0),
+      'Retirement': (item.total401k || 0) + (item.rothIRA || 0) + (item.traditionalIRA || 0) + (item.pension || 0),
+      'Total Debts': item.totalDebts || 0,
+      'Net Worth': item.netWorth || 0
     })),
     liquid: projections.map(item => ({
       month: item.month,
@@ -609,7 +696,6 @@ const FinancialDashboard = () => {
       'Checking': item.checking || 0,
       'Savings': item.savings || 0,
       'Brokerage': item.brokerage || 0,
-      'Crypto': item.crypto || 0
     })),
     retirement: projections.map(item => ({
       month: item.month,
@@ -635,19 +721,25 @@ const FinancialDashboard = () => {
       'Student Loans': item.studentLoans || 0,
       'Other Debts': item.otherDebts || 0
     }))
-  };
+  }), [projections]);
 
   // Chart configurations
   const chartConfigs = {
     overview: {
       title: 'Net Worth Overview',
       type: 'area',
-      colors: { 'Total Assets': '#3b82f6', 'Net Worth': '#22c55e', 'Total Debts': '#ef4444' }
+      colors: { 
+        'Physical Assets': '#059669', 
+        'Liquid Accounts': '#06b6d4', 
+        'Retirement': '#8b5cf6', 
+        'Total Debts': '#ef4444', 
+        'Net Worth': '#22c55e' 
+      }
     },
     liquid: {
       title: 'Liquid Accounts',
       type: 'line',
-      colors: { 'Checking': '#06b6d4', 'Savings': '#10b981', 'Brokerage': '#3b82f6', 'Crypto': '#f59e0b' }
+      colors: { 'Checking': '#06b6d4', 'Savings': '#10b981', 'Brokerage': '#3b82f6' }
     },
     retirement: {
       title: 'Retirement Accounts',
@@ -669,221 +761,600 @@ const FinancialDashboard = () => {
   // Initial calculation on mount and when timeline changes
   useEffect(() => {
     calculateProjections();
-  }, [projectionYears, timelineMonths]); // Recalculate when timeline changes
+  }, [calculateProjections]);
+
+  // Helper functions for expense management - memoized for performance
+  const addExpense = useCallback(() => {
+    const newId = Math.max(...(financialData.expenses || []).map(e => e.id), 0) + 1;
+    const newExpense = { id: newId, category: 'New Category', amount: 0 };
+    handleInputChange('expenses', [...(financialData.expenses || []), newExpense]);
+  }, [financialData.expenses, handleInputChange]);
   
-  // Run initial calculation
-  useEffect(() => {
-    calculateProjections();
+  const removeExpense = useCallback((id) => {
+    const updatedExpenses = (financialData.expenses || []).filter(expense => expense.id !== id);
+    handleInputChange('expenses', updatedExpenses);
+  }, [financialData.expenses, handleInputChange]);
+  
+  const updateExpense = useCallback((id, field, value) => {
+    const updatedExpenses = (financialData.expenses || []).map(expense => 
+      expense.id === id ? { ...expense, [field]: value } : expense
+    );
+    handleInputChange('expenses', updatedExpenses);
+  }, [financialData.expenses, handleInputChange]);
+
+
+  // Handle category selection
+  const selectCategory = useCallback((categoryKey) => {
+    setSelectedCategory(categoryKey);
   }, []);
 
-  // Tab content components
-  const BasicInfoTab = () => (
-    <div className="optimized-input-grid">
-      <div className="input-row">
-        <div className="input-mini">
-          <label>Annual Salary</label>
-          <BlurInput
-            field="salary"
-            type="number"
-            className="mini-field"
-            placeholder="100000"
-          />
-        </div>
-        <div className="input-mini">
-          <label>Current Age</label>
-          <BlurInput
-            field="age"
-            type="number"
-            className="mini-field"
-            placeholder="30"
-          />
-        </div>
-        <div className="input-mini">
-          <label>Retirement Age</label>
-          <BlurInput
-            field="retirementAge"
-            type="number"
-            className="mini-field"
-            placeholder="67"
-          />
-        </div>
-      </div>
-      <div className="input-row">
-        <div className="input-mini wide">
-          <label>Filing Status</label>
-          <select
-            value={financialData.filingStatus}
-            onChange={(e) => handleInputChange('filingStatus', e.target.value)}
-            className="mini-field"
-          >
-            <option value="single">Single</option>
-            <option value="marriedFilingJointly">Married Joint</option>
-            <option value="marriedFilingSeparately">Married Separate</option>
-            <option value="headOfHousehold">Head of Household</option>
-          </select>
-        </div>
-        <div className="input-mini">
-          <label>State</label>
-          <select
-            value={financialData.selectedState}
-            onChange={(e) => handleInputChange('selectedState', e.target.value)}
-            className="mini-field"
-          >
-            {getAllStates().map(state => (
-              <option key={state.code} value={state.code}>{state.code}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-      <div className="input-row">
-        <div className="input-mini">
-          <label>How Often Paid</label>
-          <select
-            value={financialData.payFrequency}
-            onChange={(e) => handleInputChange('payFrequency', e.target.value)}
-            className="mini-field"
-          >
-            <option value="weekly">Weekly</option>
-            <option value="biweekly">Every 2 Weeks</option>
-            <option value="semimonthly">Twice Monthly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <div className="input-mini">
-          <label>Next Payday</label>
-          <input
-            type="date"
-            value={financialData.nextPayDate}
-            onChange={(e) => handleInputChange('nextPayDate', e.target.value)}
-            className="mini-field"
-          />
-        </div>
-        <div className="input-mini">
-          <label>Monthly Expenses</label>
-          <BlurInput
-            field="monthlyExpenses"
-            type="number"
-            className="mini-field"
-            placeholder="4500"
-          />
-        </div>
-      </div>
-    </div>
-  );
+  // Memoized summary calculations for performance
+  const sectionSummaries = useMemo(() => {
+    // Calculate current age from birthdate or use stored age as fallback
+    const calculateAgeFromBirthdate = (birthdate) => {
+      if (!birthdate) return parseNumber(financialData.age) || 30;
+      const today = new Date();
+      const birth = new Date(birthdate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return Math.max(0, age);
+    };
+    
+    const currentAge = calculateAgeFromBirthdate(financialData.birthdate);
+    
+    return {
+      basic: `Age ${currentAge}, ${financialData.dependents || 0} deps, ${financialData.selectedState || 'MI'}`,
+      income: formatCurrency(calculateTotalIncome()),
+      expenses: formatCurrency((financialData.expenses || []).reduce((sum, expense) => sum + parseNumber(expense.amount), 0)),
+      retirement: formatCurrency((parseNumber(financialData.current401k) + parseNumber(financialData.currentRothIRA) + parseNumber(financialData.currentTraditionalIRA) + parseNumber(financialData.currentPension)) || 0),
+      liquid: formatCurrency((parseNumber(financialData.checkingBalance) + parseNumber(financialData.savingsBalance) + parseNumber(financialData.brokerageBalance)) || 0),
+      assets: formatCurrency((parseNumber(financialData.homeValue) + parseNumber(financialData.carValue) + parseNumber(financialData.otherAssets)) || 0),
+      debts: formatCurrency((parseNumber(financialData.mortgage) + parseNumber(financialData.carLoan) + parseNumber(financialData.creditCards) + parseNumber(financialData.studentLoans) + parseNumber(financialData.otherDebts)) || 0)
+    };
+  }, [financialData]);
 
-  const RetirementTab = () => (
-    <div className="investments-table-container">
-      <table className="investments-table">
-        <thead>
-          <tr>
-            <th>Account</th>
-            <th>Balance</th>
-            <th>Annual Contribution</th>
-            <th>Return %</th>
-            <th>Employer Match %</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="account-name retirement-name">401(k)</td>
-            <td>
+
+  // Tab content components
+  const BasicInfoTab = () => {
+    const selectedStateData = getAllStates().find(state => state.code === financialData.selectedState);
+    const stateTaxRate = selectedStateData ? selectedStateData.rate : 0;
+    
+    // Calculate current age from birthdate
+    const calculateAgeFromBirthdate = (birthdate) => {
+      if (!birthdate) return 30; // default age
+      const today = new Date();
+      const birth = new Date(birthdate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return Math.max(0, age);
+    };
+    
+    const currentAge = financialData.birthdate ? calculateAgeFromBirthdate(financialData.birthdate) : parseNumber(financialData.age) || 30;
+    const retirementAge = parseNumber(financialData.retirementAge) || 67;
+    const yearsUntilRetirement = Math.max(0, retirementAge - currentAge);
+    
+    return (
+          <div>
+            <div className="age-fields-row">
+              <div className="basic-input-field">
+                <label>Birthdate</label>
+                <BlurInput
+                  field="birthdate"
+                  type="date"
+                  className="basic-field"
+                  placeholder=""
+                />
+                <div className="input-sub-info">
+                  Current Age: {currentAge}
+                </div>
+              </div>
+              <div className="basic-input-field">
+                <label>Retirement Age</label>
+                <BlurInput
+                  field="retirementAge"
+                  type="number"
+                  className="basic-field"
+                  placeholder="67"
+                />
+                <div className="input-sub-info">
+                  Years Until Retirement: {yearsUntilRetirement}
+                </div>
+              </div>
+              
+            </div>
+            
+            <div className="basic-input-field">
+              <label>State</label>
+              <select
+                value={financialData.selectedState}
+                onChange={(e) => handleInputChange('selectedState', e.target.value)}
+                className="basic-field"
+              >
+                {getAllStates().map(state => (
+                  <option key={state.code} value={state.code}>{state.name}</option>
+                ))}
+              </select>
+              <div className="input-sub-info">
+                State Tax Rate: {decimalToPercent(stateTaxRate)}
+              </div>
+            </div>
+            
+            <div className="age-fields-row">
+              <div className="basic-input-field">
+                <label>Filing Status</label>
+                <select
+                  value={financialData.filingStatus}
+                  onChange={(e) => handleInputChange('filingStatus', e.target.value)}
+                  className="basic-field"
+                >
+                  <option value="single">Single</option>
+                  <option value="marriedFilingJointly">Married Filing Jointly</option>
+                  <option value="marriedFilingSeparately">Married Filing Separately</option>
+                  <option value="headOfHousehold">Head of Household</option>
+                </select>
+                <div className="input-sub-info">
+                  {(() => {
+                    const standardDeductions = {
+                      single: '$13,850',
+                      marriedFilingJointly: '$27,700',
+                      marriedFilingSeparately: '$13,850',
+                      headOfHousehold: '$20,800'
+                    };
+                    return `Standard Deduction: ${standardDeductions[financialData.filingStatus] || '$13,850'}`;
+                  })()}
+                </div>
+              </div>
+              <div className="basic-input-field">
+                <label>Dependents</label>
+                <BlurInput
+                  field="dependents"
+                  type="number"
+                  className="basic-field"
+                  placeholder="0"
+                  min="0"
+                />
+                <div className="input-sub-info">
+                  {(() => {
+                    const dependents = parseNumber(financialData.dependents) || 0;
+                    if (dependents === 0) return 'No dependent tax credits';
+                    const childTaxCredit = Math.min(dependents, 10) * 2000; // $2,000 per child under 17
+                    const dependentCredit = Math.max(0, dependents - 10) * 500; // $500 for other dependents
+                    const totalCredit = childTaxCredit + dependentCredit;
+                    return `Potential Tax Credits: ${formatCurrency(totalCredit)}`;
+                  })()}
+                </div>
+              </div>
+            </div>
+        </div>
+    );
+  };
+  
+  const IncomeTab = () => {
+    // Calculate total income from all static fields
+    const calculateStaticTotalIncome = () => {
+      let total = 0;
+      
+      // Employment Income (Salary or Hourly)
+      if (financialData.employmentType === 'salary') {
+        const salary = parseNumber(financialData.salaryAmount) || 0;
+        total += salary;
+      } else if (financialData.employmentType === 'hourly') {
+        const hourlyRate = parseNumber(financialData.hourlyRate) || 0;
+        const hoursPerWeek = parseNumber(financialData.hoursPerWeek) || 0;
+        total += hourlyRate * hoursPerWeek * 52; // Annual calculation
+      }
+      
+      // Business Income
+      const monthlyBusiness = parseNumber(financialData.businessIncome) || 0;
+      total += monthlyBusiness * 12;
+      
+      // Other Income
+      const monthlyOther = parseNumber(financialData.otherIncome) || 0;
+      total += monthlyOther * 12;
+      
+      return total;
+    };
+    
+    const totalIncome = calculateStaticTotalIncome();
+    
+    // Calculate annual income from hourly for display
+    const annualFromHourly = () => {
+      const hourlyRate = parseNumber(financialData.hourlyRate) || 0;
+      const hoursPerWeek = parseNumber(financialData.hoursPerWeek) || 0;
+      return hourlyRate * hoursPerWeek * 52;
+    };
+    
+    // Calculate next pay date for both employment types
+    const calculateNextPayDate = () => {
+      if (!financialData.lastPayDate) return 'Set last pay date';
+      const lastPay = new Date(financialData.lastPayDate);
+      const payFrequency = financialData.payFrequency || 'biweekly';
+      
+      let daysToAdd = 14; // biweekly default
+      if (payFrequency === 'weekly') daysToAdd = 7;
+      if (payFrequency === 'monthly') daysToAdd = 30;
+      if (payFrequency === 'semimonthly') daysToAdd = 15;
+      
+      const nextPay = new Date(lastPay);
+      nextPay.setDate(lastPay.getDate() + daysToAdd);
+      return nextPay.toLocaleDateString();
+    };
+    
+    
+    return (
+      <div>
+        {/* Employment Income Section */}
+        <div style={{marginBottom: '20px'}}>
+          
+          {/* Employment Type Toggle */}
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Employment Type</label>
+              <select
+                value={financialData.employmentType || 'salary'}
+                onChange={(e) => handleInputChange('employmentType', e.target.value)}
+                className="basic-field"
+              >
+                <option value="salary">Salary</option>
+                <option value="hourly">Hourly</option>
+              </select>
+            </div>
+            
+            {financialData.employmentType === 'salary' ? (
+              <div className="basic-input-field">
+                <label>Annual Salary</label>
+                <BlurInput
+                  field="salaryAmount"
+                  type="number"
+                  className="basic-field"
+                  placeholder="0"
+                />
+                <div className="input-sub-info">
+                  Monthly: {formatCurrency((parseNumber(financialData.salaryAmount) || 0) / 12)}
+                </div>
+              </div>
+            ) : (
+              <div className="basic-input-field">
+                <label>Hourly Rate</label>
+                <BlurInput
+                  field="hourlyRate"
+                  type="number"
+                  className="basic-field"
+                  placeholder="0"
+                  step="0.01"
+                />
+              </div>
+            )}
+          </div>
+          
+          {/* Common pay fields for both employment types */}
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Pay Frequency</label>
+              <select
+                value={financialData.payFrequency || 'biweekly'}
+                onChange={(e) => handleInputChange('payFrequency', e.target.value)}
+                className="basic-field"
+              >
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Bi-weekly</option>
+                <option value="semimonthly">Semi-monthly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div className="basic-input-field">
+              <label>Last Pay Date</label>
+              <BlurInput
+                field="lastPayDate"
+                type="date"
+                className="basic-field"
+              />
+              <div className="input-sub-info">
+                Next Pay: {calculateNextPayDate()}
+              </div>
+            </div>
+          </div>
+          
+          {/* Hourly specific field */}
+          {financialData.employmentType === 'hourly' && (
+            <div className="basic-input-field">
+              <label>Hours Per Week</label>
+              <BlurInput
+                field="hoursPerWeek"
+                type="number"
+                className="basic-field"
+                placeholder="40"
+              />
+              <div className="input-sub-info">
+                Annual Income From Employment: {formatCurrency(annualFromHourly())}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Business Income Section */}
+        <div style={{marginBottom: '20px'}}>
+          <div className="basic-input-field">
+            <label>Monthly Business Income</label>
+            <BlurInput
+              field="businessIncome"
+              type="number"
+              className="basic-field"
+              placeholder="0"
+            />
+            <div className="input-sub-info">
+              Annual Business Income: {formatCurrency((parseNumber(financialData.businessIncome) || 0) * 12)}
+            </div>
+          </div>
+        </div>
+        
+        {/* Other Income Section */}
+        <div style={{marginBottom: '20px'}}>
+          <h4 style={{color: '#fff', marginBottom: '15px', fontSize: '14px'}}>Other Income</h4>
+          <div className="basic-input-field">
+            <label>Monthly Other Income</label>
+            <BlurInput
+              field="otherIncome"
+              type="number"
+              className="basic-field"
+              placeholder="0"
+            />
+            <div className="input-sub-info">
+              Side gigs, freelance, gifts, etc. (Excludes investment returns)
+            </div>
+          </div>
+        </div>
+        
+        {/* Total Income Display */}
+        <div className="table-total-footer income-total-footer">
+          Total Annual Gross Income: {formatCurrency(totalIncome)}
+        </div>
+      </div>
+    );
+  };
+  
+  const ExpensesTab = () => {
+    const totalExpenses = (financialData.expenses || []).reduce((sum, expense) => 
+      sum + parseNumber(expense.amount), 0
+    );
+    
+    return (
+      <div className="expenses-section">
+        <div className="generic-table-container">
+          <table className="generic-table">
+            <thead>
+              <tr>
+                <th>
+                  <button className="add-table-btn" onClick={addExpense}>
+                    + Add Expense
+                  </button>
+                </th>
+                <th>Category</th>
+                <th>Monthly Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(financialData.expenses || []).map((expense) => (
+                <tr key={expense.id}>
+                  <td></td>
+                  <td>
+                    <input
+                      type="text"
+                      value={expense.category}
+                      onChange={(e) => updateExpense(expense.id, 'category', e.target.value)}
+                      className="table-input"
+                      placeholder="Category name"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={expense.amount}
+                      onChange={(e) => updateExpense(expense.id, 'amount', e.target.value)}
+                      className="table-input"
+                      placeholder="0"
+                    />
+                  </td>
+                  <td>
+                    <button 
+                      className="remove-table-btn"
+                      onClick={() => removeExpense(expense.id)}
+                      title="Remove expense"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-total-footer expenses-total-footer">
+          Total Monthly Expenses: {formatCurrency(totalExpenses)}
+        </div>
+      </div>
+    );
+  };
+
+  const RetirementTab = () => {
+    // Calculate total retirement savings
+    const totalRetirementBalance = () => {
+      const current401k = parseNumber(financialData.current401k) || 0;
+      const currentRothIRA = parseNumber(financialData.currentRothIRA) || 0;
+      const currentTraditionalIRA = parseNumber(financialData.currentTraditionalIRA) || 0;
+      const currentPension = parseNumber(financialData.currentPension) || 0;
+      return current401k + currentRothIRA + currentTraditionalIRA + currentPension;
+    };
+    
+    // Calculate total annual contributions
+    const totalAnnualContributions = () => {
+      const totalIncome = calculateTotalIncome();
+      const contribution401k = (totalIncome * (parseNumber(financialData.contribution401k) / 100)) || 0;
+      const contributionRothIRA = parseNumber(financialData.contributionRothIRA) || 0;
+      const contributionTraditionalIRA = parseNumber(financialData.contributionTraditionalIRA) || 0;
+      return contribution401k + contributionRothIRA + contributionTraditionalIRA;
+    };
+    
+    // Calculate employer match amount
+    const employerMatchAmount = () => {
+      const totalIncome = calculateTotalIncome();
+      const employerMatch = parseNumber(financialData.employerMatch) || 0;
+      const contribution401kPercent = parseNumber(financialData.contribution401k) || 0;
+      return Math.min(totalIncome * (employerMatch / 100), totalIncome * (contribution401kPercent / 100));
+    };
+    
+    return (
+      <div>
+        {/* 401(k) Section */}
+        <div style={{marginBottom: '20px'}}>
+          <h4 style={{color: '#fff', marginBottom: '15px', fontSize: '14px'}}>401(k) Account</h4>
+          
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Current Balance</label>
               <BlurInput
                 field="current401k"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="0"
               />
-            </td>
-            <td>
+            </div>
+            <div className="basic-input-field">
+              <label>Contribution %</label>
               <BlurInput
                 field="contribution401k"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="6"
+                step="0.1"
               />
-            </td>
-            <td>
+              <div className="input-sub-info">
+                Annual: {formatCurrency((calculateTotalIncome() * (parseNumber(financialData.contribution401k) / 100)) || 0)}
+              </div>
+            </div>
+          </div>
+          
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Expected Return %</label>
               <BlurInput
                 field="retirement401kReturn"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="7"
                 step="0.1"
               />
-            </td>
-            <td>
+            </div>
+            <div className="basic-input-field">
+              <label>Employer Match %</label>
               <BlurInput
                 field="employerMatch"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="3"
+                step="0.1"
               />
-            </td>
-          </tr>
-          <tr>
-            <td className="account-name retirement-name">Roth IRA</td>
-            <td>
+              <div className="input-sub-info">
+                Annual Match: {formatCurrency(employerMatchAmount())}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* IRA Accounts Section */}
+        <div style={{marginBottom: '20px'}}>
+          <h4 style={{color: '#fff', marginBottom: '15px', fontSize: '14px'}}>IRA Accounts</h4>
+          
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Roth IRA Balance</label>
               <BlurInput
                 field="currentRothIRA"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="0"
               />
-            </td>
-            <td>
+            </div>
+            <div className="basic-input-field">
+              <label>Annual Roth Contribution</label>
               <BlurInput
                 field="contributionRothIRA"
                 type="number"
-                className="table-input"
-                placeholder="6000"
+                className="basic-field"
+                placeholder="6500"
               />
-            </td>
-            <td>
-              <BlurInput
-                field="rothIRAReturn"
-                type="number"
-                className="table-input"
-                placeholder="7"
-                step="0.1"
-              />
-            </td>
-            <td className="no-return">N/A</td>
-          </tr>
-          <tr>
-            <td className="account-name retirement-name">Trad IRA</td>
-            <td>
+              <div className="input-sub-info">
+                2024 limit: $7,000 ($8,000 if 50+)
+              </div>
+            </div>
+          </div>
+          
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Traditional IRA Balance</label>
               <BlurInput
                 field="currentTraditionalIRA"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="0"
               />
-            </td>
-            <td>
+            </div>
+            <div className="basic-input-field">
+              <label>Annual Traditional Contribution</label>
               <BlurInput
                 field="contributionTraditionalIRA"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="0"
               />
-            </td>
-            <td>
+              <div className="input-sub-info">
+                Same limit as Roth IRA
+              </div>
+            </div>
+          </div>
+          
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Roth IRA Return %</label>
               <BlurInput
-                field="traditionalIRAReturn"
+                field="rothIRAReturn"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="7"
                 step="0.1"
               />
-            </td>
-            <td className="no-return">N/A</td>
-          </tr>
-          <tr>
-            <td className="account-name retirement-name">
+            </div>
+            <div className="basic-input-field">
+              <label>Traditional IRA Return %</label>
+              <BlurInput
+                field="traditionalIRAReturn"
+                type="number"
+                className="basic-field"
+                placeholder="7"
+                step="0.1"
+              />
+            </div>
+          </div>
+        </div>
+        
+        {/* Other Retirement Section */}
+        <div style={{marginBottom: '20px'}}>
+          <h4 style={{color: '#fff', marginBottom: '15px', fontSize: '14px'}}>Other Retirement</h4>
+          
+          <div className="age-fields-row">
+            <div className="basic-input-field">
+              <label>Account Type</label>
               <select
                 value={financialData.otherRetirementType || 'pension'}
                 onChange={(e) => handleInputChange('otherRetirementType', e.target.value)}
-                className="table-select"
+                className="basic-field"
               >
                 <option value="pension">Pension</option>
                 <option value="sep">SEP-IRA</option>
@@ -892,35 +1363,44 @@ const FinancialDashboard = () => {
                 <option value="annuity">Annuity</option>
                 <option value="other">Other</option>
               </select>
-            </td>
-            <td>
+            </div>
+            <div className="basic-input-field">
+              <label>Current Balance</label>
               <BlurInput
                 field="currentPension"
                 type="number"
-                className="table-input"
+                className="basic-field"
                 placeholder="0"
               />
-            </td>
-            <td className="no-return">Manual</td>
-            <td>
-              <BlurInput
-                field="pensionReturn"
-                type="number"
-                className="table-input"
-                placeholder="4"
-                step="0.1"
-              />
-            </td>
-            <td className="no-return">N/A</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
+            </div>
+          </div>
+          
+          <div className="basic-input-field">
+            <label>Expected Return %</label>
+            <BlurInput
+              field="pensionReturn"
+              type="number"
+              className="basic-field"
+              placeholder="4"
+              step="0.1"
+            />
+            <div className="input-sub-info">
+              Conservative estimate for pension/annuity growth
+            </div>
+          </div>
+        </div>
+        
+        {/* Total Retirement Display */}
+        <div className="table-total-footer income-total-footer">
+          Total Retirement Balance: {formatCurrency(totalRetirementBalance())} | Annual Contributions: {formatCurrency(totalAnnualContributions())}
+        </div>
+      </div>
+    );
+  };
 
   const InvestmentsTab = () => (
-    <div className="investments-table-container">
-      <table className="investments-table">
+    <div className="generic-table-container">
+      <table className="generic-table">
         <thead>
           <tr>
             <th>Account</th>
@@ -1006,42 +1486,14 @@ const FinancialDashboard = () => {
               />
             </td>
           </tr>
-          <tr>
-            <td className="account-name">Crypto</td>
-            <td>
-              <BlurInput
-                field="cryptoBalance"
-                type="number"
-                className="table-input"
-                placeholder="5000"
-              />
-            </td>
-            <td>
-              <BlurInput
-                field="cryptoAllocation"
-                type="number"
-                className="table-input"
-                placeholder="5"
-              />
-            </td>
-            <td>
-              <BlurInput
-                field="cryptoReturn"
-                type="number"
-                className="table-input"
-                placeholder="15"
-                step="0.1"
-              />
-            </td>
-          </tr>
         </tbody>
       </table>
     </div>
   );
 
   const AssetsTab = () => (
-    <div className="investments-table-container">
-      <table className="investments-table">
+    <div className="generic-table-container">
+      <table className="generic-table">
         <thead>
           <tr>
             <th>Asset Type</th>
@@ -1116,8 +1568,8 @@ const FinancialDashboard = () => {
   );
 
   const DebtsTab = () => (
-    <div className="investments-table-container">
-      <table className="investments-table">
+    <div className="generic-table-container">
+      <table className="generic-table">
         <thead>
           <tr>
             <th>Debt Type</th>
@@ -1231,14 +1683,21 @@ const FinancialDashboard = () => {
     </div>
   );
 
-  const navigationActions = [
-    {
-      label: "Export CSV",
-      icon: <Download size={16} />,
-      onClick: handleExport,
-      variant: "btn-ghost"
-    }
+  // Category definitions (defined after all tab components)
+  const categories = [
+    { key: 'basic', title: 'Basic Info', icon: <User size={20} />, component: <BasicInfoTab /> },
+    { key: 'income', title: 'Income', icon: <DollarSign size={20} />, component: <IncomeTab /> },
+    { key: 'expenses', title: 'Expenses', icon: <Receipt size={20} />, component: <ExpensesTab /> },
+    { key: 'retirement', title: 'Retirement', icon: <PiggyBank size={20} />, component: <RetirementTab /> },
+    { key: 'liquid', title: 'Liquid Accounts', icon: <TrendingUp size={20} />, component: <InvestmentsTab /> },
+    { key: 'assets', title: 'Assets', icon: <Home size={20} />, component: <AssetsTab /> },
+    { key: 'debts', title: 'Debts', icon: <CreditCard size={20} />, component: <DebtsTab /> }
   ];
+
+  // Get selected category details
+  const selectedCategoryData = categories.find(cat => cat.key === selectedCategory);
+
+  const navigationActions = [];
 
   return (
     <div className="dashboard-fullscreen">
@@ -1246,52 +1705,63 @@ const FinancialDashboard = () => {
       
       {/* New Layout: 3 sections - inputs left, charts/table right top, metrics right bottom */}
       <div className="dashboard-main-layout">
-        {/* Left Side - Input Sections Only */}
+        {/* Left Side - Icon Sidebar + Input Content */}
         <div className="dashboard-left-panel">
-
-          {/* Input Sections in Optimized Grid */}
-          <div className="input-sections-optimized">
-            {/* Basic Info Section */}
-            <div className="input-section-compact">
-              <h3 className="section-header-mini">Basic Info</h3>
-              <BasicInfoTab />
+          {/* Icon Sidebar */}
+          <div className="category-sidebar">
+            <div className="category-icons-group">
+              {categories.map((category) => (
+                <div
+                  key={category.key}
+                  className={`category-icon ${selectedCategory === category.key ? 'active' : ''}`}
+                  data-category={category.key}
+                  onClick={() => selectCategory(category.key)}
+                  title={category.title}
+                >
+                  {category.icon}
+                </div>
+              ))}
             </div>
             
-            {/* Retirement Section */}
-            <div className="input-section-compact">
-              <h3 className="section-header-mini">Retirement</h3>
-              <RetirementTab />
-            </div>
-            
-            {/* Investments Section */}
-            <div className="input-section-compact">
-              <h3 className="section-header-mini">Liquid Accounts</h3>
-              <InvestmentsTab />
-            </div>
-            
-            {/* Assets Section */}
-            <div className="input-section-compact">
-              <h3 className="section-header-mini">Assets</h3>
-              <AssetsTab />
-            </div>
-            
-            {/* Debts Section */}
-            <div className="input-section-compact">
-              <h3 className="section-header-mini">Debts</h3>
-              <DebtsTab />
+            {/* CSV Import/Export */}
+            <div className="csv-actions">
+              <button
+                className="csv-btn"
+                onClick={handleImport}
+                title="Import CSV"
+              >
+                <Upload size={18} />
+              </button>
+              <button
+                className="csv-btn"
+                onClick={handleExport}
+                title="Export CSV"
+              >
+                <Download size={18} />
+              </button>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="input-actions">
-            <button className="action-btn reset-btn" onClick={handleReset} title="Reset to defaults">
-              <RefreshCw size={16} />
-              Reset
-            </button>
-            <button className="action-btn calculate-btn" onClick={calculateProjections} title="Recalculate projections">
-              <Calculator size={16} />
-              Calculate
-            </button>
+          {/* Input Content Area */}
+          <div className="input-content-area">
+            <div className="category-header" data-category={selectedCategory}>
+              <h3>{selectedCategoryData?.title}</h3>
+            </div>
+            <div className="category-content">
+              {selectedCategoryData?.component}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="input-actions">
+              <button className="action-btn reset-btn" onClick={handleReset} title="Reset to defaults">
+                <RefreshCw size={16} />
+                Reset
+              </button>
+              <button className="action-btn calculate-btn" onClick={calculateProjections} title="Recalculate projections">
+                <Calculator size={16} />
+                Calculate
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1439,7 +1909,7 @@ const FinancialDashboard = () => {
                   <tr>
                     <th rowSpan={2}>Date</th>
                     <th rowSpan={2}>Age</th>
-                    <th rowSpan={2}>Salary</th>
+                    <th rowSpan={2}>Total Income</th>
                     <th colSpan={5}>Liquid Accounts</th>
                     <th colSpan={5}>Retirement Accounts</th>
                     <th colSpan={4}>Assets</th>
@@ -1450,7 +1920,6 @@ const FinancialDashboard = () => {
                     <th>Checking</th>
                     <th>Savings</th>
                     <th>Brokerage</th>
-                    <th>Crypto</th>
                     <th>Total Liquid</th>
                     <th>401k</th>
                     <th>Roth IRA</th>
@@ -1471,19 +1940,19 @@ const FinancialDashboard = () => {
                 </thead>
                 <tbody>
                   {projections.map((row, index) => {
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                     const displayDate = viewPeriod === 'monthly' || timelineMonths <= 24 ? 
-                      `${row.year}-${String(((row.month % 12) + 1)).padStart(2, '0')}` : 
-                      row.year;
+                      `${monthNames[(row.month % 12)]} '${String(row.year).slice(-2)}` : 
+                      `'${String(row.year).slice(-2)}`;
                     
                     return (
                       <tr key={index} className={row.month % 12 === 0 ? 'milestone-row' : ''}>
                         <td>{displayDate}</td>
                         <td>{row.age}</td>
-                        <td>{formatCurrency(row.salary)}</td>
+                        <td>{formatCurrency(row.totalIncome)}</td>
                         <td>{formatCurrency(row.checking)}</td>
                         <td>{formatCurrency(row.savings)}</td>
                         <td>{formatCurrency(row.brokerage)}</td>
-                        <td>{formatCurrency(row.crypto)}</td>
                         <td className="total-cell">{formatCurrency(row.totalLiquid)}</td>
                         <td>{formatCurrency(row.total401k)}</td>
                         <td>{formatCurrency(row.rothIRA)}</td>

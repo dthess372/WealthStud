@@ -95,7 +95,26 @@ const InsuranceAnalyzer = () => {
       comprehensive: 500,
       personalInjury: 100000,
       uninsuredMotorist: 100000,
-      roadside: true
+      roadside: true,
+      vehicles: [{
+        id: 1,
+        year: 2020,
+        make: 'Toyota',
+        model: 'Camry',
+        value: 25000,
+        annualMiles: 12000,
+        ownership: 'financed'
+      }],
+      drivingRecord: 'clean',
+      creditScore: 'good',
+      currentPremium: 1200,
+      coverageLevels: {
+        liability: '100/300/100',
+        collision: 500,
+        comprehensive: 500,
+        uninsured: true,
+        medical: 5000
+      }
     },
     homeInsurance: {
       homeValue: 300000,
@@ -104,7 +123,13 @@ const InsuranceAnalyzer = () => {
       liability: 300000,
       medicalPayments: 5000,
       deductible: 1000,
-      homeType: 'single-family'
+      homeType: 'single-family',
+      yearBuilt: 2010,
+      squareFeet: 2500,
+      roofAge: 5,
+      securityFeatures: ['smoke_detectors', 'deadbolts'],
+      floodZone: false,
+      earthquakeZone: false
     },
     healthInsurance: {
       plan: 'hmo',
@@ -112,7 +137,13 @@ const InsuranceAnalyzer = () => {
       copay: 25,
       coinsurance: 20,
       maxOutOfPocket: 8000,
-      monthlyPremium: 450
+      monthlyPremium: 450,
+      currentPremium: 450,
+      employerContribution: 300,
+      expectedMedicalCosts: 3000,
+      hsaEligible: false,
+      hsaContribution: 0,
+      chronicConditions: false
     }
   });
   
@@ -712,7 +743,6 @@ const InsuranceAnalyzer = () => {
               General Information
             </h2>
           </div>
-          <div className="section-content">
             <div className="input-grid">
               <div className="input-group">
                 <label>Your Age</label>
@@ -760,7 +790,6 @@ const InsuranceAnalyzer = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Insurance Type Tabs */}
@@ -791,7 +820,6 @@ const InsuranceAnalyzer = () => {
                   <div className="section-header">
                     <h3>Life Insurance Analysis</h3>
                   </div>
-                  <div className="section-content">
                     <div className="input-grid">
                       <div className="input-group">
                         <label>Current Life Insurance Coverage</label>
@@ -867,7 +895,6 @@ const InsuranceAnalyzer = () => {
                         );
                       })()}
                     </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -882,7 +909,6 @@ const InsuranceAnalyzer = () => {
                       Add Vehicle
                     </button>
                   </div>
-                  <div className="section-content">
                     <div className="vehicles-list">
                       {autoInsurance.vehicles.map((vehicle, index) => (
                         <div key={vehicle.id} className="vehicle-card">
@@ -993,7 +1019,6 @@ const InsuranceAnalyzer = () => {
                         );
                       })()}
                     </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -1005,7 +1030,6 @@ const InsuranceAnalyzer = () => {
                   <div className="section-header">
                     <h3>Home Insurance Analysis</h3>
                   </div>
-                  <div className="section-content">
                     <div className="input-grid">
                       <div className="input-group">
                         <label>Home Value</label>
@@ -1102,7 +1126,6 @@ const InsuranceAnalyzer = () => {
                         );
                       })()}
                     </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -1114,7 +1137,6 @@ const InsuranceAnalyzer = () => {
                   <div className="section-header">
                     <h3>Health Insurance Analysis</h3>
                   </div>
-                  <div className="section-content">
                     <div className="input-grid">
                       <div className="input-group">
                         <label>Monthly Premium</label>
@@ -1188,7 +1210,6 @@ const InsuranceAnalyzer = () => {
                         );
                       })()}
                     </div>
-                  </div>
                 </div>
               </div>
             )}
@@ -1203,7 +1224,6 @@ const InsuranceAnalyzer = () => {
               Total Insurance Coverage Summary
             </h2>
           </div>
-          <div className="section-content">
             <div className="charts-grid">
               <div className="chart-container">
                 <h4>Annual Cost Breakdown</h4>
@@ -1249,7 +1269,6 @@ const InsuranceAnalyzer = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Recommendations */}
@@ -1261,7 +1280,6 @@ const InsuranceAnalyzer = () => {
                 Personalized Recommendations
               </h2>
             </div>
-            <div className="section-content">
               <div className="recommendations-grid">
                 {recommendations.map((rec, index) => {
                   const Icon = INSURANCE_TYPES[rec.type].icon;
@@ -1283,7 +1301,6 @@ const InsuranceAnalyzer = () => {
                   );
                 })}
               </div>
-            </div>
           </div>
         )}
       </div>

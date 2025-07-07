@@ -154,10 +154,10 @@ export function getMarginalTaxRate(taxableIncome, filingStatus) {
  * Calculate effective tax rate
  * @param {number} tax - Total tax owed
  * @param {number} income - Total income
- * @returns {number} Effective tax rate (decimal)
+ * @returns {number} Effective tax rate (percentage)
  */
 export function getEffectiveTaxRate(tax, income) {
-  return income > 0 ? tax / income : 0;
+  return income > 0 ? (tax / income) * 100 : 0;
 }
 
 /**
@@ -223,8 +223,10 @@ export function calculatePayrollTaxes(grossIncome, filingStatus) {
   
   return {
     socialSecurity: socialSecurityTax,
-    medicare: medicareTax,
-    totalPayroll: socialSecurityTax + medicareTax.total
+    medicare: medicareTax.total,
+    medicareDetails: medicareTax, // Keep detailed breakdown available
+    totalPayroll: socialSecurityTax + medicareTax.total,
+    total: socialSecurityTax + medicareTax.total // Alternative name for compatibility
   };
 }
 
@@ -253,7 +255,13 @@ export function calculateAllTaxes(grossIncome, taxableIncome, filingStatus, stat
     total: totalTax,
     net: netIncome,
     effectiveRate: getEffectiveTaxRate(totalTax, grossIncome),
-    marginalRate: getMarginalTaxRate(taxableIncome, filingStatus)
+    marginalRate: getMarginalTaxRate(taxableIncome, filingStatus),
+    // Additional properties for test compatibility
+    federalIncomeTax: federalTax,
+    stateIncomeTax: stateTax,
+    socialSecurityTax: payrollTaxes.socialSecurity,
+    medicareTax: payrollTaxes.medicare,
+    totalTaxes: totalTax
   };
 }
 
@@ -302,6 +310,9 @@ export function getNoTaxStates() {
  * @returns {object|null} State information or null if not found
  */
 export function getStateInfo(stateCode) {
-  const state = STATE_TAX_RATES[stateCode];
-  return state ? { code: stateCode, ...state } : null;
+  if (!stateCode || typeof stateCode !== 'string') return null;
+  
+  const normalizedCode = stateCode.toUpperCase();
+  const state = STATE_TAX_RATES[normalizedCode];
+  return state ? { code: normalizedCode, ...state } : null;
 }

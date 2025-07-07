@@ -331,6 +331,14 @@ const NetWorthCalculator = () => {
         actions={navigationActions}
       />
       
+      {/* Header */}
+      <div className="page-header">
+        <div className="page-header-content">
+          <h1 className="page-title">Net Worth Calculator</h1>
+          <p className="page-subtitle">Track your assets and liabilities to build long-term wealth</p>
+        </div>
+      </div>
+      
       {/* Hidden file input */}
       <input
         id="csv-upload"
@@ -340,17 +348,10 @@ const NetWorthCalculator = () => {
         style={{ display: 'none' }}
       />
       
-      {/* Header */}
-      <div className="budget-header">
-        <div className="budget-header-content">
-          <h1 className="budget-title">Net Worth Calculator</h1>
-          <p className="budget-subtitle">Track your assets, liabilities, and overall financial health</p>
-        </div>
-      </div>
-
-      {/* Overview Section */}
-      <div className="budget-intro-section">
-        <h2 className="intro-title">Track Your Financial Health</h2>
+      {/* Page Content */}
+      <div className="page-content">
+        <div className="page-intro-section">
+          <h2 className="intro-title">Track Your Financial Health</h2>
         <p>
           Monitor your assets, liabilities, and net worth with detailed categorization and insightful analysis.
         </p>
@@ -372,14 +373,12 @@ const NetWorthCalculator = () => {
             <span>Analyze insights and export your data</span>
           </div>
         </div>
-        <p className="intro-note">
-          💰 Real-time calculations • 📊 Visual insights • 💾 Export/import CSV files
-        </p>
-      </div>
-
-      <div className="budget-content">
+          <p className="intro-note">
+            💰 Real-time calculations • 📊 Visual insights • 💾 Export/import CSV files
+          </p>
+        </div>
         {/* Summary Dashboard */}
-        <div className="budget-dashboard">
+        <div className="summary-grid">
         <div className="dashboard-card">
           <div className="dashboard-icon">
             <DollarSign size={24} />
@@ -465,7 +464,6 @@ const NetWorthCalculator = () => {
               </label>
             </div>
           </div>
-          <div className="section-content">
 
             <div className="accounts-grid">
             {Object.entries(CATEGORY_CONFIG).map(([categoryKey, categoryConfig]) => {
@@ -573,7 +571,6 @@ const NetWorthCalculator = () => {
               );
             })}
             </div>
-          </div>
         </div>
 
         {/* Charts Section */}
@@ -586,7 +583,6 @@ const NetWorthCalculator = () => {
               Data Visualization
             </h2>
           </div>
-          <div className="section-content">
             <div className="charts-section">
           <div className="chart-container">
             <h3 className="chart-title">Asset Allocation</h3>
@@ -658,7 +654,6 @@ const NetWorthCalculator = () => {
             )}
           </div>
             </div>
-          </div>
         </div>
 
         {/* Financial Health Insights */}
@@ -671,7 +666,6 @@ const NetWorthCalculator = () => {
               Financial Health Insights
             </h2>
           </div>
-          <div className="section-content">
           
           <div className="insights-grid">
             <div className="insight-card">
@@ -748,7 +742,6 @@ const NetWorthCalculator = () => {
                 </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

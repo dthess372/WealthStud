@@ -96,7 +96,7 @@ const Navigation = ({
         <div className="nav-left">
           <Link to="/" className="nav-brand">
             <WealthStudLogo size={20} />
-            <span className="brand-text">WEALTHSTUD</span>
+            <span className="brand-text">WEALTHSTUD.IO</span>
           </Link>
           {pageTitle && <span className="page-title-nav">{pageTitle}</span>}
 
@@ -115,9 +115,12 @@ const Navigation = ({
             <div className="copyright-text">
               © {new Date().getFullYear()} WealthStud
             </div>
+            <div className="name-text">
+              Created by David Hess
+            </div>
             <div className="legal-notice">
               <FaShieldAlt size={10} />
-              <span>For informational purposes only</span>
+              <span>For informational purposes only, not financial advice!</span>
             </div>
           </div>
         </div>

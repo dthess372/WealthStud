@@ -610,7 +610,6 @@ const CapitalGainsAnalyzer = () => {
               Tax Settings
             </h2>
           </div>
-          <div className="section-content">
             <div className="settings-grid">
               <div className="input-group">
                 <label className="input-label">Filing Status</label>
@@ -667,7 +666,6 @@ const CapitalGainsAnalyzer = () => {
                 </label>
               </div>
             </div>
-          </div>
         </div>
 
         {/* Trades Section */}
@@ -684,7 +682,6 @@ const CapitalGainsAnalyzer = () => {
               Add Trade
             </button>
           </div>
-          <div className="section-content">
             {trades.length === 0 ? (
               <div className="empty-state">
                 <p>No trades added yet. Click &quot;Add Trade&quot; to get started.</p>
@@ -749,7 +746,6 @@ const CapitalGainsAnalyzer = () => {
                 </table>
               </div>
             )}
-          </div>
         </div>
 
         {/* Tax Analysis Section */}
@@ -763,8 +759,7 @@ const CapitalGainsAnalyzer = () => {
                 Tax Analysis
               </h2>
             </div>
-            <div className="section-content">
-              <div className="tax-summary-grid">
+                <div className="tax-summary-grid">
                 <div className="tax-card">
                   <h3>Short-term Gains</h3>
                   <div className="tax-amount">${formatCurrency(Math.abs(shortTermGains))}</div>
@@ -796,8 +791,7 @@ const CapitalGainsAnalyzer = () => {
                 Performance Charts
               </h2>
             </div>
-            <div className="section-content">
-              <div className="charts-grid">
+                <div className="charts-grid">
                 <div className="chart-container">
                   <h3>Gains vs Losses</h3>
                   <ResponsiveContainer width="100%" height={300}>
@@ -844,7 +838,6 @@ const CapitalGainsAnalyzer = () => {
               Data Management
             </h2>
           </div>
-          <div className="section-content">
             <div className="action-buttons-row">
               <button className="btn-secondary" onClick={handleExportCSV}>
                 <Download size={16} />

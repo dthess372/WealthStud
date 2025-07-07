@@ -23,7 +23,9 @@ export function parseInteger(value, fallback = 0) {
 
 // Validate numeric input within range
 export function validateNumber(value, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER) {
-  const num = parseNumber(value);
+  if (value === null || value === undefined || value === '') return false;
+  const num = parseFloat(value);
+  if (isNaN(num)) return false;
   return num >= min && num <= max;
 }
 
@@ -90,10 +92,12 @@ export function decimalToPercent(decimal, decimals = 1) {
 
 // Calculate age from birth date
 export function calculateAge(birthDate) {
+  if (!birthDate || birthDate === null || birthDate === undefined) return 0;
+  
   const birth = new Date(birthDate);
   const now = new Date();
   
-  if (isNaN(birth.getTime())) return null;
+  if (isNaN(birth.getTime())) return 0;
   
   let age = now.getFullYear() - birth.getFullYear();
   const monthDiff = now.getMonth() - birth.getMonth();
@@ -107,8 +111,13 @@ export function calculateAge(birthDate) {
 
 // Format date for display
 export function formatDate(date, options = {}) {
-  const defaults = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(date).toLocaleDateString('en-US', { ...defaults, ...options });
+  if (!date || date === null || date === undefined) return 'Invalid Date';
+  
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) return 'Invalid Date';
+  
+  const defaults = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  return dateObj.toLocaleDateString('en-US', { ...defaults, ...options });
 }
 
 // ===== FINANCIAL CALCULATIONS =====
@@ -181,9 +190,9 @@ export function isValidAge(age) {
 // Validate percentage (0-100)
 export function isValidPercentage(percentage) {
   if (percentage === null || percentage === undefined) return false;
-  const numPercentage = parseNumber(percentage);
+  const numPercentage = parseFloat(percentage);
   if (isNaN(numPercentage)) return false;
-  return validateNumber(numPercentage, VALIDATION_RULES.PERCENTAGE.MIN, VALIDATION_RULES.PERCENTAGE.MAX);
+  return numPercentage >= VALIDATION_RULES.PERCENTAGE.MIN && numPercentage <= VALIDATION_RULES.PERCENTAGE.MAX;
 }
 
 // ===== CSV UTILITIES =====

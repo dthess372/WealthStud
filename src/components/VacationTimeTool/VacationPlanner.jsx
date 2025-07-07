@@ -494,7 +494,6 @@ const VacationPlanner = () => {
               PTO Configuration & Benefits
             </h2>
           </div>
-          <div className="section-content">
             <div className="settings-grid">
               <div className="input-section-wide">
                 <h4 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>Basic PTO Settings</h4>
@@ -669,8 +668,6 @@ const VacationPlanner = () => {
                 Plan Vacation
               </button>
             </div>
-          </div>
-          <div className="section-content">
             <div className="table-container">
               <table className="vacation-table">
                 <thead>
@@ -763,7 +760,6 @@ const VacationPlanner = () => {
                 </tbody>
               </table>
             </div>
-          </div>
         </div>
 
         {/* Analytics & Insights */}
@@ -776,7 +772,6 @@ const VacationPlanner = () => {
               Usage Analytics & Insights
             </h2>
           </div>
-          <div className="section-content">
             <div className="vacation-tips">
               <h4>🎯 Smart Vacation Recommendations</h4>
               <div>
@@ -785,7 +780,6 @@ const VacationPlanner = () => {
                 ))}
               </div>
             </div>
-          </div>
         </div>
 
       </div>

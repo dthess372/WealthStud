@@ -198,9 +198,6 @@
   gap: 0.5rem;
 }
 
-.section-content {
-  padding: 1.5rem;
-}
 
 /* Input styling */
 .settings-grid {
@@ -473,9 +470,6 @@
     padding: 1rem;
   }
   
-  .section-content {
-    padding: 1rem;
-  }
   
   .vacation-table th,
   .vacation-table td {

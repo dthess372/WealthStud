@@ -89,9 +89,10 @@ const MortgageTool = () => {
     const calculatedPMI = calculatePMI(loanAmount, loanDetails.principal);
     
     if (loanDetails.pmi === 0 && calculatedPMI > 0) {
-      updateMortgageData({
+      setMortgageData(prev => ({
+        ...prev,
         loanDetails: { ...loanDetails, pmi: calculatedPMI }
-      });
+      }));
       return; // Let the effect run again with updated PMI
     }
 
@@ -103,7 +104,7 @@ const MortgageTool = () => {
     // Generate amortization schedule
     const schedule = generateAmortizationSchedule(loanDetails, extraPayments);
     setAmortizationSchedule(schedule);
-  }, [loanDetails, extraPayments, updateMortgageData]);
+  }, [loanDetails, extraPayments, setMortgageData]);
 
   useEffect(() => {
     calculateMortgageDetails();
@@ -354,7 +355,6 @@ const MortgageTool = () => {
               Loan Details & Costs
             </h2>
           </div>
-          <div className="section-content">
             <div className="mortgage-input-layout">
               {/* Loan Details */}
               <div className="input-section-wide">
@@ -513,7 +513,6 @@ const MortgageTool = () => {
                 )}
               </div>
             </div>
-          </div>
         </div>
 
         {/* Tabs Section */}
@@ -526,7 +525,6 @@ const MortgageTool = () => {
               Analysis & Strategies
             </h2>
           </div>
-          <div className="section-content">
             <div className="tabs-container">
               <div className="tabs-nav">
                 <button 
@@ -808,7 +806,6 @@ const MortgageTool = () => {
                 )}
               </div>
             </div>
-          </div>
         </div>
 
         {/* Charts Section */}
@@ -821,7 +818,6 @@ const MortgageTool = () => {
               Payment Analysis Charts
             </h2>
           </div>
-          <div className="section-content">
             <div className="chart-container">
               <h4 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>Principal vs Interest Over Time</h4>
               <ResponsiveContainer width="100%" height={400}>
@@ -896,7 +892,6 @@ const MortgageTool = () => {
                 Even small extra payments toward principal can significantly reduce total interest paid over the loan term.
               </div>
             </div>
-          </div>
         </div>
 
       </div>
