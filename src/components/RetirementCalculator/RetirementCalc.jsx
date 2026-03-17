@@ -207,94 +207,89 @@ const RetirementCalc = () => {
     }
     
     setIsCalculating(true);
-    
-    // Simulate calculation delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Generate mock results for demonstration
+
+    // Yield to the browser so the spinner renders before the heavy computation
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    const NUM_SIMULATIONS = 1000;
+    const VOLATILITY = 0.15; // annual std dev (~diversified equity portfolio)
     const years = yearsToRetirement;
-    const mockStatistics = {
-      total: [],
-      byAccount: {}
-    };
-    
-    // Initialize statistics for each account
-    accounts.forEach(account => {
-      mockStatistics.byAccount[account.id] = [];
-    });
-    
     const raiseRate = parseNumber(generalInfo.annualRaise, 0) / 100;
+    const currentYear = new Date().getFullYear();
 
-    // Generate year-by-year projections
-    for (let year = 0; year < years; year++) {
-      let totalMin = 0, totalQ1 = 0, totalMedian = 0, totalQ3 = 0, totalMax = 0;
-      const n = year + 1;
+    // Box-Muller normal sampler
+    const sampleNormal = (mean, std) => {
+      const u1 = Math.max(Math.random(), 1e-10);
+      const u2 = Math.random();
+      const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      return mean + z * std;
+    };
 
-      accounts.forEach(account => {
-        const currentBalance = parseNumber(account.values.currentBalance);
-        const expectedReturn = parseNumber(account.values.expectedReturn, 7) / 100;
+    // Pre-compute per-account contribution and return info
+    const accountInfos = accounts.map(account => {
+      let baseAnnualContrib = 0;
+      if (account.values.employeeContribution) {
+        baseAnnualContrib = parseNumber(account.values.employeeContribution);
+      } else if (account.values.employeeContributionPercent && generalInfo.currentSalary) {
+        baseAnnualContrib = generalInfo.currentSalary * (parseNumber(account.values.employeeContributionPercent) / 100);
+      } else if (account.values.annualContribution) {
+        baseAnnualContrib = parseNumber(account.values.annualContribution);
+      } else if (account.values.annualGrant) {
+        baseAnnualContrib = parseNumber(account.values.annualGrant);
+      }
+      if (account.values.employerMatch && generalInfo.currentSalary) {
+        baseAnnualContrib += generalInfo.currentSalary * (parseNumber(account.values.employerMatch) / 100);
+      }
+      if (account.values.employerContribution) {
+        baseAnnualContrib += parseNumber(account.values.employerContribution);
+      }
+      return {
+        id: account.id,
+        currentBalance: parseNumber(account.values.currentBalance),
+        meanReturn: parseNumber(account.values.expectedReturn, 7) / 100,
+        baseAnnualContrib,
+      };
+    });
 
-        // Calculate annual contribution (same logic as calculateProjectedBalance)
-        let annualContribution = 0;
-        if (account.values.employeeContribution) {
-          annualContribution = parseNumber(account.values.employeeContribution);
-        } else if (account.values.employeeContributionPercent && generalInfo.currentSalary) {
-          annualContribution = generalInfo.currentSalary * (parseNumber(account.values.employeeContributionPercent) / 100);
-        } else if (account.values.annualContribution) {
-          annualContribution = parseNumber(account.values.annualContribution);
-        } else if (account.values.annualGrant) {
-          annualContribution = parseNumber(account.values.annualGrant);
-        }
-        if (account.values.employerMatch && generalInfo.currentSalary) {
-          annualContribution += generalInfo.currentSalary * (parseNumber(account.values.employerMatch) / 100);
-        }
-        if (account.values.employerContribution) {
-          annualContribution += parseNumber(account.values.employerContribution);
-        }
+    // Run Monte Carlo: simulate NUM_SIMULATIONS independent paths
+    // paths[sim] = array of total portfolio values, one per year
+    const paths = Array.from({ length: NUM_SIMULATIONS }, () => {
+      const balances = accountInfos.map(a => a.currentBalance);
+      const path = new Array(years);
+      let contribScale = 1; // grows by raiseRate each year
 
-        // Project balance: existing balance growth + growing annuity for contributions
-        const balanceGrowth = currentBalance * Math.pow(1 + expectedReturn, n);
-        let contributionFV = 0;
-        if (annualContribution > 0 && expectedReturn > 0) {
-          if (Math.abs(expectedReturn - raiseRate) < 0.0001) {
-            contributionFV = annualContribution * n * Math.pow(1 + expectedReturn, n - 1);
-          } else {
-            contributionFV = annualContribution * (Math.pow(1 + expectedReturn, n) - Math.pow(1 + raiseRate, n)) / (expectedReturn - raiseRate);
-          }
-        }
-        const baseValue = balanceGrowth + contributionFV;
+      for (let y = 0; y < years; y++) {
+        let total = 0;
+        accountInfos.forEach((a, i) => {
+          const r = sampleNormal(a.meanReturn, VOLATILITY);
+          balances[i] = Math.max(0, balances[i] * (1 + r) + a.baseAnnualContrib * contribScale);
+          total += balances[i];
+        });
+        path[y] = total;
+        contribScale *= (1 + raiseRate);
+      }
+      return path;
+    });
 
-        // Variance bands that widen with time horizon (~12% annual portfolio volatility)
-        const sigma = 0.12 * Math.sqrt(n);
-        const stats = {
-          year: new Date().getFullYear() + year,
-          min: baseValue * Math.max(0, 1 - 2 * sigma),
-          q1: baseValue * (1 - 0.674 * sigma),
-          median: baseValue,
-          q3: baseValue * (1 + 0.674 * sigma),
-          max: baseValue * (1 + 2 * sigma)
-        };
-        
-        mockStatistics.byAccount[account.id].push(stats);
-        
-        totalMin += stats.min;
-        totalQ1 += stats.q1;
-        totalMedian += stats.median;
-        totalQ3 += stats.q3;
-        totalMax += stats.max;
-      });
-      
-      mockStatistics.total.push({
-        year: new Date().getFullYear() + year,
-        min: totalMin,
-        q1: totalQ1,
-        median: totalMedian,
-        q3: totalQ3,
-        max: totalMax
+    // Compute percentile statistics at each year from simulation results
+    const statistics = { total: [], byAccount: {} };
+    accounts.forEach(a => { statistics.byAccount[a.id] = []; });
+
+    const pct = (sorted, p) => sorted[Math.max(0, Math.floor(p * (sorted.length - 1)))];
+
+    for (let y = 0; y < years; y++) {
+      const yearValues = paths.map(p => p[y]).sort((a, b) => a - b);
+      statistics.total.push({
+        year: currentYear + y,
+        min:    Math.round(pct(yearValues, 0.05)),
+        q1:     Math.round(pct(yearValues, 0.25)),
+        median: Math.round(pct(yearValues, 0.50)),
+        q3:     Math.round(pct(yearValues, 0.75)),
+        max:    Math.round(pct(yearValues, 0.95)),
       });
     }
-    
-    setSimulationResults({ statistics: mockStatistics });
+
+    setSimulationResults({ statistics });
     setHasCalculated(true);
     setIsCalculating(false);
   };
