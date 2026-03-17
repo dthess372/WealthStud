@@ -502,7 +502,7 @@ const BudgetPlanner = () => {
           </div>
         </div>
           <p className="intro-note">
-            🔒 All data stays in your browser • 💾 Export/import CSV files • 📊 Uses 2024 tax rates
+            🔒 All data stays in your browser • 💾 Export/import CSV files • 📊 Uses 2025 tax rates
           </p>
         </div>
       

@@ -1,4 +1,6 @@
 // Performance monitoring utilities for WealthStud
+import { useEffect } from 'react';
+import { logger } from './logger';
 
 /**
  * Simple performance timer for measuring operation duration
@@ -12,7 +14,7 @@ export class PerformanceTimer {
   end() {
     const endTime = performance.now();
     const duration = endTime - this.startTime;
-    console.log(`⚡ ${this.label}: ${duration.toFixed(2)}ms`);
+    logger.log(`⚡ ${this.label}: ${duration.toFixed(2)}ms`);
     return duration;
   }
 }
@@ -24,11 +26,11 @@ export function withPerformanceTracking(Component, componentName) {
   return function PerformanceTrackedComponent(props) {
     const timer = new PerformanceTimer(`${componentName} render`);
     
-    React.useEffect(() => {
+    useEffect(() => {
       timer.end();
     });
 
-    return React.createElement(Component, props);
+    return <Component {...props} />;
   };
 }
 
@@ -101,7 +103,7 @@ export function createVirtualizedData(data, itemsPerPage = 50) {
 export function logMemoryUsage(label = 'Memory usage') {
   if (performance.memory) {
     const memory = performance.memory;
-    console.log(`🧠 ${label}:`, {
+    logger.log(`🧠 ${label}:`, {
       used: `${(memory.usedJSHeapSize / 1048576).toFixed(2)} MB`,
       total: `${(memory.totalJSHeapSize / 1048576).toFixed(2)} MB`,
       limit: `${(memory.jsHeapSizeLimit / 1048576).toFixed(2)} MB`
@@ -238,19 +240,19 @@ export function createBenchmark(name) {
     },
     
     report: () => {
-      console.group(`📊 Performance Benchmark: ${name}`);
+      logger.group(`📊 Performance Benchmark: ${name}`);
       
       for (let i = 1; i < marks.length; i++) {
         const duration = marks[i].timestamp - marks[i - 1].timestamp;
-        console.log(`${marks[i - 1].label} → ${marks[i].label}: ${duration.toFixed(2)}ms`);
+        logger.log(`${marks[i - 1].label} → ${marks[i].label}: ${duration.toFixed(2)}ms`);
       }
       
       if (marks.length >= 2) {
         const totalTime = marks[marks.length - 1].timestamp - marks[0].timestamp;
-        console.log(`Total time: ${totalTime.toFixed(2)}ms`);
+        logger.log(`Total time: ${totalTime.toFixed(2)}ms`);
       }
       
-      console.groupEnd();
+      logger.groupEnd();
     }
   };
 }

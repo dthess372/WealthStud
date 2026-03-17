@@ -1,12 +1,15 @@
 /**
- * Input validation rules for financial data
+ * Input validation rules for financial data.
+ * Generic numeric bounds are sourced from VALIDATION_BOUNDS in src/lib/constants.js
+ * to keep shared limits (age, percentage, etc.) in one place.
  */
+import { VALIDATION_BOUNDS } from '../lib/constants';
 
 export const VALIDATION_RULES = {
   // Personal Information
-  salary: { min: 0, max: 10000000, message: 'Salary must be between $0 and $10M' },
-  age: { min: 18, max: 100, message: 'Age must be between 18 and 100' },
-  retirementAge: { min: 50, max: 100, message: 'Retirement age must be between 50 and 100' },
+  salary: { min: VALIDATION_BOUNDS.INCOME.MIN, max: VALIDATION_BOUNDS.INCOME.MAX, message: 'Salary must be between $0 and $10M' },
+  age: { min: VALIDATION_BOUNDS.AGE.MIN, max: VALIDATION_BOUNDS.AGE.MAX, message: 'Age must be between 18 and 100' },
+  retirementAge: { min: 50, max: VALIDATION_BOUNDS.AGE.MAX, message: 'Retirement age must be between 50 and 100' },
   monthlyExpenses: { min: 0, max: 50000, message: 'Monthly expenses must be between $0 and $50K' },
   
   // Account Balances
@@ -34,16 +37,16 @@ export const VALIDATION_RULES = {
   otherDebts: { min: 0, max: 1000000, message: 'Other debts must be between $0 and $1M' },
   
   // Allocation Percentages
-  checkingAllocation: { min: 0, max: 100, message: 'Allocation must be between 0% and 100%' },
-  savingsAllocation: { min: 0, max: 100, message: 'Allocation must be between 0% and 100%' },
-  brokerageAllocation: { min: 0, max: 100, message: 'Allocation must be between 0% and 100%' },
-  cryptoAllocation: { min: 0, max: 100, message: 'Allocation must be between 0% and 100%' },
-  
+  checkingAllocation: { min: VALIDATION_BOUNDS.PERCENTAGE.MIN, max: VALIDATION_BOUNDS.PERCENTAGE.MAX, message: 'Allocation must be between 0% and 100%' },
+  savingsAllocation: { min: VALIDATION_BOUNDS.PERCENTAGE.MIN, max: VALIDATION_BOUNDS.PERCENTAGE.MAX, message: 'Allocation must be between 0% and 100%' },
+  brokerageAllocation: { min: VALIDATION_BOUNDS.PERCENTAGE.MIN, max: VALIDATION_BOUNDS.PERCENTAGE.MAX, message: 'Allocation must be between 0% and 100%' },
+  cryptoAllocation: { min: VALIDATION_BOUNDS.PERCENTAGE.MIN, max: VALIDATION_BOUNDS.PERCENTAGE.MAX, message: 'Allocation must be between 0% and 100%' },
+
   // Contribution Percentages
-  contribution401k: { min: 0, max: 100, message: 'Contribution must be between 0% and 100%' },
+  contribution401k: { min: VALIDATION_BOUNDS.PERCENTAGE.MIN, max: VALIDATION_BOUNDS.PERCENTAGE.MAX, message: 'Contribution must be between 0% and 100%' },
   contributionRothIRA: { min: 0, max: 100000, message: 'Contribution must be between $0 and $100K' },
   contributionTraditionalIRA: { min: 0, max: 100000, message: 'Contribution must be between $0 and $100K' },
-  employerMatch: { min: 0, max: 100, message: 'Match must be between 0% and 100%' },
+  employerMatch: { min: VALIDATION_BOUNDS.PERCENTAGE.MIN, max: VALIDATION_BOUNDS.PERCENTAGE.MAX, message: 'Match must be between 0% and 100%' },
   
   // Return Rates
   savingsReturn: { min: 0, max: 50, message: 'Return must be between 0% and 50%' },

@@ -1291,7 +1291,7 @@ const FinancialDashboard = () => {
                 placeholder="6500"
               />
               <div className="input-sub-info">
-                2024 limit: $7,000 ($8,000 if 50+)
+                2025 limit: $7,000 ($8,000 if 50+)
               </div>
             </div>
           </div>

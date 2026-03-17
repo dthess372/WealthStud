@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git Workflow
+
+Always push completed work to **`main`** (not a feature branch) when the work is a finished fix, feature, or improvement. If direct push to main is protected, open a PR from the feature branch to main immediately after pushing the branch — don't leave work sitting on a branch.
+
+Use the GitHub API to create PRs when `gh` CLI is unavailable:
+```bash
+curl -s -X POST \
+  -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "...", "body": "...", "head": "branch-name", "base": "main"}' \
+  "https://api.github.com/repos/dthess372/WealthStud/pulls"
+```
+
+## Proactive Issue Creation
+
+Whenever you notice something issue-worthy while working in this codebase — bugs, broken CSS, pre-existing errors, missing features, UX gaps, code quality problems, inconsistencies, or anything that would be worth tracking — **create a GitHub issue for it automatically** without waiting to be asked.
+
+Use the `gh` CLI:
+```bash
+gh issue create --repo dthess372/WealthStud --title "..." --body "..." --label bug
+```
+
+Use descriptive titles and include: what the problem is, where it is (file:line), and why it matters. Apply relevant labels where possible (bug, enhancement, etc.). Mention the issue number in any related commit messages.
+
 ## Project Overview
 
 WealthStud is a React-based personal finance application that provides a comprehensive suite of financial wellness tools. The app prioritizes user privacy by performing all calculations client-side and offering CSV import/export functionality instead of server-side data storage.

@@ -65,12 +65,12 @@ export const FORMATTING = {
 
 // Financial Constants
 export const FINANCIAL_CONSTANTS = {
-  // Retirement contribution limits (2024)
+  // Retirement contribution limits (2025)
   RETIREMENT_LIMITS: {
     IRA_LIMIT: 7000,
     IRA_CATCHUP_AGE: 50,
     IRA_CATCHUP_ADDITIONAL: 1000,
-    K401_LIMIT: 23000,
+    K401_LIMIT: 23500,
     K401_CATCHUP_AGE: 50,
     K401_CATCHUP_ADDITIONAL: 7500
   },
@@ -121,8 +121,9 @@ export const FILE_SETTINGS = {
   SUPPORTED_FILE_TYPES: ['.csv']
 };
 
-// Common Input Validation Rules
-export const VALIDATION_RULES = {
+// Generic input bounds used by utility functions.
+// For field-specific validation rules with error messages, see src/config/validationRules.js
+export const VALIDATION_BOUNDS = {
   INCOME: {
     MIN: 0,
     MAX: 10000000
@@ -163,7 +164,9 @@ export const STORAGE_KEYS = {
   MORTGAGE_DATA: 'wealthstud_mortgage_data',
   VACATION_DATA: 'wealthstud_vacation_data',
   FINANCIAL_DASHBOARD: 'wealthstud_financial_dashboard',
-  USER_PREFERENCES: 'wealthstud_preferences'
+  USER_PREFERENCES: 'wealthstud_preferences',
+  DEBT_PLANNER_DATA: 'wealthstud_debt_planner_data',
+  EMERGENCY_FUND_DATA: 'wealthstud_emergency_fund_data'
 };
 
 // Chart Configuration Defaults

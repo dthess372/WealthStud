@@ -18,10 +18,12 @@ import {
   TbChevronDown,
   TbDashboard
 } from 'react-icons/tb';
-import { 
+import {
   FaRocket,
   FaChartLine,
-  FaShieldAlt
+  FaShieldAlt,
+  FaBalanceScale,
+  FaPiggyBank
 } from 'react-icons/fa';
 import { 
   BsStars
@@ -110,6 +112,33 @@ function HomePage() {
       description: 'Risk assessment with personalized coverage recommendations',
       tags: ['Protection'],
       colorClass: 'purple'
+    },
+    {
+      path: '/CapitalGainsAnalyzer',
+      icon: FaBalanceScale,
+      name: 'Capital Gains',
+      subtitle: 'Analyzer',
+      description: 'Tax-optimized capital gains analysis with bracket-aware calculations',
+      tags: ['Tax', 'Investing'],
+      colorClass: 'primary'
+    },
+    {
+      path: '/DebtPayoffPlanner',
+      icon: FaChartLine,
+      name: 'Debt Payoff',
+      subtitle: 'Planner',
+      description: 'Avalanche vs snowball strategy comparison with payoff timeline',
+      tags: ['Debt', 'Strategy'],
+      colorClass: 'primary'
+    },
+    {
+      path: '/EmergencyFundCalculator',
+      icon: FaPiggyBank,
+      name: 'Emergency Fund',
+      subtitle: 'Calculator',
+      description: 'Build your safety net with savings growth projections and coverage analysis',
+      tags: ['Essential', 'Safety'],
+      colorClass: 'primary'
     }
   ];
 
@@ -167,7 +196,7 @@ function HomePage() {
               </div>
               <div className='value-text'>
                 <h4>Privacy-First Design</h4>
-                <p>All calculations happen locally in your browser. Your financial data never leaves your device.</p>
+                <p>All calculations happen locally in your browser. Your financial data never leaves your device. Data you enter is saved in your browser&apos;s local storage for convenience — it is not encrypted, so avoid using shared or public computers for sensitive information.</p>
               </div>
             </div>
             <div className='value-point'>
