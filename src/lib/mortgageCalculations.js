@@ -25,6 +25,7 @@ export function calculateMonthlyPayment(principal, rate, years) {
  * @returns {number} Annual PMI amount
  */
 export function calculatePMI(loanAmount, homeValue, pmiRate = 0.005) {
+  if (!homeValue || loanAmount <= 0) return 0;
   const loanToValue = loanAmount / homeValue;
   return loanToValue > 0.8 ? loanAmount * pmiRate : 0;
 }
@@ -213,6 +214,7 @@ export function calculatePaymentSavings(loanDetails, extraPayments = {}) {
  * @returns {number} LTV ratio as percentage
  */
 export function calculateLoanToValue(loanAmount, homeValue) {
+  if (!homeValue || loanAmount <= 0) return 0;
   return (loanAmount / homeValue) * 100;
 }
 
@@ -222,13 +224,15 @@ export function calculateLoanToValue(loanAmount, homeValue) {
  * @param {object} colors - Color configuration
  * @returns {array} Chart data array
  */
-export function getPaymentBreakdownChartData(paymentBreakdown, colors) {
+export function getPaymentBreakdownChartData(paymentBreakdown, colors = {}) {
+  const chart = colors.chart || {};
+  const primary = colors.primary || {};
   const data = [
-    { name: 'Principal & Interest', value: paymentBreakdown.principalAndInterest, color: colors.chart.income },
-    { name: 'Property Tax', value: paymentBreakdown.propertyTax, color: colors.chart.expenses },
-    { name: 'Insurance', value: paymentBreakdown.insurance, color: colors.chart.assets },
-    { name: 'PMI', value: paymentBreakdown.pmi, color: colors.chart.debt },
-    { name: 'HOA', value: paymentBreakdown.hoa, color: colors.primary.purple }
+    { name: 'Principal & Interest', value: paymentBreakdown.principalAndInterest, color: chart.income },
+    { name: 'Property Tax', value: paymentBreakdown.propertyTax, color: chart.expenses },
+    { name: 'Insurance', value: paymentBreakdown.insurance, color: chart.assets },
+    { name: 'PMI', value: paymentBreakdown.pmi, color: chart.debt },
+    { name: 'HOA', value: paymentBreakdown.hoa, color: primary.purple }
   ];
   
   return data.filter(item => item.value > 0);

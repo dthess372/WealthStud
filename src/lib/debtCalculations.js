@@ -188,7 +188,8 @@ export const calculateConsolidation = (debts, consolidatedAnnualRate, termMonths
       (Math.pow(1 + monthlyRate, termMonths) - 1);
   }
 
-  const totalInterestAfter = consolidatedMonthlyPayment * termMonths - consolidatedBalance + consolidationFee;
+  // Interest paid on the consolidated loan (fee is financed, so subtract full balance)
+  const totalInterestAfter = consolidatedMonthlyPayment * termMonths - consolidatedBalance;
 
   // Total interest if each debt is paid with minimum payments only
   const { totalInterestPaid: totalInterestBefore } = calculateMinimumPayoff(
@@ -198,15 +199,49 @@ export const calculateConsolidation = (debts, consolidatedAnnualRate, termMonths
   const interestSavings = totalInterestBefore - totalInterestAfter;
   const netSavings = interestSavings - consolidationFee;
 
-  // Break-even: how many months until cumulative savings cover the consolidation fee
+  // Break-even: month-by-month cumulative savings vs. the consolidation fee.
+  // Run simulation beyond the consolidated loan term so we capture savings that occur
+  // after the consolidated loan is paid off but original debts would still be accruing.
   let breakEvenMonths = null;
-  if (consolidationFee > 0 && interestSavings > 0) {
-    const monthlyInterestSaving = interestSavings / termMonths; // rough linear approximation
-    breakEvenMonths = monthlyInterestSaving > 0
-      ? Math.ceil(consolidationFee / monthlyInterestSaving)
-      : null;
-  } else if (consolidationFee === 0) {
+  if (consolidationFee === 0) {
     breakEvenMonths = 0;
+  } else if (interestSavings > 0) {
+    // Simulate both the original minimum-payment schedule and the consolidated loan
+    // month by month, accumulating the interest differential until it covers the fee.
+    let origBalances = activDebts.map(d => d.balance);
+    const origRates = activDebts.map(d => d.annualRate / 12 / 100);
+    const origPayments = activDebts.map(d => d.minPayment);
+
+    let consBalance = consolidatedBalance;
+
+    let cumulativeSavings = 0;
+    const maxSimMonths = Math.max(termMonths * 3, 360);
+    for (let m = 0; m < maxSimMonths; m++) {
+      // Interest on original debts this month
+      let origInterestThisMonth = 0;
+      origBalances = origBalances.map((bal, i) => {
+        if (bal <= 0) return 0;
+        const interest = bal * origRates[i];
+        origInterestThisMonth += interest;
+        const payment = Math.min(origPayments[i], bal + interest);
+        return Math.max(0, bal + interest - payment);
+      });
+
+      // Interest on consolidated loan this month (0 once paid off)
+      const consInterestThisMonth = consBalance * monthlyRate;
+      const consPayment = Math.min(consolidatedMonthlyPayment, consBalance + consInterestThisMonth);
+      consBalance = Math.max(0, consBalance + consInterestThisMonth - consPayment);
+
+      cumulativeSavings += origInterestThisMonth - consInterestThisMonth;
+
+      if (cumulativeSavings >= consolidationFee) {
+        breakEvenMonths = m + 1;
+        break;
+      }
+
+      // Stop early if both scenarios are fully paid off
+      if (consBalance <= 0 && origBalances.every(b => b <= 0)) break;
+    }
   }
 
   return {

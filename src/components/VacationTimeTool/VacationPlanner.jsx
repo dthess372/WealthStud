@@ -499,10 +499,11 @@ const VacationPlanner = () => {
                 <h4 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>Basic PTO Settings</h4>
                 
                 <div className="input-group">
-                  <label className="input-label">PTO Days Per Year</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-ptoDaysPerYear">PTO Days Per Year</label>
+                  <input
+                    id="vt-ptoDaysPerYear"
+                    type="number"
+                    className="input-field"
                     name="ptoDaysPerYear"
                     value={settings.ptoDaysPerYear}
                     onChange={handleSettingsChange}
@@ -512,10 +513,11 @@ const VacationPlanner = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="input-label">Current PTO Balance</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-currentPtoBalance">Current PTO Balance</label>
+                  <input
+                    id="vt-currentPtoBalance"
+                    type="number"
+                    className="input-field"
                     name="currentPtoBalance"
                     value={settings.currentPtoBalance}
                     onChange={handleSettingsChange}
@@ -525,9 +527,10 @@ const VacationPlanner = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="input-label">Pay Frequency</label>
-                  <select 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-payFrequency">Pay Frequency</label>
+                  <select
+                    id="vt-payFrequency"
+                    className="input-field"
                     name="payFrequency"
                     value={settings.payFrequency}
                     onChange={handleSettingsChange}
@@ -539,10 +542,11 @@ const VacationPlanner = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="input-label">Most Recent Pay Date</label>
-                  <input 
-                    type="date" 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-mostRecentPayDate">Most Recent Pay Date</label>
+                  <input
+                    id="vt-mostRecentPayDate"
+                    type="date"
+                    className="input-field"
                     name="mostRecentPayDate"
                     value={settings.mostRecentPayDate}
                     onChange={handleSettingsChange}
@@ -550,9 +554,10 @@ const VacationPlanner = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="input-label">PTO Accrual Method</label>
-                  <select 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-ptoAccrual">PTO Accrual Method</label>
+                  <select
+                    id="vt-ptoAccrual"
+                    className="input-field"
                     name="ptoAccrual"
                     value={settings.ptoAccrual}
                     onChange={handleSettingsChange}
@@ -580,10 +585,11 @@ const VacationPlanner = () => {
 
                 {settings.enableCompTime && (
                   <div className="input-group">
-                    <label className="input-label">Current Comp Time Balance</label>
-                    <input 
-                      type="number" 
-                      className="input-field" 
+                    <label className="input-label" htmlFor="vt-currentCompBalance">Current Comp Time Balance</label>
+                    <input
+                      id="vt-currentCompBalance"
+                      type="number"
+                      className="input-field"
                       name="currentCompBalance"
                       value={settings.currentCompBalance}
                       onChange={handleSettingsChange}
@@ -606,10 +612,11 @@ const VacationPlanner = () => {
 
                 {settings.allowHolidayBanking && (
                   <div className="input-group">
-                    <label className="input-label">Current Holiday Balance</label>
-                    <input 
-                      type="number" 
-                      className="input-field" 
+                    <label className="input-label" htmlFor="vt-currentHolidayBalance">Current Holiday Balance</label>
+                    <input
+                      id="vt-currentHolidayBalance"
+                      type="number"
+                      className="input-field"
                       name="currentHolidayBalance"
                       value={settings.currentHolidayBalance}
                       onChange={handleSettingsChange}
@@ -620,10 +627,11 @@ const VacationPlanner = () => {
                 )}
 
                 <div className="input-group">
-                  <label className="input-label">PTO Rollover Limit</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-ptoRolloverLimit">PTO Rollover Limit</label>
+                  <input
+                    id="vt-ptoRolloverLimit"
+                    type="number"
+                    className="input-field"
                     name="ptoRolloverLimit"
                     value={settings.ptoRolloverLimit}
                     onChange={handleSettingsChange}
@@ -633,9 +641,10 @@ const VacationPlanner = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="input-label">Vacation Policy Type</label>
-                  <select 
-                    className="input-field" 
+                  <label className="input-label" htmlFor="vt-policyType">Vacation Policy Type</label>
+                  <select
+                    id="vt-policyType"
+                    className="input-field"
                     name="policyType"
                     value={settings.policyType}
                     onChange={handleSettingsChange}
