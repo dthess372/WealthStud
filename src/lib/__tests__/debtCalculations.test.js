@@ -1,6 +1,10 @@
 import {
   calculateDebtPayment,
-  calculateAllDebtPayments
+  calculateAllDebtPayments,
+  calculatePayoffStrategy,
+  calculateMinimumPayoff,
+  comparePayoffStrategies,
+  calculateConsolidation
 } from '../debtCalculations';
 
 describe('Debt Calculations', () => {
@@ -385,5 +389,147 @@ describe('Debt Calculations', () => {
       // Avalanche method should result in less total debt (saves more on interest)
       expect(avalancheTotal).toBeLessThan(snowballTotal);
     });
+  });
+});
+
+// ─── New strategy functions ────────────────────────────────────────────────
+
+const sampleDebtList = [
+  { id: 'cc',      name: 'Credit Card',  balance: 5000,  annualRate: 18.5, minPayment: 150 },
+  { id: 'car',     name: 'Car Loan',     balance: 8000,  annualRate: 5.5,  minPayment: 200 },
+  { id: 'student', name: 'Student Loan', balance: 15000, annualRate: 4.5,  minPayment: 175 }
+];
+
+describe('calculatePayoffStrategy', () => {
+  test('avalanche pays off highest-rate debt first', () => {
+    const { schedule } = calculatePayoffStrategy(sampleDebtList, 300, 'avalanche');
+    // Credit card (18.5%) should reach zero before car loan (5.5%)
+    const ccPaidOffMonth = schedule.findIndex(m => m.debts.find(d => d.id === 'cc').balance === 0);
+    const carPaidOffMonth = schedule.findIndex(m => m.debts.find(d => d.id === 'car').balance === 0);
+    expect(ccPaidOffMonth).toBeLessThan(carPaidOffMonth);
+  });
+
+  test('snowball pays off lowest-balance debt first', () => {
+    const { schedule } = calculatePayoffStrategy(sampleDebtList, 300, 'snowball');
+    // Credit card ($5k) should reach zero before student loan ($15k)
+    const ccPaidOffMonth = schedule.findIndex(m => m.debts.find(d => d.id === 'cc').balance === 0);
+    const studentPaidOffMonth = schedule.findIndex(m => m.debts.find(d => d.id === 'student').balance === 0);
+    expect(ccPaidOffMonth).toBeLessThan(studentPaidOffMonth);
+  });
+
+  test('all debts reach zero balance', () => {
+    const { schedule } = calculatePayoffStrategy(sampleDebtList, 200, 'avalanche');
+    const last = schedule[schedule.length - 1];
+    expect(last.totalBalance).toBeCloseTo(0, 1);
+  });
+
+  test('returns correct shape', () => {
+    const result = calculatePayoffStrategy(sampleDebtList, 100, 'avalanche');
+    expect(result).toHaveProperty('months');
+    expect(result).toHaveProperty('totalInterestPaid');
+    expect(result).toHaveProperty('totalPaid');
+    expect(result).toHaveProperty('schedule');
+    expect(result.months).toBeGreaterThan(0);
+    expect(result.totalInterestPaid).toBeGreaterThan(0);
+  });
+
+  test('handles already-zeroed debts', () => {
+    const withZero = [...sampleDebtList, { id: 'paid', name: 'Paid Off', balance: 0, annualRate: 5, minPayment: 0 }];
+    const { months } = calculatePayoffStrategy(withZero, 100, 'avalanche');
+    expect(months).toBeGreaterThan(0);
+  });
+});
+
+describe('calculateMinimumPayoff', () => {
+  test('should return higher interest than strategy with extra payment', () => {
+    const minOnly = calculateMinimumPayoff(sampleDebtList);
+    const withExtra = calculatePayoffStrategy(sampleDebtList, 300, 'avalanche');
+    expect(minOnly.totalInterestPaid).toBeGreaterThan(withExtra.totalInterestPaid);
+    expect(minOnly.months).toBeGreaterThan(withExtra.months);
+  });
+
+  test('returns correct shape', () => {
+    const result = calculateMinimumPayoff(sampleDebtList);
+    expect(result).toHaveProperty('months');
+    expect(result).toHaveProperty('totalInterestPaid');
+    expect(result).toHaveProperty('totalPaid');
+  });
+});
+
+describe('comparePayoffStrategies', () => {
+  test('avalanche pays less total interest than snowball', () => {
+    const { avalanche, snowball } = comparePayoffStrategies(sampleDebtList, 300);
+    expect(avalanche.totalInterestPaid).toBeLessThanOrEqual(snowball.totalInterestPaid);
+  });
+
+  test('both strategies beat minimum-only on total interest', () => {
+    const { avalanche, snowball, minimumOnly } = comparePayoffStrategies(sampleDebtList, 300);
+    expect(avalanche.totalInterestPaid).toBeLessThan(minimumOnly.totalInterestPaid);
+    expect(snowball.totalInterestPaid).toBeLessThan(minimumOnly.totalInterestPaid);
+  });
+
+  test('returns all three strategy keys', () => {
+    const result = comparePayoffStrategies(sampleDebtList, 200);
+    expect(result).toHaveProperty('avalanche');
+    expect(result).toHaveProperty('snowball');
+    expect(result).toHaveProperty('minimumOnly');
+  });
+
+  test('zero extra payment gives same result as minimumOnly', () => {
+    const { avalanche, minimumOnly } = comparePayoffStrategies(sampleDebtList, 0);
+    expect(avalanche.months).toBe(minimumOnly.months);
+    expect(avalanche.totalInterestPaid).toBeCloseTo(minimumOnly.totalInterestPaid, 0);
+  });
+});
+
+describe('calculateConsolidation', () => {
+  test('lower-rate consolidation reduces total interest paid', () => {
+    // All debts at various rates; consolidate at 7%
+    const result = calculateConsolidation(sampleDebtList, 7, 60);
+    expect(result.isWorthIt).toBe(true);
+    expect(result.interestSavings).toBeGreaterThan(0);
+  });
+
+  test('higher-rate consolidation is not worth it', () => {
+    // Consolidate at 25% — worse than existing rates average
+    const result = calculateConsolidation(sampleDebtList, 25, 60);
+    expect(result.isWorthIt).toBe(false);
+  });
+
+  test('consolidation fee reduces net savings', () => {
+    const noFee = calculateConsolidation(sampleDebtList, 7, 60, 0);
+    const withFee = calculateConsolidation(sampleDebtList, 7, 60, 500);
+    expect(withFee.netSavings).toBeLessThan(noFee.netSavings);
+    expect(withFee.consolidatedBalance).toBe(noFee.consolidatedBalance + 500);
+  });
+
+  test('break-even is null when no fee', () => {
+    const result = calculateConsolidation(sampleDebtList, 7, 60, 0);
+    expect(result.breakEvenMonths).toBe(0);
+  });
+
+  test('break-even is positive months when fee is charged', () => {
+    const result = calculateConsolidation(sampleDebtList, 7, 60, 300);
+    if (result.interestSavings > 0) {
+      expect(result.breakEvenMonths).toBeGreaterThan(0);
+    }
+  });
+
+  test('returns correct shape', () => {
+    const result = calculateConsolidation(sampleDebtList, 8, 48);
+    expect(result).toHaveProperty('consolidatedBalance');
+    expect(result).toHaveProperty('consolidatedMonthlyPayment');
+    expect(result).toHaveProperty('totalInterestBefore');
+    expect(result).toHaveProperty('totalInterestAfter');
+    expect(result).toHaveProperty('interestSavings');
+    expect(result).toHaveProperty('netSavings');
+    expect(result).toHaveProperty('breakEvenMonths');
+    expect(result).toHaveProperty('isWorthIt');
+  });
+
+  test('zero interest rate consolidation divides balance evenly', () => {
+    const result = calculateConsolidation(sampleDebtList, 0, 28);
+    const totalBalance = sampleDebtList.reduce((s, d) => s + d.balance, 0);
+    expect(result.consolidatedMonthlyPayment).toBeCloseTo(totalBalance / 28, 1);
   });
 });
