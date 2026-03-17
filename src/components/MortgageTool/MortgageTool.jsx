@@ -692,11 +692,12 @@ const MortgageTool = () => {
                       <div className="input-section-wide">
                         <h4 style={{ color: 'var(--primary-color)', marginBottom: '1rem' }}>Payment Strategies</h4>
                         <div className="input-group">
-                          <label className="input-label">Extra Monthly Payment</label>
+                          <label className="input-label" htmlFor="extra-monthly-payment">Extra Monthly Payment</label>
                           <div className="input-wrapper">
                             <span className="input-prefix">$</span>
-                            <input 
-                              type="number" 
+                            <input
+                              id="extra-monthly-payment"
+                              type="number"
                               className="input-field"
                               value={extraPayments.monthlyExtra || ''}
                               onChange={handleInputChange('extra', 'monthlyExtra')}

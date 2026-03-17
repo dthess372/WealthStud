@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { FORMATTING, VALIDATION_RULES } from './constants';
+import { FORMATTING, VALIDATION_BOUNDS } from './constants';
 
 // Tailwind class merging utility
 export function cn(...inputs) {
@@ -184,7 +184,7 @@ export function isValidEmail(email) {
 // Validate age within reasonable range
 export function isValidAge(age) {
   const numAge = parseNumber(age);
-  return validateNumber(numAge, VALIDATION_RULES.AGE.MIN, VALIDATION_RULES.AGE.MAX);
+  return validateNumber(numAge, VALIDATION_BOUNDS.AGE.MIN, VALIDATION_BOUNDS.AGE.MAX);
 }
 
 // Validate percentage (0-100)
@@ -192,7 +192,7 @@ export function isValidPercentage(percentage) {
   if (percentage === null || percentage === undefined) return false;
   const numPercentage = parseFloat(percentage);
   if (isNaN(numPercentage)) return false;
-  return numPercentage >= VALIDATION_RULES.PERCENTAGE.MIN && numPercentage <= VALIDATION_RULES.PERCENTAGE.MAX;
+  return numPercentage >= VALIDATION_BOUNDS.PERCENTAGE.MIN && numPercentage <= VALIDATION_BOUNDS.PERCENTAGE.MAX;
 }
 
 // ===== CSV UTILITIES =====

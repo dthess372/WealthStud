@@ -11,15 +11,15 @@
  */
 export const calculateDebtPayment = (balance, monthlyRate, payment) => {
   if (balance <= 0) return balance;
-  
+
   const monthlyInterest = balance * monthlyRate;
   const principalPayment = payment - monthlyInterest;
-  
+
   // If payment is less than interest, balance increases
   if (principalPayment < 0) {
     return balance - principalPayment; // principalPayment is negative, so this increases balance
   }
-  
+
   // Normal case: reduce balance by principal payment, but not below 0
   return Math.max(0, balance - Math.min(principalPayment, balance));
 };
@@ -38,5 +38,185 @@ export const calculateAllDebtPayments = (debts, rates, payments) => {
     creditCards: calculateDebtPayment(debts.creditCards, rates.creditCards, payments.creditCards),
     studentLoans: calculateDebtPayment(debts.studentLoans, rates.studentLoans, payments.studentLoans),
     otherDebts: calculateDebtPayment(debts.otherDebts, rates.otherDebts, payments.otherDebts)
+  };
+};
+
+/**
+ * Simulate paying off a list of debts using avalanche or snowball strategy.
+ *
+ * @param {Array<{id: string, name: string, balance: number, annualRate: number, minPayment: number}>} debts
+ * @param {number} extraPayment - Extra monthly amount to apply on top of all minimum payments
+ * @param {'avalanche'|'snowball'} strategy
+ *   - avalanche: apply extra to highest-interest debt first (minimises total interest)
+ *   - snowball: apply extra to lowest-balance debt first (builds momentum)
+ * @param {number} [maxMonths=600] - Safety cap (50 years)
+ * @returns {{ months: number, totalInterestPaid: number, totalPaid: number,
+ *             schedule: Array<{month: number, debts: Array, totalBalance: number, interestPaid: number}> }}
+ */
+export const calculatePayoffStrategy = (debts, extraPayment = 0, strategy = 'avalanche', maxMonths = 600) => {
+  // Deep copy so we don't mutate caller's data
+  let current = debts.map(d => ({ ...d, balance: Math.max(0, d.balance) }));
+  let totalInterestPaid = 0;
+  let totalPaid = 0;
+  let month = 0;
+  const schedule = [];
+
+  while (current.some(d => d.balance > 0) && month < maxMonths) {
+    month++;
+
+    // Sort to find which debt gets the extra payment this month
+    const active = current.filter(d => d.balance > 0);
+    let priorityId = null;
+    if (active.length > 0) {
+      const sorted = [...active].sort((a, b) =>
+        strategy === 'avalanche'
+          ? b.annualRate - a.annualRate   // highest rate first
+          : a.balance - b.balance         // lowest balance first
+      );
+      priorityId = sorted[0].id;
+    }
+
+    let remainingExtra = extraPayment;
+
+    current = current.map(d => {
+      if (d.balance <= 0) return d;
+
+      const monthlyRate = d.annualRate / 12 / 100;
+      const interest = d.balance * monthlyRate;
+      let payment = d.minPayment;
+
+      // Apply extra payment to the priority debt; if it pays off, carry remainder forward
+      if (d.id === priorityId && remainingExtra > 0) {
+        payment += remainingExtra;
+        remainingExtra = 0;
+      }
+
+      // Don't overpay
+      const actualPayment = Math.min(payment, d.balance + interest);
+      const newBalance = Math.max(0, d.balance + interest - actualPayment);
+
+      totalInterestPaid += interest;
+      totalPaid += actualPayment;
+
+      // If this debt just paid off, carry any overpayment as extra to next priority
+      if (newBalance === 0 && payment > d.balance + interest) {
+        remainingExtra += payment - (d.balance + interest);
+      }
+
+      return { ...d, balance: newBalance };
+    });
+
+    const totalBalance = current.reduce((sum, d) => sum + d.balance, 0);
+    const interestThisMonth = current.reduce((sum, d) => {
+      const monthlyRate = d.annualRate / 12 / 100;
+      return sum + Math.min(d.balance, d.balance * monthlyRate); // already applied above
+    }, 0);
+
+    schedule.push({
+      month,
+      debts: current.map(d => ({ id: d.id, name: d.name, balance: d.balance })),
+      totalBalance,
+      interestPaid: totalInterestPaid
+    });
+  }
+
+  return { months: month, totalInterestPaid, totalPaid, schedule };
+};
+
+/**
+ * Calculate minimum-payment-only payoff (no extra payment).
+ * Convenience wrapper around calculatePayoffStrategy.
+ *
+ * @param {Array} debts
+ * @returns {{ months: number, totalInterestPaid: number, totalPaid: number }}
+ */
+export const calculateMinimumPayoff = (debts) => {
+  const { months, totalInterestPaid, totalPaid } = calculatePayoffStrategy(debts, 0, 'avalanche');
+  return { months, totalInterestPaid, totalPaid };
+};
+
+/**
+ * Compare avalanche, snowball, and minimum-only strategies side by side.
+ *
+ * @param {Array} debts
+ * @param {number} extraPayment - Extra monthly amount (applied to avalanche and snowball)
+ * @returns {{ avalanche: object, snowball: object, minimumOnly: object }}
+ *   Each strategy result has: { months, totalInterestPaid, totalPaid }
+ */
+export const comparePayoffStrategies = (debts, extraPayment = 0) => {
+  const avalanche = calculatePayoffStrategy(debts, extraPayment, 'avalanche');
+  const snowball = calculatePayoffStrategy(debts, extraPayment, 'snowball');
+  const minimumOnly = calculateMinimumPayoff(debts);
+
+  return {
+    avalanche: { months: avalanche.months, totalInterestPaid: avalanche.totalInterestPaid, totalPaid: avalanche.totalPaid },
+    snowball: { months: snowball.months, totalInterestPaid: snowball.totalInterestPaid, totalPaid: snowball.totalPaid },
+    minimumOnly: { months: minimumOnly.months, totalInterestPaid: minimumOnly.totalInterestPaid, totalPaid: minimumOnly.totalPaid }
+  };
+};
+
+/**
+ * Calculate whether consolidating debts into a single loan is beneficial.
+ *
+ * @param {Array<{balance: number, annualRate: number, minPayment: number}>} debts - Debts to consolidate
+ * @param {number} consolidatedAnnualRate - Interest rate on the new consolidated loan (percentage, e.g. 8)
+ * @param {number} termMonths - Repayment term for the consolidated loan in months
+ * @param {number} [consolidationFee=0] - Upfront fee (flat amount) charged to consolidate
+ * @returns {{
+ *   consolidatedBalance: number,
+ *   consolidatedMonthlyPayment: number,
+ *   totalInterestBefore: number,
+ *   totalInterestAfter: number,
+ *   interestSavings: number,
+ *   netSavings: number,
+ *   breakEvenMonths: number|null,
+ *   isWorthIt: boolean
+ * }}
+ */
+export const calculateConsolidation = (debts, consolidatedAnnualRate, termMonths, consolidationFee = 0) => {
+  const activDebts = debts.filter(d => d.balance > 0);
+  const consolidatedBalance = activDebts.reduce((sum, d) => sum + d.balance, 0) + consolidationFee;
+
+  // Monthly payment on the consolidated loan (standard amortisation formula)
+  const monthlyRate = consolidatedAnnualRate / 12 / 100;
+  let consolidatedMonthlyPayment;
+  if (monthlyRate === 0) {
+    consolidatedMonthlyPayment = consolidatedBalance / termMonths;
+  } else {
+    consolidatedMonthlyPayment =
+      (consolidatedBalance * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) /
+      (Math.pow(1 + monthlyRate, termMonths) - 1);
+  }
+
+  const totalInterestAfter = consolidatedMonthlyPayment * termMonths - consolidatedBalance + consolidationFee;
+
+  // Total interest if each debt is paid with minimum payments only
+  const { totalInterestPaid: totalInterestBefore } = calculateMinimumPayoff(
+    activDebts.map((d, i) => ({ ...d, id: String(i), name: d.name || String(i), annualRate: d.annualRate }))
+  );
+
+  const interestSavings = totalInterestBefore - totalInterestAfter;
+  const netSavings = interestSavings - consolidationFee;
+
+  // Break-even: how many months until cumulative savings cover the consolidation fee
+  let breakEvenMonths = null;
+  if (consolidationFee > 0 && interestSavings > 0) {
+    const monthlyInterestSaving = interestSavings / termMonths; // rough linear approximation
+    breakEvenMonths = monthlyInterestSaving > 0
+      ? Math.ceil(consolidationFee / monthlyInterestSaving)
+      : null;
+  } else if (consolidationFee === 0) {
+    breakEvenMonths = 0;
+  }
+
+  return {
+    consolidatedBalance,
+    consolidatedMonthlyPayment,
+    totalInterestBefore,
+    totalInterestAfter,
+    interestSavings,
+    netSavings,
+    breakEvenMonths,
+    isWorthIt: netSavings > 0
   };
 };

@@ -1,31 +1,41 @@
+import { lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import HomePage from './components/HomePage/HomePage';
-import RetirementCalc from './components/RetirementCalculator/RetirementCalc';
-import VacationPlanner from './components/VacationTimeTool/VacationPlanner';
-import BudgetPlanner from './components/BudgetPlanner/BudgetPlanner';
-import NetWorthCalculator from './components/NetWorthCalculator/NetWorthCalculator';
-import SavingPlanner from './components/SavingPlanner/SavingPlanner';
-import MortgageTool from './components/MortgageTool/MortgageTool';
-import InsuranceAnalyzer from './components/InsuranceAnalyzer/InsuranceAnalyzer';
-import FinancialDashboard from './components/FinancialDashboard/FinancialDashboard';
+
+const RetirementCalc = lazy(() => import('./components/RetirementCalculator/RetirementCalc'));
+const VacationPlanner = lazy(() => import('./components/VacationTimeTool/VacationPlanner'));
+const BudgetPlanner = lazy(() => import('./components/BudgetPlanner/BudgetPlanner'));
+const NetWorthCalculator = lazy(() => import('./components/NetWorthCalculator/NetWorthCalculator'));
+const SavingPlanner = lazy(() => import('./components/SavingPlanner/SavingPlanner'));
+const MortgageTool = lazy(() => import('./components/MortgageTool/MortgageTool'));
+const InsuranceAnalyzer = lazy(() => import('./components/InsuranceAnalyzer/InsuranceAnalyzer'));
+const FinancialDashboard = lazy(() => import('./components/FinancialDashboard/FinancialDashboard'));
+const CapitalGainsAnalyzer = lazy(() => import('./components/CapitalGainsAnalyzer/CapitalGainsAnalyzer'));
+const DebtPayoffPlanner = lazy(() => import('./components/DebtPayoffPlanner/DebtPayoffPlanner'));
+const EmergencyFundCalculator = lazy(() => import('./components/EmergencyFundCalculator/EmergencyFundCalculator'));
 
 function App() {
   return (
     <Router basename={process.env.NODE_ENV === 'production' ? '/WealthStud' : ''}>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <main style={{ flex: 1, paddingTop: '40px' }}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/RetirementCalculator" element={<RetirementCalc />} />
-            <Route path="/VacationPlanner" element={<VacationPlanner />} />
-            <Route path="/BudgetPlanner" element={<BudgetPlanner />} />
-            <Route path="/NetWorthCalculator" element={<NetWorthCalculator />} />
-            <Route path="/SavingPlanner" element={<SavingPlanner/>} />
-            <Route path="/MortgageTool" element={<MortgageTool/>} />
-            <Route path="/InsuranceAnalyzer" element={<InsuranceAnalyzer />} />
-            <Route path="/FinancialDashboard" element={<FinancialDashboard />} />
-          </Routes>
+          <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/RetirementCalculator" element={<RetirementCalc />} />
+              <Route path="/VacationPlanner" element={<VacationPlanner />} />
+              <Route path="/BudgetPlanner" element={<BudgetPlanner />} />
+              <Route path="/NetWorthCalculator" element={<NetWorthCalculator />} />
+              <Route path="/SavingPlanner" element={<SavingPlanner/>} />
+              <Route path="/MortgageTool" element={<MortgageTool/>} />
+              <Route path="/InsuranceAnalyzer" element={<InsuranceAnalyzer />} />
+              <Route path="/FinancialDashboard" element={<FinancialDashboard />} />
+              <Route path="/CapitalGainsAnalyzer" element={<CapitalGainsAnalyzer />} />
+              <Route path="/DebtPayoffPlanner" element={<DebtPayoffPlanner />} />
+              <Route path="/EmergencyFundCalculator" element={<EmergencyFundCalculator />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     </Router>

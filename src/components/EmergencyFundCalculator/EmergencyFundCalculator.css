@@ -1,0 +1,247 @@
+.ef-page {
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--primary-text-color);
+  padding-top: var(--header-height);
+}
+
+/* Header */
+.ef-header {
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+  border-bottom: 1px solid var(--primary-color);
+  padding: 1.5rem 0;
+  text-align: center;
+}
+.ef-header-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.ef-header-icon {
+  color: #22c55e;
+  margin-bottom: 0.5rem;
+}
+.ef-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  background: linear-gradient(135deg, #22c55e, #10b981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ef-subtitle {
+  color: var(--secondary-text-color);
+  font-size: 0.95rem;
+  margin: 0.25rem 0 0;
+}
+
+/* Main */
+.ef-main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Card */
+.ef-card {
+  background: var(--card-background, #111);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.ef-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  color: var(--primary-text-color);
+}
+
+/* Form */
+.ef-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.ef-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.ef-field label {
+  font-size: 0.82rem;
+  color: var(--secondary-text-color);
+  font-weight: 500;
+}
+.ef-field input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--primary-text-color);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.ef-field input:focus {
+  border-color: #22c55e;
+}
+.ef-hint {
+  font-size: 0.73rem;
+  color: var(--secondary-text-color);
+  opacity: 0.7;
+}
+
+/* Coverage buttons */
+.ef-target-row {
+  margin-top: 1.25rem;
+}
+.ef-target-row > label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--secondary-text-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+.ef-coverage-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ef-coverage-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--secondary-text-color);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ef-coverage-btn:hover {
+  border-color: #22c55e;
+  color: var(--primary-text-color);
+}
+.ef-coverage-btn.active {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+.ef-coverage-tier {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* Status card */
+.ef-status-card {
+  border-width: 1px;
+  border-style: solid;
+}
+.ef-status-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.ef-status-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.ef-status-desc {
+  color: var(--secondary-text-color);
+  font-size: 0.88rem;
+  margin-top: 2px;
+}
+
+/* Metrics grid */
+.ef-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.ef-metric {
+  background: var(--card-background, #111);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+}
+.ef-metric-label {
+  font-size: 0.78rem;
+  color: var(--secondary-text-color);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+.ef-metric-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-text-color);
+}
+.ef-metric-sub {
+  font-size: 0.75rem;
+  color: var(--secondary-text-color);
+  margin-top: 2px;
+}
+
+/* Tips */
+.ef-tips-card {}
+.ef-tips {
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.ef-tips strong {
+  color: var(--primary-text-color);
+}
+
+/* Export */
+.ef-export-row {
+  display: flex;
+  justify-content: flex-end;
+}
+.ef-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ef-export-btn:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+/* Empty state */
+.ef-empty {
+  text-align: center;
+  color: var(--secondary-text-color);
+  padding: 3rem 1rem;
+  font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .ef-title { font-size: 1.5rem; }
+  .ef-form-grid { grid-template-columns: 1fr; }
+  .ef-metrics-grid { grid-template-columns: 1fr 1fr; }
+}

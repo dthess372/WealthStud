@@ -83,22 +83,23 @@ export function generateAmortizationSchedule(loanDetails, extraPayments = {}) {
   const loanAmount = principal - downPayment;
   const rate = interestRate / 100;
   const monthlyRate = rate / 12;
+  const biWeeklyRate = rate / 26; // 26 bi-weekly periods per year
   const numberOfPayments = loanTerm * 12;
-  
+
   // Calculate base payment
   const basePayment = calculateMonthlyPayment(loanAmount, rate, loanTerm);
-  
+
   let remainingBalance = loanAmount;
   const schedule = [];
   let totalInterestPaid = 0;
   let month = 1;
-  
+
   const adjustedPayment = biWeekly ? basePayment / 2 : basePayment;
   const adjustedExtra = biWeekly ? monthlyExtra / 2 : monthlyExtra;
   const maxPayments = numberOfPayments * (biWeekly ? 2 : 1);
 
   while (remainingBalance > 0.01 && month <= maxPayments) {
-    const interestPayment = remainingBalance * (biWeekly ? monthlyRate / 2 : monthlyRate);
+    const interestPayment = remainingBalance * (biWeekly ? biWeeklyRate : monthlyRate);
     let principalPayment = adjustedPayment - interestPayment + adjustedExtra;
     
     // Don't overpay
