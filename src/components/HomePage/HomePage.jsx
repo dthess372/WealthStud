@@ -21,7 +21,8 @@ import {
 import { 
   FaRocket,
   FaChartLine,
-  FaShieldAlt
+  FaShieldAlt,
+  FaBalanceScale
 } from 'react-icons/fa';
 import { 
   BsStars
@@ -110,6 +111,15 @@ function HomePage() {
       description: 'Risk assessment with personalized coverage recommendations',
       tags: ['Protection'],
       colorClass: 'purple'
+    },
+    {
+      path: '/CapitalGainsAnalyzer',
+      icon: FaBalanceScale,
+      name: 'Capital Gains',
+      subtitle: 'Analyzer',
+      description: 'Tax-optimized capital gains analysis with bracket-aware calculations',
+      tags: ['Tax', 'Investing'],
+      colorClass: 'primary'
     }
   ];
 
