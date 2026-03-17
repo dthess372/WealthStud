@@ -1,4 +1,5 @@
 // Performance monitoring utilities for WealthStud
+import { useEffect } from 'react';
 
 /**
  * Simple performance timer for measuring operation duration
@@ -24,11 +25,11 @@ export function withPerformanceTracking(Component, componentName) {
   return function PerformanceTrackedComponent(props) {
     const timer = new PerformanceTimer(`${componentName} render`);
     
-    React.useEffect(() => {
+    useEffect(() => {
       timer.end();
     });
 
-    return React.createElement(Component, props);
+    return <Component {...props} />;
   };
 }
 
