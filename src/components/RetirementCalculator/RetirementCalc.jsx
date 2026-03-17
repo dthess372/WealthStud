@@ -101,8 +101,20 @@ const RetirementCalc = () => {
         
         // Project balance using shared utility
         const futureValue = calculateCompoundInterest(currentBalance, expectedReturn, 1, years);
-        const annuityValue = currentBalance > 0 ? (annualContribution * ((Math.pow(1 + expectedReturn, years) - 1) / expectedReturn)) : 0;
-        
+
+        // Growing annuity FV: accounts for annual salary raise on contributions
+        const raiseRate = parseNumber(generalInfo.annualRaise, 0) / 100;
+        let annuityValue = 0;
+        if (annualContribution > 0 && expectedReturn > 0) {
+          if (Math.abs(expectedReturn - raiseRate) < 0.0001) {
+            // Special case: r ≈ g
+            annuityValue = annualContribution * years * Math.pow(1 + expectedReturn, years - 1);
+          } else {
+            // Growing annuity future value formula
+            annuityValue = annualContribution * (Math.pow(1 + expectedReturn, years) - Math.pow(1 + raiseRate, years)) / (expectedReturn - raiseRate);
+          }
+        }
+
         totalBalance += futureValue + annuityValue;
       });
       
@@ -211,23 +223,56 @@ const RetirementCalc = () => {
       mockStatistics.byAccount[account.id] = [];
     });
     
+    const raiseRate = parseNumber(generalInfo.annualRaise, 0) / 100;
+
     // Generate year-by-year projections
     for (let year = 0; year < years; year++) {
       let totalMin = 0, totalQ1 = 0, totalMedian = 0, totalQ3 = 0, totalMax = 0;
-      
+      const n = year + 1;
+
       accounts.forEach(account => {
         const currentBalance = parseNumber(account.values.currentBalance);
         const expectedReturn = parseNumber(account.values.expectedReturn, 7) / 100;
-        
-        // Simple projection with variance
-        const baseValue = currentBalance * Math.pow(1 + expectedReturn, year + 1);
+
+        // Calculate annual contribution (same logic as calculateProjectedBalance)
+        let annualContribution = 0;
+        if (account.values.employeeContribution) {
+          annualContribution = parseNumber(account.values.employeeContribution);
+        } else if (account.values.employeeContributionPercent && generalInfo.currentSalary) {
+          annualContribution = generalInfo.currentSalary * (parseNumber(account.values.employeeContributionPercent) / 100);
+        } else if (account.values.annualContribution) {
+          annualContribution = parseNumber(account.values.annualContribution);
+        } else if (account.values.annualGrant) {
+          annualContribution = parseNumber(account.values.annualGrant);
+        }
+        if (account.values.employerMatch && generalInfo.currentSalary) {
+          annualContribution += generalInfo.currentSalary * (parseNumber(account.values.employerMatch) / 100);
+        }
+        if (account.values.employerContribution) {
+          annualContribution += parseNumber(account.values.employerContribution);
+        }
+
+        // Project balance: existing balance growth + growing annuity for contributions
+        const balanceGrowth = currentBalance * Math.pow(1 + expectedReturn, n);
+        let contributionFV = 0;
+        if (annualContribution > 0 && expectedReturn > 0) {
+          if (Math.abs(expectedReturn - raiseRate) < 0.0001) {
+            contributionFV = annualContribution * n * Math.pow(1 + expectedReturn, n - 1);
+          } else {
+            contributionFV = annualContribution * (Math.pow(1 + expectedReturn, n) - Math.pow(1 + raiseRate, n)) / (expectedReturn - raiseRate);
+          }
+        }
+        const baseValue = balanceGrowth + contributionFV;
+
+        // Variance bands that widen with time horizon (~12% annual portfolio volatility)
+        const sigma = 0.12 * Math.sqrt(n);
         const stats = {
           year: new Date().getFullYear() + year,
-          min: baseValue * 0.6,
-          q1: baseValue * 0.8,
+          min: baseValue * Math.max(0, 1 - 2 * sigma),
+          q1: baseValue * (1 - 0.674 * sigma),
           median: baseValue,
-          q3: baseValue * 1.2,
-          max: baseValue * 1.4
+          q3: baseValue * (1 + 0.674 * sigma),
+          max: baseValue * (1 + 2 * sigma)
         };
         
         mockStatistics.byAccount[account.id].push(stats);
