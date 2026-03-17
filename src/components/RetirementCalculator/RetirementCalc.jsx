@@ -417,8 +417,9 @@ const RetirementCalc = () => {
           </div>
             <div className="general-info-grid">
               <div className="input-group">
-                <label className="input-label">Birth Date</label>
+                <label className="input-label" htmlFor="rc-birth-date">Birth Date</label>
                 <input
+                  id="rc-birth-date"
                   type="date"
                   className="input-field"
                   value={generalInfo.birthDate}
@@ -429,9 +430,10 @@ const RetirementCalc = () => {
                 )}
               </div>
               <div className="input-group">
-                <label className="input-label">Current Annual Salary</label>
+                <label className="input-label" htmlFor="rc-annual-salary">Current Annual Salary</label>
                 <div className="input-wrapper">
                   <input
+                    id="rc-annual-salary"
                     type="number"
                     className="input-field"
                     value={generalInfo.currentSalary}
@@ -454,8 +456,9 @@ const RetirementCalc = () => {
                 </div>
               </div>
               <div className="input-group">
-                <label className="input-label">Target Retirement Age</label>
+                <label className="input-label" htmlFor="rc-retirement-age">Target Retirement Age</label>
                 <input
+                  id="rc-retirement-age"
                   type="number"
                   className="input-field"
                   value={generalInfo.retirementAge}

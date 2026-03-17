@@ -612,8 +612,9 @@ const CapitalGainsAnalyzer = () => {
           </div>
             <div className="settings-grid">
               <div className="input-group">
-                <label className="input-label">Filing Status</label>
-                <select 
+                <label className="input-label" htmlFor="cg-filing-status">Filing Status</label>
+                <select
+                  id="cg-filing-status"
                   className="input-field no-prefix"
                   value={taxSettings.filingStatus}
                   onChange={(e) => updateCapitalGainsData({
@@ -625,8 +626,9 @@ const CapitalGainsAnalyzer = () => {
                 </select>
               </div>
               <div className="input-group">
-                <label className="input-label">State</label>
-                <select 
+                <label className="input-label" htmlFor="cg-state">State</label>
+                <select
+                  id="cg-state"
                   className="input-field no-prefix"
                   value={taxSettings.state}
                   onChange={(e) => updateCapitalGainsData({
@@ -639,11 +641,12 @@ const CapitalGainsAnalyzer = () => {
                 </select>
               </div>
               <div className="input-group">
-                <label className="input-label">Taxable Income (for rate calculation)</label>
+                <label className="input-label" htmlFor="cg-taxable-income">Taxable Income (for rate calculation)</label>
                 <div className="input-wrapper">
                   <span className="input-prefix">$</span>
-                  <input 
-                    type="number" 
+                  <input
+                    id="cg-taxable-income"
+                    type="number"
                     className="input-field"
                     value={taxSettings.taxableIncome}
                     onChange={(e) => updateCapitalGainsData({
@@ -777,7 +780,6 @@ const CapitalGainsAnalyzer = () => {
                 </div>
               </div>
             </div>
-          </div>
         )}
 
         {/* Charts Section */}
@@ -825,7 +827,6 @@ const CapitalGainsAnalyzer = () => {
                 </div>
               </div>
             </div>
-          </div>
         )}
 
         {/* Export/Import Section */}
@@ -855,7 +856,6 @@ const CapitalGainsAnalyzer = () => {
               </label>
             </div>
           </div>
-        </div>
 
         {/* Trade Modal */}
         {showTradeModal && (
@@ -873,8 +873,9 @@ const CapitalGainsAnalyzer = () => {
               <div className="modal-body">
                 <div className="form-grid">
                   <div className="input-group">
-                    <label className="input-label">Asset Name</label>
+                    <label className="input-label" htmlFor="trade-asset">Asset Name</label>
                     <input
+                      id="trade-asset"
                       type="text"
                       className="input-field no-prefix"
                       value={newTrade.asset}
@@ -883,8 +884,9 @@ const CapitalGainsAnalyzer = () => {
                     />
                   </div>
                   <div className="input-group">
-                    <label className="input-label">Quantity</label>
+                    <label className="input-label" htmlFor="trade-quantity">Quantity</label>
                     <input
+                      id="trade-quantity"
                       type="number"
                       className="input-field no-prefix"
                       value={newTrade.quantity}
@@ -893,8 +895,9 @@ const CapitalGainsAnalyzer = () => {
                     />
                   </div>
                   <div className="input-group">
-                    <label className="input-label">Purchase Date</label>
+                    <label className="input-label" htmlFor="trade-purchase-date">Purchase Date</label>
                     <input
+                      id="trade-purchase-date"
                       type="date"
                       className="input-field no-prefix"
                       value={newTrade.purchaseDate}
@@ -902,8 +905,9 @@ const CapitalGainsAnalyzer = () => {
                     />
                   </div>
                   <div className="input-group">
-                    <label className="input-label">Sale Date</label>
+                    <label className="input-label" htmlFor="trade-sale-date">Sale Date</label>
                     <input
+                      id="trade-sale-date"
                       type="date"
                       className="input-field no-prefix"
                       value={newTrade.saleDate}
