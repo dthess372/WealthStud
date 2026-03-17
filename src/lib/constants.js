@@ -121,8 +121,9 @@ export const FILE_SETTINGS = {
   SUPPORTED_FILE_TYPES: ['.csv']
 };
 
-// Common Input Validation Rules
-export const VALIDATION_RULES = {
+// Generic input bounds used by utility functions.
+// For field-specific validation rules with error messages, see src/config/validationRules.js
+export const VALIDATION_BOUNDS = {
   INCOME: {
     MIN: 0,
     MAX: 10000000
