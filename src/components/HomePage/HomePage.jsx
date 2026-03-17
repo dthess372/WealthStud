@@ -120,6 +120,15 @@ function HomePage() {
       description: 'Tax-optimized capital gains analysis with bracket-aware calculations',
       tags: ['Tax', 'Investing'],
       colorClass: 'primary'
+    },
+    {
+      path: '/DebtPayoffPlanner',
+      icon: FaChartLine,
+      name: 'Debt Payoff',
+      subtitle: 'Planner',
+      description: 'Avalanche vs snowball strategy comparison with payoff timeline',
+      tags: ['Debt', 'Strategy'],
+      colorClass: 'primary'
     }
   ];
 

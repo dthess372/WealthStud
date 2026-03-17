@@ -12,6 +12,7 @@ const MortgageTool = lazy(() => import('./components/MortgageTool/MortgageTool')
 const InsuranceAnalyzer = lazy(() => import('./components/InsuranceAnalyzer/InsuranceAnalyzer'));
 const FinancialDashboard = lazy(() => import('./components/FinancialDashboard/FinancialDashboard'));
 const CapitalGainsAnalyzer = lazy(() => import('./components/CapitalGainsAnalyzer/CapitalGainsAnalyzer'));
+const DebtPayoffPlanner = lazy(() => import('./components/DebtPayoffPlanner/DebtPayoffPlanner'));
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/InsuranceAnalyzer" element={<InsuranceAnalyzer />} />
               <Route path="/FinancialDashboard" element={<FinancialDashboard />} />
               <Route path="/CapitalGainsAnalyzer" element={<CapitalGainsAnalyzer />} />
+              <Route path="/DebtPayoffPlanner" element={<DebtPayoffPlanner />} />
             </Routes>
           </Suspense>
         </main>
