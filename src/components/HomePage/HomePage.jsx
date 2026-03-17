@@ -167,7 +167,7 @@ function HomePage() {
               </div>
               <div className='value-text'>
                 <h4>Privacy-First Design</h4>
-                <p>All calculations happen locally in your browser. Your financial data never leaves your device.</p>
+                <p>All calculations happen locally in your browser. Your financial data never leaves your device. Data you enter is saved in your browser's local storage for convenience — it is not encrypted, so avoid using shared or public computers for sensitive information.</p>
               </div>
             </div>
             <div className='value-point'>
