@@ -165,7 +165,8 @@ export const STORAGE_KEYS = {
   VACATION_DATA: 'wealthstud_vacation_data',
   FINANCIAL_DASHBOARD: 'wealthstud_financial_dashboard',
   USER_PREFERENCES: 'wealthstud_preferences',
-  DEBT_PLANNER_DATA: 'wealthstud_debt_planner_data'
+  DEBT_PLANNER_DATA: 'wealthstud_debt_planner_data',
+  EMERGENCY_FUND_DATA: 'wealthstud_emergency_fund_data'
 };
 
 // Chart Configuration Defaults

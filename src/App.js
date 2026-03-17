@@ -13,6 +13,7 @@ const InsuranceAnalyzer = lazy(() => import('./components/InsuranceAnalyzer/Insu
 const FinancialDashboard = lazy(() => import('./components/FinancialDashboard/FinancialDashboard'));
 const CapitalGainsAnalyzer = lazy(() => import('./components/CapitalGainsAnalyzer/CapitalGainsAnalyzer'));
 const DebtPayoffPlanner = lazy(() => import('./components/DebtPayoffPlanner/DebtPayoffPlanner'));
+const EmergencyFundCalculator = lazy(() => import('./components/EmergencyFundCalculator/EmergencyFundCalculator'));
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/FinancialDashboard" element={<FinancialDashboard />} />
               <Route path="/CapitalGainsAnalyzer" element={<CapitalGainsAnalyzer />} />
               <Route path="/DebtPayoffPlanner" element={<DebtPayoffPlanner />} />
+              <Route path="/EmergencyFundCalculator" element={<EmergencyFundCalculator />} />
             </Routes>
           </Suspense>
         </main>
