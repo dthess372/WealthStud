@@ -23,7 +23,8 @@ import {
   FaChartLine,
   FaShieldAlt,
   FaBalanceScale,
-  FaPiggyBank
+  FaPiggyBank,
+  FaGraduationCap
 } from 'react-icons/fa';
 import { 
   BsStars
@@ -139,6 +140,15 @@ function HomePage() {
       description: 'Build your safety net with savings growth projections and coverage analysis',
       tags: ['Essential', 'Safety'],
       colorClass: 'primary'
+    },
+    {
+      path: '/CollegeSavingsCalculator',
+      icon: FaGraduationCap,
+      name: 'College Savings',
+      subtitle: 'Calculator',
+      description: '529 plan projections with year-by-year balance vs. cost analysis and funding gap',
+      tags: ['Education', 'Family'],
+      colorClass: 'purple'
     }
   ];
 
