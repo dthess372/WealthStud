@@ -441,9 +441,10 @@ const SavingPlanner = () => {
                   Personal Information
                 </h3>
                 <div className="input-group">
-                  <label className="input-label">Current Age</label>
+                  <label className="input-label" htmlFor="sp-currentAge">Current Age</label>
                   <div className="input-wrapper">
                     <input
+                      id="sp-currentAge"
                       type="number"
                       name="currentAge"
                       value={savingsData.currentAge}
@@ -455,9 +456,10 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Retirement Age</label>
+                  <label className="input-label" htmlFor="sp-retirementAge">Retirement Age</label>
                   <div className="input-wrapper">
                     <input
+                      id="sp-retirementAge"
                       type="number"
                       name="retirementAge"
                       value={savingsData.retirementAge}
@@ -469,10 +471,11 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Current Savings</label>
+                  <label className="input-label" htmlFor="sp-currentSavings">Current Savings</label>
                   <div className="input-wrapper">
                     <span className="input-prefix">$</span>
                     <input
+                      id="sp-currentSavings"
                       type="number"
                       name="currentSavings"
                       value={savingsData.currentSavings}
@@ -489,10 +492,11 @@ const SavingPlanner = () => {
                   Income & Contributions
                 </h3>
                 <div className="input-group">
-                  <label className="input-label">Monthly Income</label>
+                  <label className="input-label" htmlFor="sp-monthlyIncome">Monthly Income</label>
                   <div className="input-wrapper">
                     <span className="input-prefix">$</span>
                     <input
+                      id="sp-monthlyIncome"
                       type="number"
                       name="monthlyIncome"
                       value={savingsData.monthlyIncome}
@@ -503,9 +507,10 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Savings Rate</label>
+                  <label className="input-label" htmlFor="sp-savingsRate">Savings Rate</label>
                   <div className="input-wrapper">
                     <input
+                      id="sp-savingsRate"
                       type="number"
                       name="savingsRate"
                       value={savingsData.savingsRate}
@@ -518,9 +523,10 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Annual Raise</label>
+                  <label className="input-label" htmlFor="sp-annualRaise">Annual Raise</label>
                   <div className="input-wrapper">
                     <input
+                      id="sp-annualRaise"
                       type="number"
                       name="annualRaise"
                       value={savingsData.annualRaise}
@@ -540,9 +546,10 @@ const SavingPlanner = () => {
                   Economic Assumptions
                 </h3>
                 <div className="input-group">
-                  <label className="input-label">Expected Inflation Rate</label>
+                  <label className="input-label" htmlFor="sp-inflationRate">Expected Inflation Rate</label>
                   <div className="input-wrapper">
                     <input
+                      id="sp-inflationRate"
                       type="number"
                       name="inflationRate"
                       value={savingsData.inflationRate}
@@ -556,10 +563,11 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Monthly Contribution</label>
+                  <label className="input-label" htmlFor="sp-monthlyContribution">Monthly Contribution</label>
                   <div className="input-wrapper">
                     <span className="input-prefix">$</span>
                     <input
+                      id="sp-monthlyContribution"
                       type="text"
                       value={(savingsData.monthlyIncome * savingsData.savingsRate / 100).toFixed(0)}
                       className="input-field"
@@ -853,8 +861,9 @@ const SavingPlanner = () => {
               </div>
               <div className="goal-modal-body">
                 <div className="input-group">
-                  <label className="input-label">Goal Name</label>
+                  <label className="input-label" htmlFor="sp-goal-name">Goal Name</label>
                   <input
+                    id="sp-goal-name"
                     type="text"
                     className="input-field"
                     placeholder="e.g., Down Payment, Vacation"
@@ -863,10 +872,11 @@ const SavingPlanner = () => {
                   />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Target Amount</label>
+                  <label className="input-label" htmlFor="sp-goal-target">Target Amount</label>
                   <div className="input-wrapper">
                     <span className="input-prefix">$</span>
                     <input
+                      id="sp-goal-target"
                       type="number"
                       className="input-field"
                       placeholder="0"
@@ -876,10 +886,11 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Current Amount</label>
+                  <label className="input-label" htmlFor="sp-goal-current">Current Amount</label>
                   <div className="input-wrapper">
                     <span className="input-prefix">$</span>
                     <input
+                      id="sp-goal-current"
                       type="number"
                       className="input-field"
                       placeholder="0"
@@ -889,8 +900,9 @@ const SavingPlanner = () => {
                   </div>
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Target Date</label>
+                  <label className="input-label" htmlFor="sp-goal-date">Target Date</label>
                   <input
+                    id="sp-goal-date"
                     type="date"
                     className="input-field"
                     value={newGoal.targetDate}
@@ -898,8 +910,9 @@ const SavingPlanner = () => {
                   />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Priority</label>
+                  <label className="input-label" htmlFor="sp-goal-priority">Priority</label>
                   <select
+                    id="sp-goal-priority"
                     className="input-field"
                     value={newGoal.priority}
                     onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value })}

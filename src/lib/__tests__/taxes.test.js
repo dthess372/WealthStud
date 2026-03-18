@@ -16,15 +16,15 @@ import {
 describe('Federal Tax Calculations', () => {
   describe('calculateFederalTax', () => {
     test('should calculate federal tax for single filer correctly', () => {
-      // Test 2024 tax brackets for single filer (using taxable income, not gross)
+      // Test 2025 tax brackets for single filer (using taxable income, not gross)
       expect(calculateFederalTax(10000, 'single')).toBeCloseTo(1000, 0); // 10% bracket
-      expect(calculateFederalTax(50000, 'single')).toBeCloseTo(6053, 0); // Multiple brackets
-      expect(calculateFederalTax(100000, 'single')).toBeCloseTo(17053, 0); // Higher brackets (actual calculation)
+      expect(calculateFederalTax(50000, 'single')).toBeCloseTo(5914, 0); // Multiple brackets
+      expect(calculateFederalTax(100000, 'single')).toBeCloseTo(16914, 0); // Higher brackets (actual calculation)
     });
 
     test('should calculate federal tax for married filing jointly', () => {
-      expect(calculateFederalTax(50000, 'married')).toBeCloseTo(5536, 0); // Actual calculation
-      expect(calculateFederalTax(100000, 'married')).toBeCloseTo(12106, 0); // Actual calculation: $2,320 + $8,532 + $1,254
+      expect(calculateFederalTax(50000, 'married')).toBeCloseTo(5523, 0); // Actual calculation
+      expect(calculateFederalTax(100000, 'married')).toBeCloseTo(11828, 0); // Actual calculation
     });
 
     test('should handle zero income', () => {
@@ -124,7 +124,7 @@ describe('Payroll Tax Calculations', () => {
     });
 
     test('should cap at Social Security wage base', () => {
-      const wageBase = 168600; // 2024 wage base
+      const wageBase = 176100; // 2025 wage base
       const maxTax = wageBase * 0.062;
       
       expect(calculateSocialSecurityTax(200000)).toBeCloseTo(maxTax, 1);
@@ -248,7 +248,7 @@ describe('Comprehensive Tax Calculations', () => {
       
       // Should be gross income minus standard deduction
       expect(taxableIncome).toBeLessThan(100000);
-      expect(taxableIncome).toBeGreaterThan(85000); // Approximate standard deduction
+      expect(taxableIncome).toBeGreaterThanOrEqual(85000); // Approximate standard deduction
     });
 
     test('should handle additional pre-tax deductions', () => {
