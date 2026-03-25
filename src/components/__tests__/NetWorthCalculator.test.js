@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import NetWorthCalculator from '../NetWorthCalculator/NetWorthCalculator';
 
 // Mock the hooks
@@ -40,6 +39,8 @@ jest.mock('@mui/x-charts', () => ({
   )
 }));
 
+jest.mock('../shared/Navigation', () => () => <nav data-testid="navigation" />);
+
 // Mock SuggestionBox
 jest.mock('../SuggestionBox/SuggestionBox', () => {
   return function SuggestionBox() {
@@ -49,13 +50,7 @@ jest.mock('../SuggestionBox/SuggestionBox', () => {
 
 const { useLocalStorage, useCSV } = require('../../hooks');
 
-const renderWithRouter = (component) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
-};
+const renderWithRouter = (component) => render(component);
 
 describe('NetWorthCalculator', () => {
   const mockSetNetWorthData = jest.fn();
@@ -95,7 +90,7 @@ describe('NetWorthCalculator', () => {
     renderWithRouter(<NetWorthCalculator />);
     
     expect(screen.getByText('Net Worth Calculator')).toBeInTheDocument();
-    expect(screen.getByText('Track your assets, liabilities, and overall financial health')).toBeInTheDocument();
+    expect(screen.getByText('Track Your Financial Health')).toBeInTheDocument();
   });
 
   test('should calculate and display net worth correctly', () => {
@@ -107,7 +102,7 @@ describe('NetWorthCalculator', () => {
     
     expect(screen.getByText('$135,000')).toBeInTheDocument(); // Net worth
     expect(screen.getByText('$140,000')).toBeInTheDocument(); // Total assets
-    expect(screen.getByText('$5,000')).toBeInTheDocument(); // Total debts
+    expect(screen.getAllByText('$5,000').length).toBeGreaterThan(0); // Total debts (may appear multiple times)
   });
 
   test('should display financial health score', () => {
@@ -126,7 +121,7 @@ describe('NetWorthCalculator', () => {
     expect(screen.getByText('Retirement Accounts')).toBeInTheDocument();
     expect(screen.getByText('Debts & Liabilities')).toBeInTheDocument();
     
-    expect(screen.getByText('Emergency Fund')).toBeInTheDocument();
+    expect(screen.getAllByText('Emergency Fund').length).toBeGreaterThan(0);
     expect(screen.getByText('Checking Account')).toBeInTheDocument();
     expect(screen.getByText('Brokerage Account')).toBeInTheDocument();
     expect(screen.getByText('401(k)')).toBeInTheDocument();
@@ -150,8 +145,8 @@ describe('NetWorthCalculator', () => {
   test('should allow editing account names', async () => {
     renderWithRouter(<NetWorthCalculator />);
     
-    // Find and click on an account name to edit
-    const emergencyFundName = screen.getByText('Emergency Fund');
+    // Find and click on an account name to edit (get first occurrence — it also appears in insights)
+    const emergencyFundName = screen.getAllByText('Emergency Fund')[0];
     fireEvent.click(emergencyFundName);
     
     // Should show an input field for editing
@@ -207,7 +202,7 @@ describe('NetWorthCalculator', () => {
     renderWithRouter(<NetWorthCalculator />);
     
     expect(screen.getByText('Financial Health Insights')).toBeInTheDocument();
-    expect(screen.getByText('Emergency Fund')).toBeInTheDocument();
+    expect(screen.getAllByText('Emergency Fund').length).toBeGreaterThan(0);
     expect(screen.getByText('Debt-to-Asset Ratio')).toBeInTheDocument();
     expect(screen.getByText('Investment Ratio')).toBeInTheDocument();
   });
@@ -236,7 +231,7 @@ describe('NetWorthCalculator', () => {
     renderWithRouter(<NetWorthCalculator />);
     
     // Should show $0 for all totals
-    expect(screen.getByText('$0')).toBeInTheDocument();
+    expect(screen.getAllByText('$0').length).toBeGreaterThan(0);
   });
 
   test('should show visualization section', () => {

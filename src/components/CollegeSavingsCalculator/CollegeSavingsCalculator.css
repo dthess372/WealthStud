@@ -1,0 +1,257 @@
+.cs-page {
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--primary-text-color);
+  padding-top: var(--header-height);
+}
+
+/* Header */
+.cs-header {
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+  border-bottom: 1px solid var(--primary-color);
+  padding: 1.5rem 0;
+  text-align: center;
+}
+.cs-header-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.cs-header-icon {
+  color: #3b82f6;
+  margin-bottom: 0.5rem;
+}
+.cs-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.cs-subtitle {
+  color: var(--secondary-text-color);
+  font-size: 0.95rem;
+  margin: 0.25rem 0 0;
+}
+
+/* Main */
+.cs-main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Card */
+.cs-card {
+  background: var(--card-background, #111);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+.cs-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  color: var(--primary-text-color);
+}
+
+/* Form */
+.cs-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.cs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.cs-field label {
+  font-size: 0.82rem;
+  color: var(--secondary-text-color);
+  font-weight: 500;
+}
+.cs-field input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--primary-text-color);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.cs-field input:focus {
+  border-color: #3b82f6;
+}
+.cs-hint {
+  font-size: 0.73rem;
+  color: var(--secondary-text-color);
+  opacity: 0.7;
+}
+.cs-hint-inline {
+  font-size: 0.73rem;
+  color: var(--secondary-text-color);
+  opacity: 0.7;
+  font-weight: normal;
+}
+
+/* Selectors */
+.cs-selector-row {
+  margin-top: 1.25rem;
+}
+.cs-selector-row > label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--secondary-text-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+.cs-preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cs-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--secondary-text-color);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cs-preset-btn:hover {
+  border-color: #3b82f6;
+  color: var(--primary-text-color);
+}
+.cs-preset-btn.active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+.cs-preset-sub {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+.cs-return-override {
+  margin-top: 0.75rem;
+  max-width: 160px;
+}
+
+/* Status card */
+.cs-status-card {
+  border-width: 1px;
+  border-style: solid;
+}
+.cs-status-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.cs-status-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.cs-status-desc {
+  color: var(--secondary-text-color);
+  font-size: 0.88rem;
+  margin-top: 2px;
+}
+
+/* Metrics */
+.cs-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.cs-metric {
+  background: var(--card-background, #111);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+}
+.cs-metric-label {
+  font-size: 0.78rem;
+  color: var(--secondary-text-color);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+.cs-metric-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-text-color);
+}
+.cs-metric-sub {
+  font-size: 0.75rem;
+  color: var(--secondary-text-color);
+  margin-top: 2px;
+}
+
+/* Tips */
+.cs-tips {
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.cs-tips strong {
+  color: var(--primary-text-color);
+}
+
+/* Export */
+.cs-export-row {
+  display: flex;
+  justify-content: flex-end;
+}
+.cs-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cs-export-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+/* Empty state */
+.cs-empty {
+  text-align: center;
+  color: var(--secondary-text-color);
+  padding: 3rem 1rem;
+  font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .cs-title { font-size: 1.5rem; }
+  .cs-form-grid { grid-template-columns: 1fr; }
+  .cs-metrics-grid { grid-template-columns: 1fr 1fr; }
+  .cs-return-override { max-width: 100%; }
+}

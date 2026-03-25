@@ -524,8 +524,9 @@ const BudgetPlanner = () => {
                     </div>
 
                     <div className="input-group">
-                      <label className="input-label">Filing Status</label>
-                      <select 
+                      <label className="input-label" htmlFor="bp-filing-status">Filing Status</label>
+                      <select
+                        id="bp-filing-status"
                         className="input-field width-md"
                         value={filingStatus}
                         onChange={(e) => updateBudgetData({ filingStatus: e.target.value })}
@@ -535,8 +536,9 @@ const BudgetPlanner = () => {
                       </select>
                     </div>
                     <div className="input-group">
-                      <label className="input-label">State</label>
-                      <select 
+                      <label className="input-label" htmlFor="bp-state">State</label>
+                      <select
+                        id="bp-state"
                         className="input-field width-md"
                         value={selectedState}
                         onChange={(e) => updateBudgetData({ selectedState: e.target.value })}

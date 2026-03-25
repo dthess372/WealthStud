@@ -745,8 +745,9 @@ const InsuranceAnalyzer = () => {
           </div>
             <div className="input-grid">
               <div className="input-group">
-                <label>Your Age</label>
+                <label htmlFor="ia-age">Your Age</label>
                 <input
+                  id="ia-age"
                   type="number"
                   value={generalInfo.age}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, age: parseInt(e.target.value) || 0 })}
@@ -755,8 +756,9 @@ const InsuranceAnalyzer = () => {
                 />
               </div>
               <div className="input-group">
-                <label>State</label>
-                <select 
+                <label htmlFor="ia-state">State</label>
+                <select
+                  id="ia-state"
                   value={generalInfo.state}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, state: e.target.value })}
                 >
@@ -768,8 +770,9 @@ const InsuranceAnalyzer = () => {
                 </select>
               </div>
               <div className="input-group">
-                <label>Number of Dependents</label>
+                <label htmlFor="ia-dependents">Number of Dependents</label>
                 <input
+                  id="ia-dependents"
                   type="number"
                   value={generalInfo.dependents}
                   onChange={(e) => setGeneralInfo({ ...generalInfo, dependents: parseInt(e.target.value) || 0 })}
@@ -778,10 +781,11 @@ const InsuranceAnalyzer = () => {
                 />
               </div>
               <div className="input-group">
-                <label>Annual Income</label>
+                <label htmlFor="ia-annual-income">Annual Income</label>
                 <div className="input-wrapper">
                   <span className="prefix">$</span>
                   <input
+                    id="ia-annual-income"
                     type="number"
                     value={generalInfo.annualIncome}
                     onChange={(e) => setGeneralInfo({ ...generalInfo, annualIncome: parseInt(e.target.value) || 0 })}
@@ -822,10 +826,11 @@ const InsuranceAnalyzer = () => {
                   </div>
                     <div className="input-grid">
                       <div className="input-group">
-                        <label>Current Life Insurance Coverage</label>
+                        <label htmlFor="ia-life-current-coverage">Current Life Insurance Coverage</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-life-current-coverage"
                             type="number"
                             value={lifeInsurance.currentCoverage}
                             onChange={(e) => setLifeInsurance({ ...lifeInsurance, currentCoverage: parseInt(e.target.value) || 0 })}
@@ -834,10 +839,11 @@ const InsuranceAnalyzer = () => {
                         </div>
                       </div>
                       <div className="input-group">
-                        <label>Employer-Provided Coverage</label>
+                        <label htmlFor="ia-life-employer-coverage">Employer-Provided Coverage</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-life-employer-coverage"
                             type="number"
                             value={lifeInsurance.employerCoverage}
                             onChange={(e) => setLifeInsurance({ ...lifeInsurance, employerCoverage: parseInt(e.target.value) || 0 })}
@@ -846,8 +852,9 @@ const InsuranceAnalyzer = () => {
                         </div>
                       </div>
                       <div className="input-group">
-                        <label>Years of Income to Replace</label>
+                        <label htmlFor="ia-life-years-income">Years of Income to Replace</label>
                         <input
+                          id="ia-life-years-income"
                           type="number"
                           value={lifeInsurance.yearsOfIncome}
                           onChange={(e) => setLifeInsurance({ ...lifeInsurance, yearsOfIncome: parseInt(e.target.value) || 0 })}
@@ -856,8 +863,9 @@ const InsuranceAnalyzer = () => {
                         />
                       </div>
                       <div className="input-group">
-                        <label>Insurance Type Preference</label>
-                        <select 
+                        <label htmlFor="ia-life-type">Insurance Type Preference</label>
+                        <select
+                          id="ia-life-type"
                           value={lifeInsurance.insuranceType}
                           onChange={(e) => setLifeInsurance({ ...lifeInsurance, insuranceType: e.target.value })}
                         >
@@ -925,8 +933,9 @@ const InsuranceAnalyzer = () => {
                           </div>
                           <div className="input-grid">
                             <div className="input-group">
-                              <label>Year</label>
+                              <label htmlFor={`ia-vehicle-${vehicle.id}-year`}>Year</label>
                               <input
+                                id={`ia-vehicle-${vehicle.id}-year`}
                                 type="number"
                                 value={vehicle.year}
                                 onChange={(e) => updateVehicle(vehicle.id, 'year', parseInt(e.target.value) || 2020)}
@@ -935,8 +944,9 @@ const InsuranceAnalyzer = () => {
                               />
                             </div>
                             <div className="input-group">
-                              <label>Make</label>
+                              <label htmlFor={`ia-vehicle-${vehicle.id}-make`}>Make</label>
                               <input
+                                id={`ia-vehicle-${vehicle.id}-make`}
                                 type="text"
                                 value={vehicle.make}
                                 onChange={(e) => updateVehicle(vehicle.id, 'make', e.target.value)}
@@ -944,8 +954,9 @@ const InsuranceAnalyzer = () => {
                               />
                             </div>
                             <div className="input-group">
-                              <label>Model</label>
+                              <label htmlFor={`ia-vehicle-${vehicle.id}-model`}>Model</label>
                               <input
+                                id={`ia-vehicle-${vehicle.id}-model`}
                                 type="text"
                                 value={vehicle.model}
                                 onChange={(e) => updateVehicle(vehicle.id, 'model', e.target.value)}
@@ -953,10 +964,11 @@ const InsuranceAnalyzer = () => {
                               />
                             </div>
                             <div className="input-group">
-                              <label>Current Value</label>
+                              <label htmlFor={`ia-vehicle-${vehicle.id}-value`}>Current Value</label>
                               <div className="input-wrapper">
                                 <span className="prefix">$</span>
                                 <input
+                                  id={`ia-vehicle-${vehicle.id}-value`}
                                   type="number"
                                   value={vehicle.value}
                                   onChange={(e) => updateVehicle(vehicle.id, 'value', parseInt(e.target.value) || 0)}
@@ -971,8 +983,9 @@ const InsuranceAnalyzer = () => {
 
                     <div className="input-grid" style={{ marginTop: '2rem' }}>
                       <div className="input-group">
-                        <label>Driving Record</label>
-                        <select 
+                        <label htmlFor="ia-auto-driving-record">Driving Record</label>
+                        <select
+                          id="ia-auto-driving-record"
                           value={autoInsurance.drivingRecord}
                           onChange={(e) => setAutoInsurance({ ...autoInsurance, drivingRecord: e.target.value })}
                         >
@@ -982,10 +995,11 @@ const InsuranceAnalyzer = () => {
                         </select>
                       </div>
                       <div className="input-group">
-                        <label>Current Annual Premium</label>
+                        <label htmlFor="ia-auto-current-premium">Current Annual Premium</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-auto-current-premium"
                             type="number"
                             value={autoInsurance.currentPremium}
                             onChange={(e) => setAutoInsurance({ ...autoInsurance, currentPremium: parseInt(e.target.value) || 0 })}
@@ -1032,10 +1046,11 @@ const InsuranceAnalyzer = () => {
                   </div>
                     <div className="input-grid">
                       <div className="input-group">
-                        <label>Home Value</label>
+                        <label htmlFor="ia-home-value">Home Value</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-home-value"
                             type="number"
                             value={homeInsurance.homeValue}
                             onChange={(e) => setHomeInsurance({ ...homeInsurance, homeValue: parseInt(e.target.value) || 0 })}
@@ -1044,8 +1059,9 @@ const InsuranceAnalyzer = () => {
                         </div>
                       </div>
                       <div className="input-group">
-                        <label>Year Built</label>
+                        <label htmlFor="ia-home-year-built">Year Built</label>
                         <input
+                          id="ia-home-year-built"
                           type="number"
                           value={homeInsurance.yearBuilt}
                           onChange={(e) => setHomeInsurance({ ...homeInsurance, yearBuilt: parseInt(e.target.value) || 2000 })}
@@ -1054,8 +1070,9 @@ const InsuranceAnalyzer = () => {
                         />
                       </div>
                       <div className="input-group">
-                        <label>Square Feet</label>
+                        <label htmlFor="ia-home-sqft">Square Feet</label>
                         <input
+                          id="ia-home-sqft"
                           type="number"
                           value={homeInsurance.squareFeet}
                           onChange={(e) => setHomeInsurance({ ...homeInsurance, squareFeet: parseInt(e.target.value) || 0 })}
@@ -1063,8 +1080,9 @@ const InsuranceAnalyzer = () => {
                         />
                       </div>
                       <div className="input-group">
-                        <label>Deductible</label>
-                        <select 
+                        <label htmlFor="ia-home-deductible">Deductible</label>
+                        <select
+                          id="ia-home-deductible"
                           value={homeInsurance.deductible}
                           onChange={(e) => setHomeInsurance({ ...homeInsurance, deductible: parseInt(e.target.value) })}
                         >
@@ -1139,10 +1157,11 @@ const InsuranceAnalyzer = () => {
                   </div>
                     <div className="input-grid">
                       <div className="input-group">
-                        <label>Monthly Premium</label>
+                        <label htmlFor="ia-health-premium">Monthly Premium</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-health-premium"
                             type="number"
                             value={healthInsurance.currentPremium}
                             onChange={(e) => setHealthInsurance({ ...healthInsurance, currentPremium: parseInt(e.target.value) || 0 })}
@@ -1151,10 +1170,11 @@ const InsuranceAnalyzer = () => {
                         </div>
                       </div>
                       <div className="input-group">
-                        <label>Employer Contribution</label>
+                        <label htmlFor="ia-health-employer">Employer Contribution</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-health-employer"
                             type="number"
                             value={healthInsurance.employerContribution}
                             onChange={(e) => setHealthInsurance({ ...healthInsurance, employerContribution: parseInt(e.target.value) || 0 })}
@@ -1163,10 +1183,11 @@ const InsuranceAnalyzer = () => {
                         </div>
                       </div>
                       <div className="input-group">
-                        <label>Annual Deductible</label>
+                        <label htmlFor="ia-health-deductible">Annual Deductible</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-health-deductible"
                             type="number"
                             value={healthInsurance.deductible}
                             onChange={(e) => setHealthInsurance({ ...healthInsurance, deductible: parseInt(e.target.value) || 0 })}
@@ -1175,10 +1196,11 @@ const InsuranceAnalyzer = () => {
                         </div>
                       </div>
                       <div className="input-group">
-                        <label>Expected Annual Medical Costs</label>
+                        <label htmlFor="ia-health-medical-costs">Expected Annual Medical Costs</label>
                         <div className="input-wrapper">
                           <span className="prefix">$</span>
                           <input
+                            id="ia-health-medical-costs"
                             type="number"
                             value={healthInsurance.expectedMedicalCosts}
                             onChange={(e) => setHealthInsurance({ ...healthInsurance, expectedMedicalCosts: parseInt(e.target.value) || 0 })}
